@@ -153,69 +153,65 @@ scene.add(road);
 
 // SIDEWALKS
 
-const leftSidewalkTop =
+const leftSidewalkNorth =
 new THREE.Mesh(
-    new THREE.BoxGeometry(10,0.12,1975),
+
+    new THREE.BoxGeometry(
+        10,
+        0.12,
+        1980
+    ),
+
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
+
 );
 
-leftSidewalkTop.position.set(
+leftSidewalkNorth.position.set(
     -15,
     0.06,
-    -1012.5
+    -1010
 );
 
-scene.add(leftSidewalkTop);
+scene.add(leftSidewalkNorth);
 
-const leftSidewalkBottom =
+const leftSidewalkSouth =
 new THREE.Mesh(
-    new THREE.BoxGeometry(10,0.12,4525),
+
+    new THREE.BoxGeometry(
+        10,
+        0.12,
+        2520
+    ),
+
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
+
 );
 
-leftSidewalkBottom.position.set(
+leftSidewalkSouth.position.set(
     -15,
     0.06,
-    1237.5
+    1240
 );
 
-scene.add(leftSidewalkBottom);
+scene.add(leftSidewalkSouth);
 
-const rightSidewalkTop =
-new THREE.Mesh(
-    new THREE.BoxGeometry(10,0.12,1975),
-    new THREE.MeshLambertMaterial({
-        color:0x555555
-    })
-);
+const rightSidewalkNorth =
+leftSidewalkNorth.clone();
 
-rightSidewalkTop.position.set(
-    15,
-    0.06,
-    -1012.5
-);
+rightSidewalkNorth.position.x = 15;
 
-scene.add(rightSidewalkTop);
+scene.add(rightSidewalkNorth);
 
-const rightSidewalkBottom =
-new THREE.Mesh(
-    new THREE.BoxGeometry(10,0.12,4525),
-    new THREE.MeshLambertMaterial({
-        color:0x555555
-    })
-);
+const rightSidewalkSouth =
+leftSidewalkSouth.clone();
 
-rightSidewalkBottom.position.set(
-    15,
-    0.06,
-    1237.5
-);
+rightSidewalkSouth.position.x = 15;
 
-scene.add(rightSidewalkBottom);
+scene.add(rightSidewalkSouth);
 
 // VERTICAL CENTER LINE
 
@@ -280,91 +276,67 @@ crossRoad.position.set(
 
 scene.add(crossRoad);
 
-// HORIZONTAL SIDEWALK LEFT
+// HORIZONTAL SIDEWALKS
 
 const topSidewalkLeft =
 new THREE.Mesh(
+
     new THREE.BoxGeometry(
-        2450,
+        2400,
         0.12,
         10
     ),
+
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
+
 );
 
 topSidewalkLeft.position.set(
-    -1275,
+    -1300,
     0.06,
     440
 );
 
 scene.add(topSidewalkLeft);
 
-// HORIZONTAL SIDEWALK RIGHT
-
 const topSidewalkRight =
-new THREE.Mesh(
-    new THREE.BoxGeometry(
-        2450,
-        0.12,
-        10
-    ),
-    new THREE.MeshLambertMaterial({
-        color:0x555555
-    })
-);
+topSidewalkLeft.clone();
 
-topSidewalkRight.position.set(
-    1275,
-    0.06,
-    440
-);
+topSidewalkRight.position.x =
+1300;
 
 scene.add(topSidewalkRight);
 
-// BOTTOM LEFT
-
 const bottomSidewalkLeft =
 new THREE.Mesh(
+
     new THREE.BoxGeometry(
-        2450,
+        2400,
         0.12,
         10
     ),
+
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
+
 );
 
 bottomSidewalkLeft.position.set(
-    -1275,
+    -1300,
     0.06,
     410
 );
 
 scene.add(bottomSidewalkLeft);
 
-// BOTTOM RIGHT
-
 const bottomSidewalkRight =
-new THREE.Mesh(
-    new THREE.BoxGeometry(
-        2450,
-        0.12,
-        10
-    ),
-    new THREE.MeshLambertMaterial({
-        color:0x555555
-    })
-);
+bottomSidewalkLeft.clone();
 
-bottomSidewalkRight.position.set(
-    1275,
-    0.06,
-    410
-);
+bottomSidewalkRight.position.x =
+1300;
 
 scene.add(bottomSidewalkRight);
 
@@ -581,7 +553,7 @@ function addBuilding(
         for(
             let i=-10;
             i<=10;
-            i+=3
+            i+=5
         ){
 
             const color =
@@ -694,7 +666,7 @@ addBuilding(
 for(
     let z=-2400;
     z<=2400;
-    z+=80
+    z+=150
 ){
 
     addBuilding(
@@ -716,6 +688,99 @@ for(
     );
 
 }
+
+// TRAFFIC LIGHTS
+
+function addTrafficLight(x,z){
+
+    const pole =
+    new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+            0.15,
+            0.15,
+            5
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x222222
+        })
+
+    );
+
+    pole.position.set(
+        x,
+        2.5,
+        z
+    );
+
+    scene.add(pole);
+
+    const arm =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            2,
+            0.15,
+            0.15
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x222222
+        })
+
+    );
+
+    arm.position.set(
+        x+1,
+        5,
+        z
+    );
+
+    scene.add(arm);
+
+    const body =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            1.8,
+            0.8,
+            0.8
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x333333
+        })
+
+    );
+
+    body.position.set(
+        x+2,
+        5,
+        z
+    );
+
+    scene.add(body);
+
+    const green =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            0.15,
+            12,
+            12
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0x00ff00
+        })
+
+    );
+
+    green.position.set(
+        x+1.4,
+        5,
+        z+0.45
 
 // CAR
 
