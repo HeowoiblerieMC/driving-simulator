@@ -333,26 +333,64 @@ for(let z = -5000; z <= 5000; z += 50){
 
 }
 
-// Sidewalk Sections
+// Sidewalk System
 
-for(let z = -5000; z <= 5000; z += 50){
+for(let z = -5000; z <= 5000; z += 10){
+
+    let skip = false;
+
+    // Residential Road Access
 
     if(
-        isReservedArea(z)
+        isMinorIntersection(z)
     ){
+        skip = true;
+    }
+
+    // Signalized Intersection
+
+    if(
+        isSignalIntersection(z)
+    ){
+        skip = true;
+    }
+
+    // Major Intersection
+
+    if(
+        isMajorIntersection(z)
+    ){
+        skip = true;
+    }
+
+    // Future Scramble Crossing Area
+
+    if(
+        Math.abs(z) < 60
+    ){
+        skip = true;
+    }
+
+    if(skip){
         continue;
     }
 
-    const leftSidewalk = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            4,
-            0.35,
-            50
-        ),
-        new THREE.MeshLambertMaterial({
-            color: 0xd0d0d0
-        })
-    );
+    // Left Sidewalk
+
+    const leftSidewalk =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                4,
+                0.35,
+                10
+            ),
+
+            new THREE.MeshLambertMaterial({
+                color: 0xbcbcbc
+            })
+
+        );
 
     leftSidewalk.position.set(
         -16,
@@ -360,18 +398,26 @@ for(let z = -5000; z <= 5000; z += 50){
         z
     );
 
-    scene.add(leftSidewalk);
-
-    const rightSidewalk = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            4,
-            0.35,
-            50
-        ),
-        new THREE.MeshLambertMaterial({
-            color: 0xd0d0d0
-        })
+    scene.add(
+        leftSidewalk
     );
+
+    // Right Sidewalk
+
+    const rightSidewalk =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                4,
+                0.35,
+                10
+            ),
+
+            new THREE.MeshLambertMaterial({
+                color: 0xbcbcbc
+            })
+
+        );
 
     rightSidewalk.position.set(
         16,
@@ -379,7 +425,63 @@ for(let z = -5000; z <= 5000; z += 50){
         z
     );
 
-    scene.add(rightSidewalk);
+    scene.add(
+        rightSidewalk
+    );
+
+    // Tile Line Left
+
+    const leftTile =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                4,
+                0.01,
+                0.05
+            ),
+
+            new THREE.MeshBasicMaterial({
+                color: 0xa8a8a8
+            })
+
+        );
+
+    leftTile.position.set(
+        -16,
+        0.36,
+        z
+    );
+
+    scene.add(
+        leftTile
+    );
+
+    // Tile Line Right
+
+    const rightTile =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                4,
+                0.01,
+                0.05
+            ),
+
+            new THREE.MeshBasicMaterial({
+                color: 0xa8a8a8
+            })
+
+        );
+
+    rightTile.position.set(
+        16,
+        0.36,
+        z
+    );
+
+    scene.add(
+        rightTile
+    );
 
 }
 
