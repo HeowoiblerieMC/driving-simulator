@@ -67,7 +67,7 @@ scene.add(ground);
 
 const leftRoad = new THREE.Mesh(
     new THREE.BoxGeometry(
-        8,
+        12,
         0.2,
         5000
     ),
@@ -77,7 +77,7 @@ const leftRoad = new THREE.Mesh(
 );
 
 leftRoad.position.set(
-    -6,
+    -8,
     0.1,
     0
 );
@@ -88,7 +88,7 @@ scene.add(leftRoad);
 
 const rightRoad = new THREE.Mesh(
     new THREE.BoxGeometry(
-        8,
+        12,
         0.2,
         5000
     ),
@@ -98,7 +98,7 @@ const rightRoad = new THREE.Mesh(
 );
 
 rightRoad.position.set(
-    6,
+    8,
     0.1,
     0
 );
@@ -140,7 +140,7 @@ const leftSidewalk = new THREE.Mesh(
 );
 
 leftSidewalk.position.set(
-    -12,
+    -16,
     0.17,
     0
 );
@@ -159,7 +159,7 @@ const rightSidewalk = new THREE.Mesh(
 );
 
 rightSidewalk.position.set(
-    12,
+    16,
     0.17,
     0
 );
@@ -170,7 +170,7 @@ scene.add(rightSidewalk);
 
 for(let z = -2500; z <= 2500; z += 20){
 
-    for(const x of [-6, 6]){
+    for(const x of [-7, 7]){
 
         const dash = new THREE.Mesh(
             new THREE.BoxGeometry(
