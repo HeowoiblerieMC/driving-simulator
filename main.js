@@ -295,13 +295,13 @@ function animate(){
 
     if(keys["s"]){
 
-        speed -= 1.5;
+        speed -= 0.4;
 
     }
 
     // Natural Deceleration
 
-    speed *= 0.999;
+    speed *= 0.9975;
 
     // Speed Limit
 
@@ -332,14 +332,14 @@ car.position.x -=
         car.rotation.y
     ) *
     speed *
-    0.08;
+    0.007;
 
 car.position.z -=
     Math.cos(
         car.rotation.y
     ) *
     speed *
-    0.08;
+    0.007;
 
     // HUD Update
 
