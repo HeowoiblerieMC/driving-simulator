@@ -325,21 +325,21 @@ function animate(){
 
     }
 
-    // Vehicle Movement
+// Vehicle Movement
 
-    car.position.x -=
-        Math.sin(
-            car.rotation.y
-        ) *
-        speed *
-        0.01;
+car.position.x -=
+    Math.sin(
+        car.rotation.y
+    ) *
+    speed *
+    0.08;
 
-    car.position.z -=
-        Math.cos(
-            car.rotation.y
-        ) *
-        speed *
-        0.01;
+car.position.z -=
+    Math.cos(
+        car.rotation.y
+    ) *
+    speed *
+    0.08;
 
     // HUD Update
 
