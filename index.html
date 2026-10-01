@@ -191,62 +191,6 @@ rightSidewalk.position.x =
 
 scene.add(rightSidewalk);
 
-// TOP LEFT
-
-const topSidewalkLeft =
-new THREE.Mesh(
-
-    new THREE.BoxGeometry(
-        2400,
-        0.15,
-        5
-    ),
-
-    sidewalkMaterial
-
-);
-
-topSidewalkLeft.position.set(
-    -1300,
-    0.08,
-    440
-);
-
-scene.add(topSidewalkLeft);
-
-// TOP RIGHT
-
-const topSidewalkRight =
-topSidewalkLeft.clone();
-
-topSidewalkRight.position.x =
-1300;
-
-scene.add(topSidewalkRight);
-
-// BOTTOM LEFT
-
-const bottomSidewalkLeft =
-topSidewalkLeft.clone();
-
-bottomSidewalkLeft.position.set(
-    -1300,
-    0.08,
-    410
-);
-
-scene.add(bottomSidewalkLeft);
-
-// BOTTOM RIGHT
-
-const bottomSidewalkRight =
-bottomSidewalkLeft.clone();
-
-bottomSidewalkRight.position.x =
-1300;
-
-scene.add(bottomSidewalkRight);
-
 // VERTICAL CENTER LINE
 
 for(
@@ -732,7 +676,7 @@ for(
 
 }
 
-/// TRAFFIC LIGHTS
+// TRAFFIC LIGHTS
 
 function addTrafficLight(
     x,
