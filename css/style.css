@@ -1,1 +1,16 @@
+body{
+    margin:0;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+}
 
+#loading{
+    position:fixed;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#000;
+    color:white;
+    font-size:40px;
+}
