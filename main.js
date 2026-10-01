@@ -170,7 +170,7 @@ scene.add(rightSidewalk);
 
 for(let z = -2500; z <= 2500; z += 20){
 
-    for(const x of [-7, 7]){
+    for(const x of [-8, 8]){
 
         const dash = new THREE.Mesh(
             new THREE.BoxGeometry(
