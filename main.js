@@ -126,6 +126,138 @@ function isReservedArea(z){
 
 // ROAD SYSTEM
 
+// Residential Roads (125m)
+
+for(const z of minorRoads){
+
+    // Right Side
+
+    const roadRight = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            120,
+            0.2,
+            8
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x2f2f2f
+        })
+    );
+
+    roadRight.position.set(
+        76,
+        0.1,
+        z
+    );
+
+    scene.add(roadRight);
+
+    // Left Side
+
+    const roadLeft = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            120,
+            0.2,
+            8
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x2f2f2f
+        })
+    );
+
+    roadLeft.position.set(
+        -76,
+        0.1,
+        z
+    );
+
+    scene.add(roadLeft);
+
+}
+
+for(const z of minorRoads){
+
+    const sidewalkColor =
+        new THREE.MeshLambertMaterial({
+            color: 0xd0d0d0
+        });
+
+    // Right Upper
+
+    const s1 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            120,
+            0.3,
+            2
+        ),
+        sidewalkColor
+    );
+
+    s1.position.set(
+        76,
+        0.17,
+        z + 5
+    );
+
+    scene.add(s1);
+
+    // Right Lower
+
+    const s2 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            120,
+            0.3,
+            2
+        ),
+        sidewalkColor
+    );
+
+    s2.position.set(
+        76,
+        0.17,
+        z - 5
+    );
+
+    scene.add(s2);
+
+    // Left Upper
+
+    const s3 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            120,
+            0.3,
+            2
+        ),
+        sidewalkColor
+    );
+
+    s3.position.set(
+        -76,
+        0.17,
+        z + 5
+    );
+
+    scene.add(s3);
+
+    // Left Lower
+
+    const s4 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            120,
+            0.3,
+            2
+        ),
+        sidewalkColor
+    );
+
+    s4.position.set(
+        -76,
+        0.17,
+        z - 5
+    );
+
+    scene.add(s4);
+
+}
 // Left Road
 
 const leftRoad = new THREE.Mesh(
