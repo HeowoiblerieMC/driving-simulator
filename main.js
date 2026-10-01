@@ -184,7 +184,7 @@ for(const z of minorRoads){
         new THREE.BoxGeometry(
             120,
             0.3,
-            2
+            4
         ),
         sidewalkMaterial
     );
@@ -203,7 +203,7 @@ for(const z of minorRoads){
         new THREE.BoxGeometry(
             120,
             0.3,
-            2
+            4
         ),
         sidewalkMaterial
     );
@@ -222,7 +222,7 @@ for(const z of minorRoads){
         new THREE.BoxGeometry(
             120,
             0.3,
-            2
+            4
         ),
         sidewalkMaterial
     );
@@ -241,7 +241,7 @@ for(const z of minorRoads){
         new THREE.BoxGeometry(
             120,
             0.3,
-            2
+            4
         ),
         sidewalkMaterial
     );
