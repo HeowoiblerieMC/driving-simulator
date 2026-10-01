@@ -130,7 +130,17 @@ function isReservedArea(z){
 
 for(const z of minorRoads){
 
-    // Right Side
+    const roadMaterial =
+        new THREE.MeshLambertMaterial({
+            color: 0x2f2f2f
+        });
+
+    const sidewalkMaterial =
+        new THREE.MeshLambertMaterial({
+            color: 0xd0d0d0
+        });
+
+    // Right Road
 
     const roadRight = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -138,20 +148,18 @@ for(const z of minorRoads){
             0.2,
             12
         ),
-        new THREE.MeshLambertMaterial({
-            color: 0x2f2f2f
-        })
+        roadMaterial
     );
 
     roadRight.position.set(
-        141,
+        137,
         0.1,
         z
     );
 
     scene.add(roadRight);
 
-    // Left Side
+    // Left Road
 
     const roadLeft = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -159,29 +167,18 @@ for(const z of minorRoads){
             0.2,
             12
         ),
-        new THREE.MeshLambertMaterial({
-            color: 0x2f2f2f
-        })
+        roadMaterial
     );
 
     roadLeft.position.set(
-        -141,
+        -137,
         0.1,
         z
     );
 
     scene.add(roadLeft);
 
-}
-
-for(const z of minorRoads){
-
-    const sidewalkColor =
-        new THREE.MeshLambertMaterial({
-            color: 0xd0d0d0
-        });
-
-    // Right Upper
+    // Right Upper Sidewalk
 
     const s1 = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -189,18 +186,18 @@ for(const z of minorRoads){
             0.3,
             2
         ),
-        sidewalkColor
+        sidewalkMaterial
     );
 
     s1.position.set(
-        141,
+        137,
         0.17,
         z + 7
     );
 
     scene.add(s1);
 
-    // Right Lower
+    // Right Lower Sidewalk
 
     const s2 = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -208,18 +205,18 @@ for(const z of minorRoads){
             0.3,
             2
         ),
-        sidewalkColor
+        sidewalkMaterial
     );
 
     s2.position.set(
-        141,
+        137,
         0.17,
         z - 7
     );
 
     scene.add(s2);
 
-    // Left Upper
+    // Left Upper Sidewalk
 
     const s3 = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -227,18 +224,18 @@ for(const z of minorRoads){
             0.3,
             2
         ),
-        sidewalkColor
+        sidewalkMaterial
     );
 
     s3.position.set(
-        -141,
+        -137,
         0.17,
         z + 7
     );
 
     scene.add(s3);
 
-    // Left Lower
+    // Left Lower Sidewalk
 
     const s4 = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -246,11 +243,11 @@ for(const z of minorRoads){
             0.3,
             2
         ),
-        sidewalkColor
+        sidewalkMaterial
     );
 
     s4.position.set(
-        -141,
+        -137,
         0.17,
         z - 7
     );
@@ -258,6 +255,7 @@ for(const z of minorRoads){
     scene.add(s4);
 
 }
+
 // Left Road
 
 const leftRoad = new THREE.Mesh(
