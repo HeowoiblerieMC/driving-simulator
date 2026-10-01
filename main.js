@@ -144,7 +144,7 @@ for(const z of minorRoads){
 
     const roadRight = new THREE.Mesh(
         new THREE.BoxGeometry(
-            250,
+            120,
             0.2,
             12
         ),
@@ -152,7 +152,7 @@ for(const z of minorRoads){
     );
 
     roadRight.position.set(
-        137,
+        76,
         0.1,
         z
     );
@@ -163,7 +163,7 @@ for(const z of minorRoads){
 
     const roadLeft = new THREE.Mesh(
         new THREE.BoxGeometry(
-            250,
+            120,
             0.2,
             12
         ),
@@ -171,7 +171,7 @@ for(const z of minorRoads){
     );
 
     roadLeft.position.set(
-        -137,
+        -76,
         0.1,
         z
     );
@@ -182,7 +182,7 @@ for(const z of minorRoads){
 
     const s1 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            250,
+            120,
             0.3,
             2
         ),
@@ -190,7 +190,7 @@ for(const z of minorRoads){
     );
 
     s1.position.set(
-        137,
+        76,
         0.17,
         z + 7
     );
@@ -201,7 +201,7 @@ for(const z of minorRoads){
 
     const s2 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            250,
+            120,
             0.3,
             2
         ),
@@ -209,7 +209,7 @@ for(const z of minorRoads){
     );
 
     s2.position.set(
-        137,
+        76,
         0.17,
         z - 7
     );
@@ -220,7 +220,7 @@ for(const z of minorRoads){
 
     const s3 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            250,
+            120,
             0.3,
             2
         ),
@@ -228,7 +228,7 @@ for(const z of minorRoads){
     );
 
     s3.position.set(
-        -137,
+        -76,
         0.17,
         z + 7
     );
@@ -239,7 +239,7 @@ for(const z of minorRoads){
 
     const s4 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            250,
+            120,
             0.3,
             2
         ),
@@ -247,7 +247,7 @@ for(const z of minorRoads){
     );
 
     s4.position.set(
-        -137,
+        -76,
         0.17,
         z - 7
     );
