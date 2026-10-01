@@ -135,15 +135,15 @@ scene.add(ground);
 const road =
 new THREE.Mesh(
 
-new THREE.BoxGeometry(
-20,
-0.1,
-5000
-),
+    new THREE.BoxGeometry(
+        20,
+        0.1,
+        5000
+    ),
 
-new THREE.MeshLambertMaterial({
-color:0x222222
-})
+    new THREE.MeshLambertMaterial({
+        color:0x222222
+    })
 
 );
 
@@ -151,70 +151,7 @@ road.position.y = 0.05;
 
 scene.add(road);
 
-// TREES
-
-function addTree(x,z){
-
-    const trunk =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            1,
-            4,
-            1
-        ),
-
-        new THREE.MeshLambertMaterial({
-            color:0x8b5a2b
-        })
-
-    );
-
-    trunk.position.set(
-        x,
-        2,
-        z
-    );
-
-    scene.add(trunk);
-
-    const leaves =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            4,
-            4,
-            4
-        ),
-
-        new THREE.MeshLambertMaterial({
-            color:0x228b22
-        })
-
-    );
-
-    leaves.position.set(
-        x,
-        5,
-        z
-    );
-
-    scene.add(leaves);
-
-}
-
-for(
-    let z=-2500;
-    z<=2500;
-    z+=100
-){
-
-    addTree(-35,z);
-    addTree(35,z);
-
-}
-
-//CENTER LINE
+// CENTER LINE
 
 for(
     let z=-2490;
@@ -244,6 +181,127 @@ for(
     );
 
     scene.add(line);
+
+}
+
+// INTERSECTION
+
+const crossRoad =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        200,
+        0.1,
+        20
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x222222
+    })
+
+);
+
+crossRoad.position.set(
+    0,
+    0.05,
+    425
+);
+
+scene.add(crossRoad);
+
+// CROSSWALK
+
+for(
+    let x=-8;
+    x<=8;
+    x+=2
+){
+
+    const stripe =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            1,
+            0.12,
+            8
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0xffffff
+        })
+
+    );
+
+    stripe.position.set(
+        x,
+        0.12,
+        425
+    );
+
+    scene.add(stripe);
+
+}
+
+// TREES
+
+function addTree(x,z){
+
+    const trunk =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            1.5,
+            8,
+            1.5
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x8b5a2b
+        })
+
+    );
+
+    trunk.position.set(
+        x,
+        4,
+        z
+    );
+
+    scene.add(trunk);
+
+    const leaves =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            10,
+            10,
+            10
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x228b22
+        })
+
+    );
+
+    leaves.position.set(
+        x,
+        10,
+        z
+    );
+
+    scene.add(leaves);
+
+}
+
+for(
+    let z=-2500;
+    z<=2500;
+    z+=50
+){
+
+    addTree(-40,z);
+    addTree(40,z);
 
 }
 
