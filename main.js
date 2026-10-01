@@ -92,7 +92,7 @@ for(let z = -5000; z <= 5000; z += 125){
 function isMinorIntersection(z){
 
     return minorRoads.some(
-        i => Math.abs(z - i) < 6
+        i => Math.abs(z - i) < 9
     );
 
 }
