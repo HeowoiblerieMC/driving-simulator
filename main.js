@@ -61,11 +61,11 @@ ground.rotation.x = -Math.PI / 2;
 
 scene.add(ground);
 
-// Main Road
+// Left Road
 
-const road = new THREE.Mesh(
+const leftRoad = new THREE.Mesh(
     new THREE.BoxGeometry(
-        50,
+        16,
         0.2,
         5000
     ),
@@ -74,15 +74,40 @@ const road = new THREE.Mesh(
     })
 );
 
-road.position.y = 0.1;
+leftRoad.position.set(
+    -10,
+    0.1,
+    0
+);
 
-scene.add(road);
+scene.add(leftRoad);
+
+// Right Road
+
+const rightRoad = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        16,
+        0.2,
+        5000
+    ),
+    new THREE.MeshLambertMaterial({
+        color: 0x2f2f2f
+    })
+);
+
+rightRoad.position.set(
+    10,
+    0.1,
+    0
+);
+
+scene.add(rightRoad);
 
 // Median Strip
 
 const median = new THREE.Mesh(
     new THREE.BoxGeometry(
-        10,
+        4,
         0.3,
         5000
     ),
@@ -99,7 +124,7 @@ scene.add(median);
 
 for(let z = -2500; z <= 2500; z += 20){
 
-    for(const x of [-10, 10]){
+    for(const x of [-14, -6, 6, 14]){
 
         const dash = new THREE.Mesh(
             new THREE.BoxGeometry(
@@ -127,17 +152,17 @@ for(let z = -2500; z <= 2500; z += 20){
 const leftSidewalk = new THREE.Mesh(
     new THREE.BoxGeometry(
         5,
-        0.15,
+        0.3,
         5000
     ),
     new THREE.MeshLambertMaterial({
-        color: 0x666666
+        color: 0xcfcfcf
     })
 );
 
 leftSidewalk.position.set(
-    -22.5,
-    0.08,
+    -20.5,
+    0.15,
     0
 );
 
@@ -146,17 +171,17 @@ scene.add(leftSidewalk);
 const rightSidewalk = new THREE.Mesh(
     new THREE.BoxGeometry(
         5,
-        0.15,
+        0.3,
         5000
     ),
     new THREE.MeshLambertMaterial({
-        color: 0x666666
+        color: 0xcfcfcf
     })
 );
 
 rightSidewalk.position.set(
-    22.5,
-    0.08,
+    20.5,
+    0.15,
     0
 );
 
@@ -164,13 +189,37 @@ scene.add(rightSidewalk);
 
 // Street Trees
 
-for(let z = -2500; z <= 2500; z += 40){
+for(let z = -2500; z <= 2500; z += 60){
+
+    const treeX =
+        (Math.random() - 0.5) * 1.5;
+
+    const trunkHeight =
+        4 + Math.random() * 2;
+
+    const crownSize =
+        1.5 + Math.random() * 0.8;
+
+    const greenColors = [
+        0x228b22,
+        0x2e8b57,
+        0x3cb371,
+        0x1f7a1f
+    ];
+
+    const leafColor =
+        greenColors[
+            Math.floor(
+                Math.random() *
+                greenColors.length
+            )
+        ];
 
     const trunk = new THREE.Mesh(
         new THREE.CylinderGeometry(
-            0.5,
-            0.6,
-            6,
+            0.25,
+            0.35,
+            trunkHeight,
             12
         ),
         new THREE.MeshLambertMaterial({
@@ -179,31 +228,85 @@ for(let z = -2500; z <= 2500; z += 40){
     );
 
     trunk.position.set(
-        0,
-        3,
+        treeX,
+        trunkHeight / 2,
         z
     );
 
     scene.add(trunk);
 
-    const leaves = new THREE.Mesh(
+    const leafMaterial =
+        new THREE.MeshLambertMaterial({
+            color: leafColor
+        });
+
+    const crown1 = new THREE.Mesh(
         new THREE.SphereGeometry(
-            3,
+            crownSize,
             16,
             16
         ),
-        new THREE.MeshLambertMaterial({
-            color: 0x228b22
-        })
+        leafMaterial
     );
 
-    leaves.position.set(
-        0,
-        8,
+    crown1.position.set(
+        treeX,
+        trunkHeight + 1.0,
         z
     );
 
-    scene.add(leaves);
+    scene.add(crown1);
+
+    const crown2 = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            crownSize * 0.8,
+            16,
+            16
+        ),
+        leafMaterial
+    );
+
+    crown2.position.set(
+        treeX - 1.0,
+        trunkHeight + 0.5,
+        z
+    );
+
+    scene.add(crown2);
+
+    const crown3 = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            crownSize * 0.8,
+            16,
+            16
+        ),
+        leafMaterial
+    );
+
+    crown3.position.set(
+        treeX + 1.0,
+        trunkHeight + 0.5,
+        z
+    );
+
+    scene.add(crown3);
+
+    const crown4 = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            crownSize * 0.7,
+            16,
+            16
+        ),
+        leafMaterial
+    );
+
+    crown4.position.set(
+        treeX,
+        trunkHeight + 2.0,
+        z
+    );
+
+    scene.add(crown4);
 }
 
 // Vehicle
