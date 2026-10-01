@@ -151,6 +151,54 @@ road.position.y = 0.05;
 
 scene.add(road);
 
+// SIDEWALKS
+
+const leftSidewalk =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        10,
+        0.12,
+        5000
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+
+);
+
+leftSidewalk.position.set(
+    -15,
+    0.06,
+    0
+);
+
+scene.add(leftSidewalk);
+
+const rightSidewalk =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        10,
+        0.12,
+        5000
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+
+);
+
+rightSidewalk.position.set(
+    15,
+    0.06,
+    0
+);
+
+scene.add(rightSidewalk);
+
 // VERTICAL CENTER LINE
 
 for(
@@ -214,6 +262,54 @@ crossRoad.position.set(
 
 scene.add(crossRoad);
 
+// HORIZONTAL SIDEWALKS
+
+const topSidewalk =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        5000,
+        0.12,
+        10
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+
+);
+
+topSidewalk.position.set(
+    0,
+    0.06,
+    440
+);
+
+scene.add(topSidewalk);
+
+const bottomSidewalk =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        5000,
+        0.12,
+        10
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+
+);
+
+bottomSidewalk.position.set(
+    0,
+    0.06,
+    410
+);
+
+scene.add(bottomSidewalk);
+
 // HORIZONTAL CENTER LINE
 
 for(
@@ -252,7 +348,7 @@ for(
 
 }
 
-// NORTH CROSSWALK
+// CROSSWALK NORTH
 
 for(
     let x=-8;
@@ -285,7 +381,7 @@ for(
 
 }
 
-// SOUTH CROSSWALK
+// CROSSWALK SOUTH
 
 for(
     let x=-8;
@@ -318,7 +414,7 @@ for(
 
 }
 
-// WEST CROSSWALK
+// CROSSWALK WEST
 
 for(
     let z=417;
@@ -351,7 +447,7 @@ for(
 
 }
 
-// EAST CROSSWALK
+// CROSSWALK EAST
 
 for(
     let z=417;
@@ -399,9 +495,9 @@ function addBuilding(
     new THREE.Mesh(
 
         new THREE.BoxGeometry(
-            40,
+            25,
             height,
-            40
+            25
         ),
 
         new THREE.MeshLambertMaterial({
@@ -425,33 +521,83 @@ function addBuilding(
     ){
 
         for(
-            let i=-15;
-            i<=15;
-            i+=6
+            let i=-10;
+            i<=10;
+            i+=3
         ){
 
-            const windowBox =
+            const color =
+            0xaaddff;
+
+            // FRONT
+
+            const frontWindow =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    3,
-                    3,
+                    1 + Math.random()*3,
+                    1 + Math.random()*3,
                     0.3
                 ),
 
                 new THREE.MeshLambertMaterial({
-                    color:0xaaddff
+                    color:color
                 })
 
             );
 
-            windowBox.position.set(
+            frontWindow.position.set(
                 x+i,
                 y,
-                z+20.2
+                z+12.7
             );
 
-            scene.add(windowBox);
+            scene.add(frontWindow);
+
+            // BACK
+
+            const backWindow =
+            frontWindow.clone();
+
+            backWindow.position.z =
+            z-12.7;
+
+            scene.add(backWindow);
+
+            // LEFT
+
+            const leftWindow =
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    0.3,
+                    1 + Math.random()*3,
+                    1 + Math.random()*3
+                ),
+
+                new THREE.MeshLambertMaterial({
+                    color:color
+                })
+
+            );
+
+            leftWindow.position.set(
+                x-12.7,
+                y,
+                z+i
+            );
+
+            scene.add(leftWindow);
+
+            // RIGHT
+
+            const rightWindow =
+            leftWindow.clone();
+
+            rightWindow.position.x =
+            x+12.7;
+
+            scene.add(rightWindow);
 
         }
 
@@ -459,31 +605,59 @@ function addBuilding(
 
 }
 
-// INTERSECTION BUILDINGS
+// INTERSECTION TOWERS
 
 addBuilding(
-    -100,
-    325,
+    -40,
+    390,
     20
 );
 
 addBuilding(
-    100,
-    325,
-    15
-);
-
-addBuilding(
-    -100,
-    525,
+    40,
+    390,
     18
 );
 
 addBuilding(
-    100,
-    525,
-    10
+    -40,
+    460,
+    15
 );
+
+addBuilding(
+    40,
+    460,
+    12
+);
+
+// CITY BUILDINGS
+
+for(
+    let z=-2400;
+    z<=2400;
+    z+=80
+){
+
+    addBuilding(
+        -45,
+        z,
+        5 +
+        Math.floor(
+            Math.random()*11
+        )
+    );
+
+    addBuilding(
+        45,
+        z,
+        5 +
+        Math.floor(
+            Math.random()*11
+        )
+    );
+
+}
 
 // CAR
 
