@@ -153,51 +153,69 @@ scene.add(road);
 
 // SIDEWALKS
 
-const leftSidewalk =
+const leftSidewalkTop =
 new THREE.Mesh(
-
-    new THREE.BoxGeometry(
-        10,
-        0.12,
-        5000
-    ),
-
+    new THREE.BoxGeometry(10,0.12,1975),
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
-
 );
 
-leftSidewalk.position.set(
+leftSidewalkTop.position.set(
     -15,
     0.06,
-    0
+    -1012.5
 );
 
-scene.add(leftSidewalk);
+scene.add(leftSidewalkTop);
 
-const rightSidewalk =
+const leftSidewalkBottom =
 new THREE.Mesh(
-
-    new THREE.BoxGeometry(
-        10,
-        0.12,
-        5000
-    ),
-
+    new THREE.BoxGeometry(10,0.12,4525),
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
-
 );
 
-rightSidewalk.position.set(
+leftSidewalkBottom.position.set(
+    -15,
+    0.06,
+    1237.5
+);
+
+scene.add(leftSidewalkBottom);
+
+const rightSidewalkTop =
+new THREE.Mesh(
+    new THREE.BoxGeometry(10,0.12,1975),
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+);
+
+rightSidewalkTop.position.set(
     15,
     0.06,
-    0
+    -1012.5
 );
 
-scene.add(rightSidewalk);
+scene.add(rightSidewalkTop);
+
+const rightSidewalkBottom =
+new THREE.Mesh(
+    new THREE.BoxGeometry(10,0.12,4525),
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+);
+
+rightSidewalkBottom.position.set(
+    15,
+    0.06,
+    1237.5
+);
+
+scene.add(rightSidewalkBottom);
 
 // VERTICAL CENTER LINE
 
@@ -262,53 +280,93 @@ crossRoad.position.set(
 
 scene.add(crossRoad);
 
-// HORIZONTAL SIDEWALKS
+// HORIZONTAL SIDEWALK LEFT
 
-const topSidewalk =
+const topSidewalkLeft =
 new THREE.Mesh(
-
     new THREE.BoxGeometry(
-        5000,
+        2450,
         0.12,
         10
     ),
-
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
-
 );
 
-topSidewalk.position.set(
-    0,
+topSidewalkLeft.position.set(
+    -1275,
     0.06,
     440
 );
 
-scene.add(topSidewalk);
+scene.add(topSidewalkLeft);
 
-const bottomSidewalk =
+// HORIZONTAL SIDEWALK RIGHT
+
+const topSidewalkRight =
 new THREE.Mesh(
-
     new THREE.BoxGeometry(
-        5000,
+        2450,
         0.12,
         10
     ),
-
     new THREE.MeshLambertMaterial({
         color:0x555555
     })
-
 );
 
-bottomSidewalk.position.set(
-    0,
+topSidewalkRight.position.set(
+    1275,
+    0.06,
+    440
+);
+
+scene.add(topSidewalkRight);
+
+// BOTTOM LEFT
+
+const bottomSidewalkLeft =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        2450,
+        0.12,
+        10
+    ),
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+);
+
+bottomSidewalkLeft.position.set(
+    -1275,
     0.06,
     410
 );
 
-scene.add(bottomSidewalk);
+scene.add(bottomSidewalkLeft);
+
+// BOTTOM RIGHT
+
+const bottomSidewalkRight =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        2450,
+        0.12,
+        10
+    ),
+    new THREE.MeshLambertMaterial({
+        color:0x555555
+    })
+);
+
+bottomSidewalkRight.position.set(
+    1275,
+    0.06,
+    410
+);
+
+scene.add(bottomSidewalkRight);
 
 // HORIZONTAL CENTER LINE
 
