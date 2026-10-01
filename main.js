@@ -301,7 +301,7 @@ function animate(){
 
     // Natural Deceleration
 
-    speed *= 0.9975;
+    speed *= 0.999;
 
     // Speed Limit
 
