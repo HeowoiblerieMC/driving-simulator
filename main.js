@@ -421,11 +421,14 @@ if(
 // Street Trees
 
 for(let z = -5000; z <= 5000; z += 70){
-if(
-    isReservedArea(z)
-){
-    continue;
-}
+
+    if(
+        isSignalIntersection(z) ||
+        isMajorIntersection(z) ||
+        Math.abs(z) < 60
+    ){
+        continue;
+    }
 
     const trunkHeight =
         4 + Math.random() * 2;
@@ -480,9 +483,9 @@ if(
         );
 
         leaf.position.set(
-            (Math.random()-0.5)*1.5,
-            trunkHeight + 0.5 + Math.random()*1.5,
-            z + (Math.random()-0.5)*0.5
+            (Math.random() - 0.5) * 1.5,
+            trunkHeight + 0.5 + Math.random() * 1.5,
+            z + (Math.random() - 0.5) * 0.5
         );
 
         scene.add(leaf);
