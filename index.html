@@ -151,36 +151,36 @@ road.position.y = 0.05;
 
 scene.add(road);
 
-// CENTER LINE
+//CENTER LINE
 
 for(
-let z=-990;
-z<=990;
-z+=12
+    let z=-2490;
+    z<=2490;
+    z+=12
 ){
 
-const line =
-new THREE.Mesh(
+    const line =
+    new THREE.Mesh(
 
-new THREE.BoxGeometry(
-0.3,
-0.11,
-6
-),
+        new THREE.BoxGeometry(
+            0.3,
+            0.11,
+            6
+        ),
 
-new THREE.MeshLambertMaterial({
-color:0xffffff
-})
+        new THREE.MeshLambertMaterial({
+            color:0xffffff
+        })
 
-);
+    );
 
-line.position.set(
-0,
-0.11,
-z
-);
+    line.position.set(
+        0,
+        0.11,
+        z
+    );
 
-scene.add(line);
+    scene.add(line);
 
 }
 
