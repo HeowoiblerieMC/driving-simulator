@@ -8,6 +8,7 @@
 body{
     margin:0;
     overflow:hidden;
+    font-family:Arial;
 }
 
 #info{
@@ -18,15 +19,41 @@ body{
     background:rgba(0,0,0,.6);
     padding:10px;
     border-radius:10px;
-    font-family:Arial;
+}
+
+#speedometer{
+    position:fixed;
+    top:10px;
+    right:10px;
+    color:white;
+    background:rgba(0,0,0,.6);
+    padding:10px;
+    border-radius:10px;
+}
+
+#rpm{
+    position:fixed;
+    top:60px;
+    right:10px;
+    color:white;
+    background:rgba(0,0,0,.6);
+    padding:10px;
+    border-radius:10px;
 }
 </style>
-
 </head>
 <body>
 
 <div id="info">
-WASD to drive
+WASD TO DRIVE
+</div>
+
+<div id="speedometer">
+Speed: 0 km/h
+</div>
+
+<div id="rpm">
+RPM: 800
 </div>
 
 <script type="module">
@@ -34,58 +61,52 @@ WASD to drive
 import * as THREE from
 "https://unpkg.com/three@0.166.1/build/three.module.js";
 
-const scene =
-new THREE.Scene();
-
-scene.background =
-new THREE.Color(0x87ceeb);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
 
 const camera =
 new THREE.PerspectiveCamera(
 75,
-window.innerWidth /
-window.innerHeight,
+window.innerWidth / window.innerHeight,
 0.1,
 1000
 );
 
 const renderer =
 new THREE.WebGLRenderer({
-    antialias:true
+antialias:true
 });
 
 renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
+window.innerWidth,
+window.innerHeight
 );
 
 document.body.appendChild(
-    renderer.domElement
+renderer.domElement
 );
 
 // LIGHT
 
 const sun =
 new THREE.DirectionalLight(
-    0xffffff,
-    2
+0xffffff,
+2
 );
 
 sun.position.set(
-    20,
-    30,
-    10
+20,
+30,
+10
 );
 
-scene.add(
-    sun
-);
+scene.add(sun);
 
 scene.add(
-    new THREE.AmbientLight(
-        0xffffff,
-        1
-    )
+new THREE.AmbientLight(
+0xffffff,
+1
+)
 );
 
 // GROUND
@@ -93,78 +114,73 @@ scene.add(
 const ground =
 new THREE.Mesh(
 
-    new THREE.PlaneGeometry(
-        500,
-        500
-    ),
+new THREE.PlaneGeometry(
+500,
+500
+),
 
-    new THREE.MeshLambertMaterial({
-        color:0x55aa55
-    })
+new THREE.MeshLambertMaterial({
+color:0x55aa55
+})
 
 );
 
 ground.rotation.x =
--Math.PI / 2;
+-Math.PI/2;
 
-scene.add(
-    ground
-);
+scene.add(ground);
 
 // ROAD
 
 const road =
 new THREE.Mesh(
 
-    new THREE.BoxGeometry(
-        20,
-        0.1,
-        500
-    ),
+new THREE.BoxGeometry(
+20,
+0.1,
+500
+),
 
-    new THREE.MeshLambertMaterial({
-        color:0x222222
-    })
+new THREE.MeshLambertMaterial({
+color:0x222222
+})
 
 );
 
-road.position.y =
-0.05;
+road.position.y = 0.05;
 
-scene.add(
-    road
-);
+scene.add(road);
 
 // CENTER LINE
 
 for(
-    let z = -240;
-    z <= 240;
-    z += 12
+let z=-240;
+z<=240;
+z+=12
 ){
 
-    const line =
-    new THREE.Mesh(
+const line =
+new THREE.Mesh(
 
-        new THREE.BoxGeometry(
-            0.3,
-            0.11,
-            6
-        ),
+new THREE.BoxGeometry(
+0.3,
+0.11,
+6
+),
 
-        new THREE.MeshLambertMaterial({
-            color:0xffffff
-        })
+new THREE.MeshLambertMaterial({
+color:0xffffff
+})
 
-    );
+);
 
-    line.position.set(
-        0,
-        0.11,
-        z
-    );
+line.position.set(
+0,
+0.11,
+z
+);
 
-    scene.add(line);
+scene.add(line);
 
 }
 
@@ -173,15 +189,15 @@ for(
 const car =
 new THREE.Mesh(
 
-    new THREE.BoxGeometry(
-        2,
-        1,
-        4
-    ),
+new THREE.BoxGeometry(
+2,
+1,
+4
+),
 
-    new THREE.MeshLambertMaterial({
-        color:0xff0000
-    })
+new THREE.MeshLambertMaterial({
+color:0xff0000
+})
 
 );
 
@@ -194,22 +210,22 @@ scene.add(car);
 const windowPart =
 new THREE.Mesh(
 
-    new THREE.BoxGeometry(
-        1.4,
-        0.6,
-        2
-    ),
+new THREE.BoxGeometry(
+1.4,
+0.6,
+2
+),
 
-    new THREE.MeshLambertMaterial({
-        color:0x88ccff
-    })
+new THREE.MeshLambertMaterial({
+color:0x88ccff
+})
 
 );
 
 windowPart.position.set(
-    0,
-    0.8,
-    0
+0,
+0.8,
+0
 );
 
 car.add(windowPart);
@@ -218,127 +234,150 @@ car.add(windowPart);
 
 function makeWheel(x,z){
 
-    const wheel =
-    new THREE.Mesh(
+const wheel =
+new THREE.Mesh(
 
-        new THREE.CylinderGeometry(
-            0.5,
-            0.5,
-            0.5,
-            16
-        ),
+new THREE.CylinderGeometry(
+0.5,
+0.5,
+0.5,
+16
+),
 
-        new THREE.MeshLambertMaterial({
-            color:0x111111
-        })
+new THREE.MeshLambertMaterial({
+color:0x111111
+})
 
-    );
+);
 
-    wheel.rotation.z =
-    Math.PI / 2;
+wheel.rotation.z =
+Math.PI / 2;
 
-    wheel.position.set(
-        x,
-        0.5,
-        z
-    );
+wheel.position.set(
+x,
+0.5,
+z
+);
 
-    car.add(wheel);
+car.add(wheel);
 
 }
 
-makeWheel(-1.1,  1.5);
-makeWheel( 1.1,  1.5);
-makeWheel(-1.1, -1.5);
-makeWheel( 1.1, -1.5);
+makeWheel(-1.1, 1.5);
+makeWheel( 1.1, 1.5);
+makeWheel(-1.1,-1.5);
+makeWheel( 1.1,-1.5);
 
 // CONTROLS
 
 const keys = {};
 
 window.addEventListener(
-    "keydown",
-    e=>{
-        keys[
-            e.key.toLowerCase()
-        ] = true;
-    }
+"keydown",
+e=>{
+keys[
+e.key.toLowerCase()
+] = true;
+}
 );
 
 window.addEventListener(
-    "keyup",
-    e=>{
-        keys[
-            e.key.toLowerCase()
-        ] = false;
-    }
+"keyup",
+e=>{
+keys[
+e.key.toLowerCase()
+] = false;
+}
 );
 
 let speed = 0;
+const maxSpeed = 180;
 
 function drive(){
 
-    if(keys["w"]){
+if(keys["w"]){
 
-        speed += 0.003;
-
-    }
-
-    if(keys["s"]){
-
-        speed -= 0.003;
-
-    }
-
-    speed *= 0.98;
-
-    if(keys["a"]){
-
-        car.rotation.y +=
-        0.03;
-
-    }
-
-    if(keys["d"]){
-
-        car.rotation.y -=
-        0.03;
-
-    }
-
-    car.position.x +=
-    Math.sin(
-        car.rotation.y
-    ) * speed;
-
-    car.position.z +=
-    Math.cos(
-        car.rotation.y
-    ) * speed;
+speed += 0.5;
 
 }
 
-// CAMERA FOLLOW
+if(keys["s"]){
+
+speed -= 1;
+
+}
+
+if(speed > maxSpeed){
+
+speed = maxSpeed;
+
+}
+
+if(speed < -30){
+
+speed = -30;
+
+}
+
+speed *= 0.99;
+
+if(keys["a"]){
+
+car.rotation.y +=
+0.002 *
+Math.abs(speed);
+
+}
+
+if(keys["d"]){
+
+car.rotation.y -=
+0.002 *
+Math.abs(speed);
+
+}
+
+car.position.x +=
+Math.sin(
+car.rotation.y
+)
+*
+speed
+*
+0.01;
+
+car.position.z +=
+Math.cos(
+car.rotation.y
+)
+*
+speed
+*
+0.01;
+
+}
+
+// CAMERA
 
 function updateCamera(){
 
-    camera.position.x =
-    car.position.x -
-    Math.sin(
-        car.rotation.y
-    ) * 8;
+camera.position.x =
+car.position.x -
+Math.sin(
+car.rotation.y
+) * 8;
 
-    camera.position.y = 5;
+camera.position.y = 5;
 
-    camera.position.z =
-    car.position.z -
-    Math.cos(
-        car.rotation.y
-    ) * 8;
+camera.position.z =
+car.position.z -
+Math.cos(
+car.rotation.y
+) * 8;
 
-    camera.lookAt(
-        car.position
-    );
+camera.lookAt(
+car.position
+);
 
 }
 
@@ -348,16 +387,16 @@ window.addEventListener(
 "resize",
 ()=>{
 
-    camera.aspect =
-    window.innerWidth /
-    window.innerHeight;
+camera.aspect =
+window.innerWidth /
+window.innerHeight;
 
-    camera.updateProjectionMatrix();
+camera.updateProjectionMatrix();
 
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
 
 }
 );
@@ -366,18 +405,40 @@ window.addEventListener(
 
 function animate(){
 
-    requestAnimationFrame(
-        animate
-    );
+requestAnimationFrame(
+animate
+);
 
-    drive();
+drive();
 
-    updateCamera();
+updateCamera();
 
-    renderer.render(
-        scene,
-        camera
-    );
+document.getElementById(
+"speedometer"
+).textContent =
+
+"Speed: " +
+Math.round(
+Math.abs(speed)
+) +
+" km/h";
+
+const rpm =
+800 +
+Math.abs(speed)
+* 35;
+
+document.getElementById(
+"rpm"
+).textContent =
+
+"RPM: " +
+Math.round(rpm);
+
+renderer.render(
+scene,
+camera
+);
 
 }
 
@@ -387,4 +448,3 @@ animate();
 
 </body>
 </html>
-``
