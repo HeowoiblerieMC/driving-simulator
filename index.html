@@ -1,1 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Nova Drive</title>
 
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+}
+
+#info{
+    position:fixed;
+    top:10px;
+    left:10px;
+    color:white;
+    background:rgba(0,0,0,.6);
+    padding:10px;
+    border-radius:10px;
+    font-family:Arial;
+}
+</style>
+
+</head>
+<body>
+
+<div id="info">
+WASD to drive
+</div>
+
+<script type="module">
+
+import * as THREE from
+"https://unpkg.com/three@0.166.1/build/three.module.js";
+
+const scene =
+new THREE.Scene();
+
+scene.background =
+new THREE.Color(0x87ceeb);
+
+const camera =
+new THREE.PerspectiveCamera(
+75,
+window.innerWidth /
+window.innerHeight,
+0.1,
+1000
+);
+
+const renderer =
+new THREE.WebGLRenderer({
+    antialias:true
+});
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+// LIGHT
+
+const sun =
+new THREE.DirectionalLight(
+    0xffffff,
+    2
+);
+
+sun.position.set(
+    20,
+    30,
+    10
+);
+
+scene.add(
+    sun
+);
+
+scene.add(
+    new THREE.AmbientLight(
+        0xffffff,
+        1
+    )
+);
+
+// GROUND
+
+const ground =
+new THREE.Mesh(
+
+    new THREE.PlaneGeometry(
+        500,
+        500
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x55aa55
+    })
+
+);
+
+ground.rotation.x =
+-Math.PI / 2;
+
+scene.add(
+    ground
+);
+
+// ROAD
+
+const road =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        20,
+        0.1,
+        500
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x222222
+    })
+
+);
+
+road.position.y =
+0.05;
+
+scene.add(
+    road
+);
+
+// CAR
+
+const car =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        2,
+        1,
+        4
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0xff0000
+    })
+
+);
+
+car.position.y =
+0.5;
+
+scene.add(
+    car
+);
+
+// CONTROLS
+
+const keys = {};
+
+window.addEventListener(
+    "keydown",
+    e=>{
+        keys[
+            e.key.toLowerCase()
+        ] = true;
+    }
+);
+
+window.addEventListener(
+    "keyup",
+    e=>{
+        keys[
+            e.key.toLowerCase()
+        ] = false;
+    }
+);
+
+let speed = 0;
+
+function drive(){
+
+    if(keys["w"]){
+
+        speed += 0.003;
+
+    }
+
+    if(keys["s"]){
+
+        speed -= 0.003;
+
+    }
+
+    speed *= 0.98;
+
+    if(keys["a"]){
+
+        car.rotation.y +=
+        0.03;
+
+    }
+
+    if(keys["d"]){
+
+        car.rotation.y -=
+        0.03;
+
+    }
+
+    car.position.x +=
+    Math.sin(
+        car.rotation.y
+    ) * speed;
+
+    car.position.z +=
+    Math.cos(
+        car.rotation.y
+    ) * speed;
+
+}
+
+// CAMERA FOLLOW
+
+function updateCamera(){
+
+    camera.position.x =
+    car.position.x -
+    Math.sin(
+        car.rotation.y
+    ) * 8;
+
+    camera.position.y = 5;
+
+    camera.position.z =
+    car.position.z -
+    Math.cos(
+        car.rotation.y
+    ) * 8;
+
+    camera.lookAt(
+        car.position
+    );
+
+}
+
+// RESIZE
+
+window.addEventListener(
+"resize",
+()=>{
+
+    camera.aspect =
+    window.innerWidth /
+    window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+}
+);
+
+// LOOP
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+    drive();
+
+    updateCamera();
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
+``
