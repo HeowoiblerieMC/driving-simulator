@@ -275,17 +275,17 @@ function animate(){
 
         if(speed < 80){
 
-            speed += 0.12;
+            speed += 1.5;
 
         }
         else if(speed < 100){
 
-            speed += 0.06;
+            speed += 0.8;
 
         }
         else if(speed < 160){
 
-            speed += 0.03;
+            speed += 0.3;
 
         }
 
