@@ -295,7 +295,7 @@ function animate(){
 
     if(keys["s"]){
 
-        speed -= 0.5;
+        speed -= 1.5;
 
     }
 
@@ -349,8 +349,8 @@ car.position.z -=
 
     tachometer.textContent =
         Math.round(
-            800 +
-            speed * 35
+            700 +
+            speed * 40
         )
         + " RPM";
 
