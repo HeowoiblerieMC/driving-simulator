@@ -60,4 +60,63 @@ road.position.y = 0.01;
 scene.add(road);
 
 // center line
-const centerLine = new THREE.Mesh
+const centerLine = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.5, 5000),
+    new THREE.MeshBasicMaterial({
+        color: 0xffff00
+    })
+);
+
+centerLine.rotation.x = -Math.PI / 2;
+centerLine.position.y = 0.02;
+
+scene.add(centerLine);
+
+// car
+const car = new THREE.Mesh(
+    new THREE.BoxGeometry(4, 2, 8),
+    new THREE.MeshLambertMaterial({
+        color: 0x555555
+    })
+);
+
+car.position.y = 1;
+
+scene.add(car);
+
+camera.lookAt(car.position);
+
+// PLAY button
+document.getElementById("playBtn").addEventListener("click", () => {
+
+    document.getElementById("menu").style.display = "none";
+
+    renderer.domElement.style.display = "block";
+
+});
+
+// resize
+window.addEventListener("resize", () => {
+
+    camera.aspect =
+        window.innerWidth / window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+});
+
+// animate
+function animate() {
+
+    requestAnimationFrame(animate);
+
+    renderer.render(scene, camera);
+
+}
+
+animate();
