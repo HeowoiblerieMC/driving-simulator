@@ -1,9 +1,12 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js";
 
+// Scene Setup
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
 
-// camera
+// Camera Setup
+
 const camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
@@ -11,9 +14,10 @@ const camera = new THREE.PerspectiveCamera(
     10000
 );
 
-camera.position.set(0, 20, 30);
+camera.position.set(0, 10, 20);
 
-// renderer
+// Renderer Setup
+
 const renderer = new THREE.WebGLRenderer({
     antialias: true
 });
@@ -27,14 +31,19 @@ renderer.domElement.style.display = "none";
 
 document.body.appendChild(renderer.domElement);
 
-// light
-const light = new THREE.DirectionalLight(0xffffff, 2);
+// Lighting
+
+const light = new THREE.DirectionalLight(
+    0xffffff,
+    2
+);
 
 light.position.set(100, 200, 100);
 
 scene.add(light);
 
-// ground
+// Ground
+
 const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(5000, 5000),
     new THREE.MeshLambertMaterial({
@@ -46,9 +55,10 @@ ground.rotation.x = -Math.PI / 2;
 
 scene.add(ground);
 
-// road
+// Main Road
+
 const road = new THREE.Mesh(
-    new THREE.PlaneGeometry(30, 5000),
+    new THREE.PlaneGeometry(50, 5000),
     new THREE.MeshLambertMaterial({
         color: 0x333333
     })
@@ -59,61 +69,30 @@ road.position.y = 0.01;
 
 scene.add(road);
 
-// center line
-const centerLine = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.5, 5000),
-    new THREE.MeshBasicMaterial({
-        color: 0xffff00
-    })
-);
+// Dashed Lane Marking
 
-centerLine.rotation.x = -Math.PI / 2;
-centerLine.position.y = 0.02;
+for (let z = -2500; z <= 2500; z += 20) {
 
-scene.add(centerLine);
+    const dash = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.35, 10),
+        new THREE.MeshBasicMaterial({
+            color: 0xffffff
+        })
+    );
 
-// Median Strip
+    dash.rotation.x = -Math.PI / 2;
 
-const median = new THREE.Mesh(
-    new THREE.BoxGeometry(3, 0.5, 5000),
-    new THREE.MeshLambertMaterial({
-        color: 0x777777
-    })
-);
+    dash.position.set(
+        0,
+        0.02,
+        z
+    );
 
-median.position.y = 0.25;
+    scene.add(dash);
+}
 
-scene.add(median);
+// Vehicle
 
-// Cross Road
-
-const crossRoad = new THREE.Mesh(
-    new THREE.PlaneGeometry(5000, 50),
-    new THREE.MeshLambertMaterial({
-        color: 0x333333
-    })
-);
-
-crossRoad.rotation.x = -Math.PI / 2;
-crossRoad.position.y = 0.01;
-
-scene.add(crossRoad);
-
-// Cross Road Center Line
-
-const crossCenterLine = new THREE.Mesh(
-    new THREE.PlaneGeometry(5000, 0.5),
-    new THREE.MeshBasicMaterial({
-        color: 0xffff00
-    })
-);
-
-crossCenterLine.rotation.x = -Math.PI / 2;
-crossCenterLine.position.y = 0.02;
-
-scene.add(crossCenterLine);
-
-// car
 const car = new THREE.Mesh(
     new THREE.BoxGeometry(4, 2, 8),
     new THREE.MeshLambertMaterial({
@@ -125,9 +104,20 @@ car.position.y = 1;
 
 scene.add(car);
 
-camera.lookAt(car.position);
+// Vehicle Controls
 
-// PLAY button
+const keys = {};
+
+window.addEventListener("keydown", (event) => {
+    keys[event.key.toLowerCase()] = true;
+});
+
+window.addEventListener("keyup", (event) => {
+    keys[event.key.toLowerCase()] = false;
+});
+
+// Play Button
+
 document.getElementById("playBtn").addEventListener("click", () => {
 
     document.getElementById("menu").style.display = "none";
@@ -136,7 +126,8 @@ document.getElementById("playBtn").addEventListener("click", () => {
 
 });
 
-// resize
+// Resize
+
 window.addEventListener("resize", () => {
 
     camera.aspect =
@@ -151,13 +142,39 @@ window.addEventListener("resize", () => {
 
 });
 
-// animate
+// Animation Loop
+
 function animate() {
 
     requestAnimationFrame(animate);
 
-    renderer.render(scene, camera);
+    if (keys["w"]) {
+        car.position.z -= 0.6;
+    }
 
+    if (keys["s"]) {
+        car.position.z += 0.6;
+    }
+
+    if (keys["a"]) {
+        car.position.x -= 0.4;
+    }
+
+    if (keys["d"]) {
+        car.position.x += 0.4;
+    }
+
+    // Chase Camera
+
+    camera.position.x = car.position.x;
+
+    camera.position.y = 10;
+
+    camera.position.z = car.position.z + 20;
+
+    camera.lookAt(car.position);
+
+    renderer.render(scene, camera);
 }
 
 animate();
