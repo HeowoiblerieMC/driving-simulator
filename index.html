@@ -159,6 +159,11 @@ for(
     z+=12
 ){
 
+    if(
+        z > 400 &&
+        z < 450
+    ) continue;
+
     const line =
     new THREE.Mesh(
 
@@ -217,6 +222,11 @@ for(
     x+=12
 ){
 
+    if(
+        x > -25 &&
+        x < 25
+    ) continue;
+
     const line =
     new THREE.Mesh(
 
@@ -242,7 +252,7 @@ for(
 
 }
 
-// CROSSWALK NORTH
+// NORTH CROSSWALK
 
 for(
     let x=-8;
@@ -268,14 +278,14 @@ for(
     stripe.position.set(
         x,
         0.12,
-        412
+        405
     );
 
     scene.add(stripe);
 
 }
 
-// CROSSWALK SOUTH
+// SOUTH CROSSWALK
 
 for(
     let x=-8;
@@ -301,14 +311,14 @@ for(
     stripe.position.set(
         x,
         0.12,
-        438
+        445
     );
 
     scene.add(stripe);
 
 }
 
-// CROSSWALK WEST
+// WEST CROSSWALK
 
 for(
     let z=417;
@@ -332,7 +342,7 @@ for(
     );
 
     stripe.position.set(
-        -13,
+        -20,
         0.12,
         z
     );
@@ -341,7 +351,7 @@ for(
 
 }
 
-// CROSSWALK EAST
+// EAST CROSSWALK
 
 for(
     let z=417;
@@ -365,7 +375,7 @@ for(
     );
 
     stripe.position.set(
-        13,
+        20,
         0.12,
         z
     );
@@ -373,6 +383,107 @@ for(
     scene.add(stripe);
 
 }
+
+// BUILDINGS
+
+function addBuilding(
+    x,
+    z,
+    floors
+){
+
+    const height =
+    floors * 6;
+
+    const building =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            40,
+            height,
+            40
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x777777
+        })
+
+    );
+
+    building.position.set(
+        x,
+        height/2,
+        z
+    );
+
+    scene.add(building);
+
+    for(
+        let y=6;
+        y<height-3;
+        y+=6
+    ){
+
+        for(
+            let i=-15;
+            i<=15;
+            i+=6
+        ){
+
+            const windowBox =
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    3,
+                    3,
+                    0.3
+                ),
+
+                new THREE.MeshLambertMaterial({
+                    color:0xaaddff
+                })
+
+            );
+
+            windowBox.position.set(
+                x+i,
+                y,
+                z+20.2
+            );
+
+            scene.add(windowBox);
+
+        }
+
+    }
+
+}
+
+// INTERSECTION BUILDINGS
+
+addBuilding(
+    -100,
+    325,
+    20
+);
+
+addBuilding(
+    100,
+    325,
+    15
+);
+
+addBuilding(
+    -100,
+    525,
+    18
+);
+
+addBuilding(
+    100,
+    525,
+    10
+);
 
 // CAR
 
