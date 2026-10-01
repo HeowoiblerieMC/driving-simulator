@@ -1,102 +1,63 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js";
 
-let scene;
-let camera;
-let renderer;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
 
-function init(){
+// camera
+const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    10000
+);
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
+camera.position.set(0, 20, 30);
 
-    camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        10000
-    );
+// renderer
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
 
-    renderer = new THREE.WebGLRenderer({
-        antialias:true
-    });
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
 
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
+renderer.domElement.style.display = "none";
 
-    renderer.domElement.style.display = "none";
+document.body.appendChild(renderer.domElement);
 
-    document.body.appendChild(renderer.domElement);
+// light
+const light = new THREE.DirectionalLight(0xffffff, 2);
 
-    // 光
+light.position.set(100, 200, 100);
 
-    const sun = new THREE.DirectionalLight(
-        0xffffff,
-        2
-    );
+scene.add(light);
 
-    sun.position.set(100,200,100);
+// ground
+const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(5000, 5000),
+    new THREE.MeshLambertMaterial({
+        color: 0x3f7526
+    })
+);
 
-    scene.add(sun);
+ground.rotation.x = -Math.PI / 2;
 
-    // 地面
+scene.add(ground);
 
-    const ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(5000,5000),
-        new THREE.MeshLambertMaterial({
-            color:0x4f8f3a
-        })
-    );
+// road
+const road = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 5000),
+    new THREE.MeshLambertMaterial({
+        color: 0x333333
+    })
+);
 
-    ground.rotation.x = -Math.PI / 2;
+road.rotation.x = -Math.PI / 2;
+road.position.y = 0.01;
 
-    scene.add(ground);
+scene.add(road);
 
-    // 車
-
-    const car = new THREE.Mesh(
-        new THREE.BoxGeometry(4,2,8),
-        new THREE.MeshLambertMaterial({
-            color:0x666666
-        })
-    );
-
-    car.position.y = 1;
-
-    scene.add(car);
-
-    camera.position.set(
-        0,
-        10,
-        20
-    );
-
-    camera.lookAt(car.position);
-
-    function animate(){
-
-        requestAnimationFrame(animate);
-
-        renderer.render(
-            scene,
-            camera
-        );
-    }
-
-    animate();
-
-    // PLAYボタン
-
-    document
-        .getElementById("playBtn")
-        .addEventListener("click",()=>{
-
-            document.getElementById("menu").style.display = "none";
-
-            renderer.domElement.style.display = "block";
-        });
-
-}
-
-init();
+// center line
+const centerLine = new THREE.Mesh
