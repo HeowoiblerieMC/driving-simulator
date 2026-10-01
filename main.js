@@ -61,11 +61,13 @@ ground.rotation.x = -Math.PI / 2;
 
 scene.add(ground);
 
+// ROAD SYSTEM
+
 // Left Road
 
 const leftRoad = new THREE.Mesh(
     new THREE.BoxGeometry(
-        16,
+        8,
         0.2,
         5000
     ),
@@ -75,7 +77,7 @@ const leftRoad = new THREE.Mesh(
 );
 
 leftRoad.position.set(
-    -10,
+    -6,
     0.1,
     0
 );
@@ -86,7 +88,7 @@ scene.add(leftRoad);
 
 const rightRoad = new THREE.Mesh(
     new THREE.BoxGeometry(
-        16,
+        8,
         0.2,
         5000
     ),
@@ -96,7 +98,7 @@ const rightRoad = new THREE.Mesh(
 );
 
 rightRoad.position.set(
-    10,
+    6,
     0.1,
     0
 );
@@ -112,23 +114,67 @@ const median = new THREE.Mesh(
         5000
     ),
     new THREE.MeshLambertMaterial({
-        color: 0x4f8f3f
+        color: 0x4d8a3d
     })
 );
 
-median.position.y = 0.25;
+median.position.set(
+    0,
+    0.25,
+    0
+);
 
 scene.add(median);
+
+// Sidewalks
+
+const leftSidewalk = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        4,
+        0.35,
+        5000
+    ),
+    new THREE.MeshLambertMaterial({
+        color: 0xd0d0d0
+    })
+);
+
+leftSidewalk.position.set(
+    -12,
+    0.17,
+    0
+);
+
+scene.add(leftSidewalk);
+
+const rightSidewalk = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        4,
+        0.35,
+        5000
+    ),
+    new THREE.MeshLambertMaterial({
+        color: 0xd0d0d0
+    })
+);
+
+rightSidewalk.position.set(
+    12,
+    0.17,
+    0
+);
+
+scene.add(rightSidewalk);
 
 // Lane Markings
 
 for(let z = -2500; z <= 2500; z += 20){
 
-    for(const x of [-14, -6, 6, 14]){
+    for(const x of [-6, 6]){
 
         const dash = new THREE.Mesh(
             new THREE.BoxGeometry(
-                0.3,
+                0.2,
                 0.05,
                 10
             ),
@@ -145,75 +191,28 @@ for(let z = -2500; z <= 2500; z += 20){
 
         scene.add(dash);
     }
+
 }
-
-// Sidewalks
-
-const leftSidewalk = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        5,
-        0.3,
-        5000
-    ),
-    new THREE.MeshLambertMaterial({
-        color: 0xcfcfcf
-    })
-);
-
-leftSidewalk.position.set(
-    -20.5,
-    0.15,
-    0
-);
-
-scene.add(leftSidewalk);
-
-const rightSidewalk = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        5,
-        0.3,
-        5000
-    ),
-    new THREE.MeshLambertMaterial({
-        color: 0xcfcfcf
-    })
-);
-
-rightSidewalk.position.set(
-    20.5,
-    0.15,
-    0
-);
-
-scene.add(rightSidewalk);
 
 // Street Trees
 
-for(let z = -2500; z <= 2500; z += 60){
-
-    const treeX =
-        (Math.random() - 0.5) * 1.5;
+for(let z = -2500; z <= 2500; z += 70){
 
     const trunkHeight =
         4 + Math.random() * 2;
 
     const crownSize =
-        1.5 + Math.random() * 0.8;
+        1.5 + Math.random() * 0.5;
 
-    const greenColors = [
-        0x228b22,
-        0x2e8b57,
-        0x3cb371,
-        0x1f7a1f
+    const leafColor = [
+        0x2e7d32,
+        0x388e3c,
+        0x228b22
+    ][
+        Math.floor(
+            Math.random() * 3
+        )
     ];
-
-    const leafColor =
-        greenColors[
-            Math.floor(
-                Math.random() *
-                greenColors.length
-            )
-        ];
 
     const trunk = new THREE.Mesh(
         new THREE.CylinderGeometry(
@@ -228,7 +227,7 @@ for(let z = -2500; z <= 2500; z += 60){
     );
 
     trunk.position.set(
-        treeX,
+        0,
         trunkHeight / 2,
         z
     );
@@ -240,73 +239,27 @@ for(let z = -2500; z <= 2500; z += 60){
             color: leafColor
         });
 
-    const crown1 = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            crownSize,
-            16,
-            16
-        ),
-        leafMaterial
-    );
+    for(let i = 0; i < 4; i++){
 
-    crown1.position.set(
-        treeX,
-        trunkHeight + 1.0,
-        z
-    );
+        const leaf = new THREE.Mesh(
+            new THREE.SphereGeometry(
+                crownSize,
+                16,
+                16
+            ),
+            leafMaterial
+        );
 
-    scene.add(crown1);
+        leaf.position.set(
+            (Math.random()-0.5)*1.5,
+            trunkHeight + 0.5 + Math.random()*1.5,
+            z + (Math.random()-0.5)*0.5
+        );
 
-    const crown2 = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            crownSize * 0.8,
-            16,
-            16
-        ),
-        leafMaterial
-    );
+        scene.add(leaf);
 
-    crown2.position.set(
-        treeX - 1.0,
-        trunkHeight + 0.5,
-        z
-    );
+    }
 
-    scene.add(crown2);
-
-    const crown3 = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            crownSize * 0.8,
-            16,
-            16
-        ),
-        leafMaterial
-    );
-
-    crown3.position.set(
-        treeX + 1.0,
-        trunkHeight + 0.5,
-        z
-    );
-
-    scene.add(crown3);
-
-    const crown4 = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            crownSize * 0.7,
-            16,
-            16
-        ),
-        leafMaterial
-    );
-
-    crown4.position.set(
-        treeX,
-        trunkHeight + 2.0,
-        z
-    );
-
-    scene.add(crown4);
 }
 
 // Vehicle
@@ -381,6 +334,8 @@ for(const x of [-1.8, 1.8]){
 }
 
 scene.add(car);
+
+car.position.x = -7;
 
 // HUD
 
