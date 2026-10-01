@@ -273,19 +273,19 @@ function animate(){
 
     if(keys["w"]){
 
-        if(speed < 80){
+        if(speed < 70){
 
-            speed += 1.5;
+            speed += 0.4;
 
         }
         else if(speed < 100){
 
-            speed += 0.8;
+            speed += 0.15;
 
         }
         else if(speed < 160){
 
-            speed += 0.3;
+            speed += 0.05;
 
         }
 
