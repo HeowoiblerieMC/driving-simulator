@@ -70,7 +70,7 @@ const road = new THREE.Mesh(
         5000
     ),
     new THREE.MeshLambertMaterial({
-        color: 0x333333
+        color: 0x2f2f2f
     })
 );
 
@@ -78,32 +78,132 @@ road.position.y = 0.1;
 
 scene.add(road);
 
-// Dashed Lane Marking
+// Median Strip
 
-for(
-    let z = -2500;
-    z <= 2500;
-    z += 20
-){
+const median = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        10,
+        0.3,
+        5000
+    ),
+    new THREE.MeshLambertMaterial({
+        color: 0x4f8f3f
+    })
+);
 
-    const dash = new THREE.Mesh(
-        new THREE.BoxGeometry(
+median.position.y = 0.25;
+
+scene.add(median);
+
+// Lane Markings
+
+for(let z = -2500; z <= 2500; z += 20){
+
+    for(const x of [-15, -5, 5, 15]){
+
+        const dash = new THREE.Mesh(
+            new THREE.BoxGeometry(
+                0.3,
+                0.05,
+                10
+            ),
+            new THREE.MeshBasicMaterial({
+                color: 0xffffff
+            })
+        );
+
+        dash.position.set(
+            x,
+            0.31,
+            z
+        );
+
+        scene.add(dash);
+    }
+}
+
+// Sidewalks
+
+const leftSidewalk = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        5,
+        0.15,
+        5000
+    ),
+    new THREE.MeshLambertMaterial({
+        color: 0x666666
+    })
+);
+
+leftSidewalk.position.set(
+    -22.5,
+    0.08,
+    0
+);
+
+scene.add(leftSidewalk);
+
+const rightSidewalk = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        5,
+        0.15,
+        5000
+    ),
+    new THREE.MeshLambertMaterial({
+        color: 0x666666
+    })
+);
+
+rightSidewalk.position.set(
+    22.5,
+    0.08,
+    0
+);
+
+scene.add(rightSidewalk);
+
+// Street Trees
+
+for(let z = -2500; z <= 2500; z += 40){
+
+    const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            0.3,
             0.4,
-            0.05,
-            10
+            3,
+            12
         ),
-        new THREE.MeshBasicMaterial({
-            color: 0xffffff
+        new THREE.MeshLambertMaterial({
+            color: 0x6b4423
         })
     );
 
-    dash.position.set(
+    trunk.position.set(
         0,
-        0.25,
+        1.8,
         z
     );
 
-    scene.add(dash);
+    scene.add(trunk);
+
+    const leaves = new THREE.Mesh(
+        new THREE.SphereGeometry(
+            1.5,
+            12,
+            12
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x228b22
+        })
+    );
+
+    leaves.position.set(
+        0,
+        4,
+        z
+    );
+
+    scene.add(leaves);
 }
 
 // Vehicle
