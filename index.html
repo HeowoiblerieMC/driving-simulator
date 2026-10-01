@@ -151,6 +151,58 @@ road.position.y = 0.05;
 
 scene.add(road);
 
+// TREES
+
+function addTree(x,z){
+
+    const trunk =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            1,
+            4,
+            1
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x8b5a2b
+        })
+
+    );
+
+    trunk.position.set(
+        x,
+        2,
+        z
+    );
+
+    scene.add(trunk);
+
+    const leaves =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            4,
+            4,
+            4
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x228b22
+        })
+
+    );
+
+    leaves.position.set(
+        x,
+        5,
+        z
+    );
+
+    scene.add(leaves);
+
+}
+
 //CENTER LINE
 
 for(
