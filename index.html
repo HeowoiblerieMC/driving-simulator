@@ -287,65 +287,74 @@ scene.add(crossRoad);
 
 // HORIZONTAL SIDEWALKS
 
+const sidewalkMaterial =
+new THREE.MeshLambertMaterial({
+    color:0x555555
+});
+
+// TOP LEFT
+
 const topSidewalkLeft =
 new THREE.Mesh(
 
     new THREE.BoxGeometry(
-        2400,
-        0.12,
-        10
+        2450,
+        0.15,
+        5
     ),
 
-    new THREE.MeshLambertMaterial({
-        color:0x555555
-    })
+    sidewalkMaterial
 
 );
 
 topSidewalkLeft.position.set(
-    -1300,
-    0.06,
+    -1275,
+    0.08,
     440
 );
 
 scene.add(topSidewalkLeft);
 
+// TOP RIGHT
+
 const topSidewalkRight =
 topSidewalkLeft.clone();
 
 topSidewalkRight.position.x =
-1300;
+1275;
 
 scene.add(topSidewalkRight);
+
+// BOTTOM LEFT
 
 const bottomSidewalkLeft =
 new THREE.Mesh(
 
     new THREE.BoxGeometry(
-        2400,
-        0.12,
-        10
+        2450,
+        0.15,
+        5
     ),
 
-    new THREE.MeshLambertMaterial({
-        color:0x555555
-    })
+    sidewalkMaterial
 
 );
 
 bottomSidewalkLeft.position.set(
-    -1300,
-    0.06,
+    -1275,
+    0.08,
     410
 );
 
 scene.add(bottomSidewalkLeft);
 
+// BOTTOM RIGHT
+
 const bottomSidewalkRight =
 bottomSidewalkLeft.clone();
 
 bottomSidewalkRight.position.x =
-1300;
+1275;
 
 scene.add(bottomSidewalkRight);
 
@@ -698,7 +707,9 @@ for(
 
 }
 
-// TRAFFIC LIGHTS
+/// TRAFFIC LIGHTS
+
+const trafficLights = [];
 
 function addTrafficLight(
     x,
@@ -737,7 +748,7 @@ function addTrafficLight(
     new THREE.Mesh(
 
         new THREE.BoxGeometry(
-            4,
+            6,
             0.3,
             0.3
         ),
@@ -749,37 +760,54 @@ function addTrafficLight(
     );
 
     arm.position.set(
-        2,
+        3,
         8,
         0
     );
 
     signal.add(arm);
 
-    // SIGNAL BODY
+    // BODY
 
     const body =
     new THREE.Mesh(
 
         new THREE.BoxGeometry(
-            3,
-            1.2,
+            4,
+            1.5,
             1
         ),
 
         new THREE.MeshLambertMaterial({
-            color:0x2a2a2a
+            color:0x333333
         })
 
     );
 
     body.position.set(
-        4,
+        6,
         8,
         0
     );
 
     signal.add(body);
+
+    // MATERIALS
+
+    const greenMaterial =
+    new THREE.MeshBasicMaterial({
+        color:0x00ff00
+    });
+
+    const yellowMaterial =
+    new THREE.MeshBasicMaterial({
+        color:0x333300
+    });
+
+    const redMaterial =
+    new THREE.MeshBasicMaterial({
+        color:0x330000
+    });
 
     // GREEN
 
@@ -787,49 +815,22 @@ function addTrafficLight(
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            0.3,
+            0.5,
             16,
             16
         ),
 
-        new THREE.MeshBasicMaterial({
-            color:0x00ff00
-        })
+        greenMaterial
 
     );
 
     green.position.set(
-        3.2,
+        5,
         8,
         0.55
     );
 
     signal.add(green);
-
-    // GREEN HOOD
-
-    const greenHood =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            0.6,
-            0.6,
-            0.5
-        ),
-
-        new THREE.MeshLambertMaterial({
-            color:0x111111
-        })
-
-    );
-
-    greenHood.position.set(
-        3.2,
-        8,
-        0.9
-    );
-
-    signal.add(greenHood);
 
     // YELLOW
 
@@ -837,49 +838,22 @@ function addTrafficLight(
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            0.3,
+            0.5,
             16,
             16
         ),
 
-        new THREE.MeshBasicMaterial({
-            color:0x444400
-        })
+        yellowMaterial
 
     );
 
     yellow.position.set(
-        4,
+        6,
         8,
         0.55
     );
 
     signal.add(yellow);
-
-    // YELLOW HOOD
-
-    const yellowHood =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            0.6,
-            0.6,
-            0.5
-        ),
-
-        new THREE.MeshLambertMaterial({
-            color:0x111111
-        })
-
-    );
-
-    yellowHood.position.set(
-        4,
-        8,
-        0.9
-    );
-
-    signal.add(yellowHood);
 
     // RED
 
@@ -887,49 +861,22 @@ function addTrafficLight(
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            0.3,
+            0.5,
             16,
             16
         ),
 
-        new THREE.MeshBasicMaterial({
-            color:0x440000
-        })
+        redMaterial
 
     );
 
     red.position.set(
-        4.8,
+        7,
         8,
         0.55
     );
 
     signal.add(red);
-
-    // RED HOOD
-
-    const redHood =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            0.6,
-            0.6,
-            0.5
-        ),
-
-        new THREE.MeshLambertMaterial({
-            color:0x111111
-        })
-
-    );
-
-    redHood.position.set(
-        4.8,
-        8,
-        0.9
-    );
-
-    signal.add(redHood);
 
     signal.position.set(
         x,
@@ -942,7 +889,15 @@ function addTrafficLight(
 
     scene.add(signal);
 
+    trafficLights.push({
+        green:greenMaterial,
+        yellow:yellowMaterial,
+        red:redMaterial
+    });
+
 }
+
+// NORTH
 
 addTrafficLight(
     -25,
@@ -950,11 +905,15 @@ addTrafficLight(
     0
 );
 
+// SOUTH
+
 addTrafficLight(
     25,
-    400,
+    450,
     Math.PI
 );
+
+// WEST
 
 addTrafficLight(
     -25,
@@ -962,9 +921,11 @@ addTrafficLight(
     Math.PI / 2
 );
 
+// EAST
+
 addTrafficLight(
     25,
-    450,
+    400,
     -Math.PI / 2
 );
 
