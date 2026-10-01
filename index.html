@@ -151,7 +151,7 @@ road.position.y = 0.05;
 
 scene.add(road);
 
-// CENTER LINE
+// VERTICAL CENTER LINE
 
 for(
     let z=-2490;
@@ -184,13 +184,13 @@ for(
 
 }
 
-// INTERSECTION
+// CROSS ROAD
 
 const crossRoad =
 new THREE.Mesh(
 
     new THREE.BoxGeometry(
-        200,
+        5000,
         0.1,
         20
     ),
@@ -209,7 +209,40 @@ crossRoad.position.set(
 
 scene.add(crossRoad);
 
-// CROSSWALK
+// HORIZONTAL CENTER LINE
+
+for(
+    let x=-2490;
+    x<=2490;
+    x+=12
+){
+
+    const line =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            6,
+            0.11,
+            0.3
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0xffffff
+        })
+
+    );
+
+    line.position.set(
+        x,
+        0.11,
+        425
+    );
+
+    scene.add(line);
+
+}
+
+// CROSSWALK NORTH
 
 for(
     let x=-8;
@@ -223,7 +256,7 @@ for(
         new THREE.BoxGeometry(
             1,
             0.12,
-            8
+            4
         ),
 
         new THREE.MeshLambertMaterial({
@@ -235,73 +268,109 @@ for(
     stripe.position.set(
         x,
         0.12,
-        425
+        412
     );
 
     scene.add(stripe);
 
 }
 
-// TREES
+// CROSSWALK SOUTH
 
-function addTree(x,z){
+for(
+    let x=-8;
+    x<=8;
+    x+=2
+){
 
-    const trunk =
+    const stripe =
     new THREE.Mesh(
 
         new THREE.BoxGeometry(
-            1.5,
-            8,
-            1.5
+            1,
+            0.12,
+            4
         ),
 
         new THREE.MeshLambertMaterial({
-            color:0x8b5a2b
+            color:0xffffff
         })
 
     );
 
-    trunk.position.set(
+    stripe.position.set(
         x,
-        4,
-        z
+        0.12,
+        438
     );
 
-    scene.add(trunk);
-
-    const leaves =
-    new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            10,
-            10,
-            10
-        ),
-
-        new THREE.MeshLambertMaterial({
-            color:0x228b22
-        })
-
-    );
-
-    leaves.position.set(
-        x,
-        10,
-        z
-    );
-
-    scene.add(leaves);
+    scene.add(stripe);
 
 }
 
+// CROSSWALK WEST
+
 for(
-    let z=-2500;
-    z<=2500;
-    z+=50
+    let z=417;
+    z<=433;
+    z+=2
 ){
 
-    addTree(-40,z);
-    addTree(40,z);
+    const stripe =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            4,
+            0.12,
+            1
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0xffffff
+        })
+
+    );
+
+    stripe.position.set(
+        -13,
+        0.12,
+        z
+    );
+
+    scene.add(stripe);
+
+}
+
+// CROSSWALK EAST
+
+for(
+    let z=417;
+    z<=433;
+    z+=2
+){
+
+    const stripe =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            4,
+            0.12,
+            1
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0xffffff
+        })
+
+    );
+
+    stripe.position.set(
+        13,
+        0.12,
+        z
+    );
+
+    scene.add(stripe);
 
 }
 
