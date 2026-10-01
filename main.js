@@ -99,7 +99,7 @@ scene.add(median);
 
 for(let z = -2500; z <= 2500; z += 20){
 
-    for(const x of [-15, -5, 5, 15]){
+    for(const x of [-10, 10]){
 
         const dash = new THREE.Mesh(
             new THREE.BoxGeometry(
@@ -168,9 +168,9 @@ for(let z = -2500; z <= 2500; z += 40){
 
     const trunk = new THREE.Mesh(
         new THREE.CylinderGeometry(
-            0.3,
-            0.4,
-            3,
+            0.5,
+            0.6,
+            6,
             12
         ),
         new THREE.MeshLambertMaterial({
@@ -180,7 +180,7 @@ for(let z = -2500; z <= 2500; z += 40){
 
     trunk.position.set(
         0,
-        1.8,
+        3,
         z
     );
 
@@ -188,9 +188,9 @@ for(let z = -2500; z <= 2500; z += 40){
 
     const leaves = new THREE.Mesh(
         new THREE.SphereGeometry(
-            1.5,
-            12,
-            12
+            3,
+            16,
+            16
         ),
         new THREE.MeshLambertMaterial({
             color: 0x228b22
@@ -199,7 +199,7 @@ for(let z = -2500; z <= 2500; z += 40){
 
     leaves.position.set(
         0,
-        4,
+        8,
         z
     );
 
