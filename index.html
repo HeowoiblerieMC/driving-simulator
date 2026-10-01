@@ -135,6 +135,39 @@ scene.add(
     road
 );
 
+// CENTER LINE
+
+for(
+    let z = -240;
+    z <= 240;
+    z += 12
+){
+
+    const line =
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            0.3,
+            0.11,
+            6
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0xffffff
+        })
+
+    );
+
+    line.position.set(
+        0,
+        0.11,
+        z
+    );
+
+    scene.add(line);
+
+}
+
 // CAR
 
 const car =
@@ -152,12 +185,67 @@ new THREE.Mesh(
 
 );
 
-car.position.y =
-0.5;
+car.position.y = 0.5;
 
-scene.add(
-    car
+scene.add(car);
+
+// WINDOW
+
+const windowPart =
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        1.4,
+        0.6,
+        2
+    ),
+
+    new THREE.MeshLambertMaterial({
+        color:0x88ccff
+    })
+
 );
+
+windowPart.position.set(
+    0,
+    0.8,
+    0
+);
+
+car.add(windowPart);
+
+// WHEELS
+
+function makeWheel(x,z){
+
+    const wheel =
+    new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+            0.5,
+            0.5,
+            0.5,
+            16
+        ),
+
+        new THREE.MeshLambertMaterial({
+            color:0x111111
+        })
+
+    );
+
+    wheel.rotation.z =
+    Math.PI / 2;
+
+    wheel.position.set(
+        x,
+        0.5,
+        z
+    );
+
+    car.add(wheel);
+
+}
 
 // CONTROLS
 
