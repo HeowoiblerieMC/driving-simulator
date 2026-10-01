@@ -51,7 +51,7 @@ scene.add(light);
 // Ground
 
 const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(5000, 5000),
+    new THREE.PlaneGeometry(10000, 10000),
     new THREE.MeshLambertMaterial({
         color: 0x3f7526
     })
@@ -69,7 +69,7 @@ const leftRoad = new THREE.Mesh(
     new THREE.BoxGeometry(
         12,
         0.2,
-        5000
+        10000
     ),
     new THREE.MeshLambertMaterial({
         color: 0x2f2f2f
@@ -90,7 +90,7 @@ const rightRoad = new THREE.Mesh(
     new THREE.BoxGeometry(
         12,
         0.2,
-        5000
+        10000
     ),
     new THREE.MeshLambertMaterial({
         color: 0x2f2f2f
@@ -111,7 +111,7 @@ const median = new THREE.Mesh(
     new THREE.BoxGeometry(
         4,
         0.3,
-        5000
+        10000
     ),
     new THREE.MeshLambertMaterial({
         color: 0x4d8a3d
@@ -132,7 +132,7 @@ const leftSidewalk = new THREE.Mesh(
     new THREE.BoxGeometry(
         4,
         0.35,
-        5000
+        10000
     ),
     new THREE.MeshLambertMaterial({
         color: 0xd0d0d0
@@ -151,7 +151,7 @@ const rightSidewalk = new THREE.Mesh(
     new THREE.BoxGeometry(
         4,
         0.35,
-        5000
+        10000
     ),
     new THREE.MeshLambertMaterial({
         color: 0xd0d0d0
@@ -168,7 +168,7 @@ scene.add(rightSidewalk);
 
 // Lane Markings
 
-for(let z = -2500; z <= 2500; z += 20){
+for(let z = -5000; z <= 5000; z += 20){
 
     for(const x of [-8, 8]){
 
@@ -196,7 +196,7 @@ for(let z = -2500; z <= 2500; z += 20){
 
 // Street Trees
 
-for(let z = -2500; z <= 2500; z += 70){
+for(let z = -5000; z <= 5000; z += 70){
 
     const trunkHeight =
         4 + Math.random() * 2;
