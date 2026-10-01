@@ -732,7 +732,7 @@ function addTrafficLight(x,z){
     );
 
     arm.position.set(
-        x+1,
+        x + 1,
         5,
         z
     );
@@ -755,7 +755,7 @@ function addTrafficLight(x,z){
     );
 
     body.position.set(
-        x+2,
+        x + 2,
         5,
         z
     );
@@ -778,9 +778,80 @@ function addTrafficLight(x,z){
     );
 
     green.position.set(
-        x+1.4,
+        x + 1.4,
         5,
-        z+0.45
+        z + 0.45
+    );
+
+    scene.add(green);
+
+    const yellow =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            0.15,
+            12,
+            12
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0x444400
+        })
+
+    );
+
+    yellow.position.set(
+        x + 2,
+        5,
+        z + 0.45
+    );
+
+    scene.add(yellow);
+
+    const red =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            0.15,
+            12,
+            12
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0x440000
+        })
+
+    );
+
+    red.position.set(
+        x + 2.6,
+        5,
+        z + 0.45
+    );
+
+    scene.add(red);
+
+}
+
+addTrafficLight(
+    -25,
+    400
+);
+
+addTrafficLight(
+    25,
+    400
+);
+
+addTrafficLight(
+    -25,
+    450
+);
+
+addTrafficLight(
+    25,
+    450
+);
 
 // CAR
 
