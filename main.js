@@ -275,7 +275,7 @@ function animate(){
 
         if(speed < 70){
 
-            speed += 0.4;
+            speed += 0.3;
 
         }
         else if(speed < 100){
@@ -285,7 +285,7 @@ function animate(){
         }
         else if(speed < 160){
 
-            speed += 0.05;
+            speed += 0.10;
 
         }
 
