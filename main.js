@@ -136,7 +136,7 @@ for(const z of minorRoads){
         new THREE.BoxGeometry(
             120,
             0.2,
-            8
+            12
         ),
         new THREE.MeshLambertMaterial({
             color: 0x2f2f2f
@@ -157,7 +157,7 @@ for(const z of minorRoads){
         new THREE.BoxGeometry(
             120,
             0.2,
-            8
+            12
         ),
         new THREE.MeshLambertMaterial({
             color: 0x2f2f2f
