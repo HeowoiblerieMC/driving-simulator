@@ -152,7 +152,7 @@ for(const z of minorRoads){
     );
 
     roadRight.position.set(
-        76,
+        74,
         0.1,
         z
     );
@@ -171,7 +171,7 @@ for(const z of minorRoads){
     );
 
     roadLeft.position.set(
-        -76,
+        -74,
         0.1,
         z
     );
@@ -190,7 +190,7 @@ for(const z of minorRoads){
     );
 
     s1.position.set(
-        76,
+        74,
         0.17,
         z + 7
     );
@@ -209,7 +209,7 @@ for(const z of minorRoads){
     );
 
     s2.position.set(
-        76,
+        74,
         0.17,
         z - 7
     );
@@ -228,7 +228,7 @@ for(const z of minorRoads){
     );
 
     s3.position.set(
-        -76,
+        -74,
         0.17,
         z + 7
     );
@@ -247,7 +247,7 @@ for(const z of minorRoads){
     );
 
     s4.position.set(
-        -76,
+        -74,
         0.17,
         z - 7
     );
