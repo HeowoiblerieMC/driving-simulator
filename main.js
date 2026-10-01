@@ -285,7 +285,7 @@ function animate(){
         }
         else if(speed < 160){
 
-            speed += 0.10;
+            speed += 0.12;
 
         }
 
@@ -301,7 +301,7 @@ function animate(){
 
     // Natural Deceleration
 
-    speed *= 0.995;
+    speed *= 0.999;
 
     // Speed Limit
 
