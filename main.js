@@ -61,6 +61,69 @@ ground.rotation.x = -Math.PI / 2;
 
 scene.add(ground);
 
+// Intersections
+
+const minorRoads = [];
+const signalIntersections = [];
+const majorIntersections = [];
+
+for(let z = -5000; z <= 5000; z += 125){
+
+    if(z === 0) continue;
+
+    if(z % 500 === 0){
+
+        majorIntersections.push(z);
+
+    }
+    else if(z % 250 === 0){
+
+        signalIntersections.push(z);
+
+    }
+    else{
+
+        minorRoads.push(z);
+
+    }
+
+}
+
+function isMinorIntersection(z){
+
+    return minorRoads.some(
+        i => Math.abs(z - i) < 15
+    );
+
+}
+
+function isSignalIntersection(z){
+
+    return signalIntersections.some(
+        i => Math.abs(z - i) < 25
+    );
+
+}
+
+function isMajorIntersection(z){
+
+    return majorIntersections.some(
+        i => Math.abs(z - i) < 35
+    );
+
+}
+
+function isReservedArea(z){
+
+    return (
+        isMinorIntersection(z) ||
+        isSignalIntersection(z) ||
+        isMajorIntersection(z) ||
+        Math.abs(z) < 60
+    );
+
+}
+
 // ROAD SYSTEM
 
 // Left Road
@@ -105,70 +168,99 @@ rightRoad.position.set(
 
 scene.add(rightRoad);
 
-// Median Strip
+// Median Sections
 
-const median = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        4,
-        0.3,
-        10000
-    ),
-    new THREE.MeshLambertMaterial({
-        color: 0x4d8a3d
-    })
-);
+for(let z = -5000; z <= 5000; z += 50){
 
-median.position.set(
-    0,
-    0.25,
-    0
-);
+    if(
+        isSignalIntersection(z) ||
+        isMajorIntersection(z) ||
+        Math.abs(z) < 60
+    ){
+        continue;
+    }
 
-scene.add(median);
+    const median = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            4,
+            0.3,
+            50
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x4d8a3d
+        })
+    );
 
-// Sidewalks
+    median.position.set(
+        0,
+        0.25,
+        z
+    );
 
-const leftSidewalk = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        4,
-        0.35,
-        10000
-    ),
-    new THREE.MeshLambertMaterial({
-        color: 0xd0d0d0
-    })
-);
+    scene.add(median);
 
-leftSidewalk.position.set(
-    -16,
-    0.17,
-    0
-);
+}
 
-scene.add(leftSidewalk);
+// Sidewalk Sections
 
-const rightSidewalk = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        4,
-        0.35,
-        10000
-    ),
-    new THREE.MeshLambertMaterial({
-        color: 0xd0d0d0
-    })
-);
+for(let z = -5000; z <= 5000; z += 50){
 
-rightSidewalk.position.set(
-    16,
-    0.17,
-    0
-);
+    if(
+        isReservedArea(z)
+    ){
+        continue;
+    }
 
-scene.add(rightSidewalk);
+    const leftSidewalk = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            4,
+            0.35,
+            50
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0xd0d0d0
+        })
+    );
+
+    leftSidewalk.position.set(
+        -16,
+        0.17,
+        z
+    );
+
+    scene.add(leftSidewalk);
+
+    const rightSidewalk = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            4,
+            0.35,
+            50
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0xd0d0d0
+        })
+    );
+
+    rightSidewalk.position.set(
+        16,
+        0.17,
+        z
+    );
+
+    scene.add(rightSidewalk);
+
+}
 
 // Lane Markings
 
 for(let z = -5000; z <= 5000; z += 20){
+if(
+    isSignalIntersection(z) ||
+    isMajorIntersection(z) ||
+    Math.abs(z) < 60
+){
+    continue;
+}
 
     for(const x of [-8, 8]){
 
@@ -197,6 +289,11 @@ for(let z = -5000; z <= 5000; z += 20){
 // Street Trees
 
 for(let z = -5000; z <= 5000; z += 70){
+if(
+    isReservedArea(z)
+){
+    continue;
+}
 
     const trunkHeight =
         4 + Math.random() * 2;
