@@ -1,16 +1,26 @@
 body{
     margin:0;
     overflow:hidden;
-    font-family:Arial,sans-serif;
+    background:black;
 }
 
 #loading{
     position:fixed;
-    inset:0;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
     display:flex;
+
     justify-content:center;
     align-items:center;
-    background:#000;
+
     color:white;
+
     font-size:40px;
+
+    background:black;
 }
