@@ -78,3 +78,29 @@ button:hover{
 button:active{
     transform: scale(0.98);
 }
+#hud{
+    display:none;
+
+    position:absolute;
+    top:20px;
+    right:20px;
+
+    color:white;
+    text-align:right;
+
+    font-family:Arial,sans-serif;
+
+    text-shadow:0 0 10px black;
+
+    z-index:100;
+}
+
+#speedometer{
+    font-size:36px;
+    font-weight:bold;
+}
+
+#tachometer{
+    font-size:24px;
+    margin-top:5px;
+}
