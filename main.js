@@ -73,6 +73,11 @@ const MAJOR_ROAD_WIDTH = MAIN_ROAD_TOTAL_WIDTH;
 const MAJOR_ROAD_HALF_WIDTH = MAJOR_ROAD_WIDTH / 2;
 
 // Lane-center positions on the main boulevard.
+// Japanese left-hand traffic in this scene:
+// +Z travel uses the positive-X carriageway.
+// -Z travel uses the negative-X carriageway.
+// +X travel uses the negative-Z carriageway.
+// -X travel uses the positive-Z carriageway.
 const NEGATIVE_INNER_LANE_X = -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
 const NEGATIVE_OUTER_LANE_X = -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
 const POSITIVE_INNER_LANE_X = MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
@@ -679,47 +684,47 @@ for (const z of signalIntersections) {
     const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
     createStopLineAcrossX(
-        -MAIN_CARRIAGEWAY_CENTER,
+        MAIN_CARRIAGEWAY_CENTER,
         southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
-        MAIN_CARRIAGEWAY_CENTER,
+        -MAIN_CARRIAGEWAY_CENTER,
         northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
         westStopLineX,
-        z + LANE_WIDTH / 2,
+        z - LANE_WIDTH / 2,
         LANE_WIDTH
     );
     createStopLineAcrossZ(
         eastStopLineX,
-        z - LANE_WIDTH / 2,
+        z + LANE_WIDTH / 2,
         LANE_WIDTH
     );
 
     // Main-boulevard arrows: one per lane.
     createRoadArrow(
-        NEGATIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
-        NEGATIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
         POSITIVE_INNER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        POSITIVE_OUTER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        NEGATIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
-        POSITIVE_OUTER_LANE_X,
+        NEGATIVE_OUTER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
@@ -728,13 +733,13 @@ for (const z of signalIntersections) {
     // Crossing-road arrows: one per approach lane.
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
-        z + LANE_WIDTH / 2,
+        z - LANE_WIDTH / 2,
         -Math.PI / 2,
         "straight"
     );
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
-        z - LANE_WIDTH / 2,
+        z + LANE_WIDTH / 2,
         Math.PI / 2,
         "straight"
     );
@@ -847,57 +852,57 @@ for (const z of majorIntersections) {
     const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
     createStopLineAcrossX(
-        -MAIN_CARRIAGEWAY_CENTER,
+        MAIN_CARRIAGEWAY_CENTER,
         southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
-        MAIN_CARRIAGEWAY_CENTER,
+        -MAIN_CARRIAGEWAY_CENTER,
         northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
         westStopLineX,
-        z + MAIN_CARRIAGEWAY_CENTER,
+        z - MAIN_CARRIAGEWAY_CENTER,
         MAJOR_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
         eastStopLineX,
-        z - MAIN_CARRIAGEWAY_CENTER,
+        z + MAIN_CARRIAGEWAY_CENTER,
         MAJOR_CARRIAGEWAY_WIDTH
     );
 
     // Main-boulevard straight arrows, one per lane.
     createRoadArrow(
-        NEGATIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
-        NEGATIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
         POSITIVE_INNER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        POSITIVE_OUTER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        NEGATIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
-        POSITIVE_OUTER_LANE_X,
+        NEGATIVE_OUTER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
 
     // Crossing major-road arrows, one per lane.
-    const westInnerLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
-    const westOuterLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
-    const eastInnerLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
-    const eastOuterLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+    const westInnerLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
+    const westOuterLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+    const eastInnerLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
+    const eastOuterLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
 
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
@@ -993,56 +998,56 @@ const scrambleWestStopLineX = scrambleWestX - STOP_LINE_OFFSET;
 const scrambleEastStopLineX = scrambleEastX + STOP_LINE_OFFSET;
 
 createStopLineAcrossX(
-    -MAIN_CARRIAGEWAY_CENTER,
+    MAIN_CARRIAGEWAY_CENTER,
     scrambleSouthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossX(
-    MAIN_CARRIAGEWAY_CENTER,
+    -MAIN_CARRIAGEWAY_CENTER,
     scrambleNorthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossZ(
     scrambleWestStopLineX,
-    MAIN_CARRIAGEWAY_CENTER,
+    -MAIN_CARRIAGEWAY_CENTER,
     MAJOR_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossZ(
     scrambleEastStopLineX,
-    -MAIN_CARRIAGEWAY_CENTER,
+    MAIN_CARRIAGEWAY_CENTER,
     MAJOR_CARRIAGEWAY_WIDTH
 );
 
 // Scramble approach arrows, one per lane.
 createRoadArrow(
-    NEGATIVE_INNER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
-    "straight"
-);
-createRoadArrow(
-    NEGATIVE_OUTER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
-    "straight"
-);
-createRoadArrow(
     POSITIVE_INNER_LANE_X,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
+    "straight"
+);
+createRoadArrow(
+    POSITIVE_OUTER_LANE_X,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
+    "straight"
+);
+createRoadArrow(
+    NEGATIVE_INNER_LANE_X,
     scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 createRoadArrow(
-    POSITIVE_OUTER_LANE_X,
+    NEGATIVE_OUTER_LANE_X,
     scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 
-const scrambleWestInnerLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
-const scrambleWestOuterLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
-const scrambleEastInnerLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
-const scrambleEastOuterLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+const scrambleWestInnerLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
+const scrambleWestOuterLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+const scrambleEastInnerLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
+const scrambleEastOuterLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
 
 createRoadArrow(
     scrambleWestStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
@@ -1594,7 +1599,7 @@ function createCar(type = "sedan") {
     car.add(exhaust);
 
     scene.add(car);
-    car.position.set(NEGATIVE_OUTER_LANE_X, 0, -90);
+    car.position.set(POSITIVE_OUTER_LANE_X, 0, -90);
     car.rotation.y = 0;
 }
 
