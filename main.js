@@ -597,11 +597,8 @@ for(let z = -5000; z <= 5000; z += 70){
 // Vehicle
 
 let car;
-let frontWheels = [];
 
 function createCar(type){
-
-    frontWheels = [];
 
     if(car){
         scene.remove(car);
@@ -609,54 +606,34 @@ function createCar(type){
 
     car = new THREE.Group();
 
-    let bodyLength = 8;
-    let bodyHeight = 1.5;
     let bodyColor = 0x555555;
 
-    // COMPACT
-
     if(type === "compact"){
-
-        bodyLength = 6;
-        bodyHeight = 1.3;
         bodyColor = 0x44aa44;
-
     }
-
-    // SUV
 
     if(type === "suv"){
-
-        bodyLength = 9;
-        bodyHeight = 2;
         bodyColor = 0x4444aa;
-
     }
-
-    // SPORTS
 
     if(type === "sports"){
-
-        bodyLength = 8;
-        bodyHeight = 1.0;
         bodyColor = 0xaa2222;
-
     }
 
-    // Body
+    // Main Body
 
     const body = new THREE.Mesh(
         new THREE.BoxGeometry(
             4,
-            bodyHeight,
-            bodyLength
+            1,
+            8
         ),
         new THREE.MeshLambertMaterial({
             color: bodyColor
         })
     );
 
-    body.position.y = 1;
+    body.position.y = 0.8;
 
     car.add(body);
 
@@ -665,17 +642,198 @@ function createCar(type){
     const cabin = new THREE.Mesh(
         new THREE.BoxGeometry(
             3,
-            1.2,
-            bodyLength * 0.5
+            1.3,
+            3
         ),
         new THREE.MeshLambertMaterial({
-            color: 0x888888
+            color: 0x777777
         })
     );
 
-    cabin.position.y = 2;
+    cabin.position.set(
+        0,
+        1.8,
+        -0.2
+    );
 
     car.add(cabin);
+
+    // Hood
+
+    const hood = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            3.6,
+            0.8,
+            2.2
+        ),
+        new THREE.MeshLambertMaterial({
+            color: bodyColor
+        })
+    );
+
+    hood.position.set(
+        0,
+        0.9,
+        2.7
+    );
+
+    car.add(hood);
+
+    // Trunk
+
+    const trunk = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            3.6,
+            0.8,
+            1.5
+        ),
+        new THREE.MeshLambertMaterial({
+            color: bodyColor
+        })
+    );
+
+    trunk.position.set(
+        0,
+        0.9,
+        -3
+    );
+
+    car.add(trunk);
+
+    // Front Window
+
+    const frontWindow = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            2.8,
+            0.8,
+            0.1
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x66aaff,
+            transparent: true,
+            opacity: 0.7
+        })
+    );
+
+    frontWindow.rotation.x = -0.5;
+
+    frontWindow.position.set(
+        0,
+        1.9,
+        1
+    );
+
+    car.add(frontWindow);
+
+    // Rear Window
+
+    const rearWindow = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            2.8,
+            0.8,
+            0.1
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x66aaff,
+            transparent: true,
+            opacity: 0.7
+        })
+    );
+
+    rearWindow.rotation.x = 0.5;
+
+    rearWindow.position.set(
+        0,
+        1.9,
+        -1.4
+    );
+
+    car.add(rearWindow);
+
+    // Left Window
+
+    const leftWindow = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            0.1,
+            0.8,
+            2
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x66aaff,
+            transparent: true,
+            opacity: 0.7
+        })
+    );
+
+    leftWindow.position.set(
+        -1.45,
+        1.9,
+        -0.2
+    );
+
+    car.add(leftWindow);
+
+    // Right Window
+
+    const rightWindow = leftWindow.clone();
+
+    rightWindow.position.x = 1.45;
+
+    car.add(rightWindow);
+
+    // Headlights
+
+    const leftHeadlight = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            0.5,
+            0.3,
+            0.1
+        ),
+        new THREE.MeshBasicMaterial({
+            color: 0xffffcc
+        })
+    );
+
+    leftHeadlight.position.set(
+        -1,
+        1,
+        4.05
+    );
+
+    car.add(leftHeadlight);
+
+    const rightHeadlight = leftHeadlight.clone();
+
+    rightHeadlight.position.x = 1;
+
+    car.add(rightHeadlight);
+
+    // Taillights
+
+    const leftTaillight = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            0.5,
+            0.3,
+            0.1
+        ),
+        new THREE.MeshBasicMaterial({
+            color: 0xff2222
+        })
+    );
+
+    leftTaillight.position.set(
+        -1,
+        1,
+        -4.05
+    );
+
+    car.add(leftTaillight);
+
+    const rightTaillight = leftTaillight.clone();
+
+    rightTaillight.position.x = 1;
+
+    car.add(rightTaillight);
 
     // Wheels
 
@@ -705,14 +863,6 @@ function createCar(type){
             );
 
             car.add(wheel);
-
-            if(z > 0){
-
-                frontWheels.push(
-                    wheel
-                );
-
-            }
 
         }
 
