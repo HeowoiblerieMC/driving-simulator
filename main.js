@@ -1122,7 +1122,7 @@ car.position.z -=
         ) *
         20;
 
-    camera.position.y = 10;
+    camera.position.y = 6;
 
     camera.lookAt(
         car.position
