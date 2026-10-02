@@ -139,6 +139,43 @@ for(const z of minorRoads){
         new THREE.MeshLambertMaterial({
             color: 0xd0d0d0
         });
+// Corner Sidewalk Right
+
+const rightCorner = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        4,
+        0.3,
+        12
+    ),
+    sidewalkMaterial
+);
+
+rightCorner.position.set(
+    16,
+    0.17,
+    z
+);
+
+scene.add(rightCorner);
+
+// Corner Sidewalk Left
+
+const leftCorner = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        4,
+        0.3,
+        12
+    ),
+    sidewalkMaterial
+);
+
+leftCorner.position.set(
+    -16,
+    0.17,
+    z
+);
+
+scene.add(leftCorner);
 
     // Right Road
 
