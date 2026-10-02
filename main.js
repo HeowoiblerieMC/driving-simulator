@@ -128,30 +128,49 @@ function isReservedArea(z){
 // ROAD SYSTEM
 // ======================================
 
-// Scale
+// --------------------------------------
+// SCALE
 // Vehicle width: 4 units = 3 meters
+// --------------------------------------
 
 const UNIT_PER_METER = 4 / 3;
 
-// Road dimensions
+// --------------------------------------
+// ROAD DIMENSIONS
+// --------------------------------------
 
-const RESIDENTIAL_ROAD_WIDTH =
-    6 * UNIT_PER_METER;
+// Vehicle
 
-const RESIDENTIAL_SIDEWALK_WIDTH =
-    2 * UNIT_PER_METER;
+const VEHICLE_WIDTH =
+    3 * UNIT_PER_METER;
+
+// Standard lane: 5 meters
 
 const LANE_WIDTH =
     5 * UNIT_PER_METER;
 
+// Standard sidewalk: 3 meters
+
 const STANDARD_SIDEWALK_WIDTH =
     3 * UNIT_PER_METER;
+
+// Residential sidewalk: 2 meters
+
+const RESIDENTIAL_SIDEWALK_WIDTH =
+    2 * UNIT_PER_METER;
+
+// Residential one-way road: 6 meters
+
+const RESIDENTIAL_ROAD_WIDTH =
+    6 * UNIT_PER_METER;
+
+// Median: 5 meters
 
 const MEDIAN_WIDTH =
     5 * UNIT_PER_METER;
 
-// Main boulevard
-// 2 lanes each direction with a median
+// Main road:
+// 2 lanes + median + 2 lanes
 
 const MAIN_CARRIAGEWAY_WIDTH =
     LANE_WIDTH * 2;
@@ -160,26 +179,54 @@ const MAIN_ROAD_TOTAL_WIDTH =
     MAIN_CARRIAGEWAY_WIDTH * 2 +
     MEDIAN_WIDTH;
 
-const MAIN_ROAD_CENTER_OFFSET =
+const MAIN_ROAD_HALF_WIDTH =
+    MAIN_ROAD_TOTAL_WIDTH / 2;
+
+const MAIN_CARRIAGEWAY_CENTER =
     MEDIAN_WIDTH / 2 +
     MAIN_CARRIAGEWAY_WIDTH / 2;
 
-const MAIN_ROAD_OUTER_EDGE =
-    MAIN_ROAD_TOTAL_WIDTH / 2;
-
-// 250m road
+// 250m road:
 // 1 lane each direction, no median
 
 const SIGNAL_ROAD_WIDTH =
     LANE_WIDTH * 2;
 
-// 500m road
-// 2 lanes each direction with median
+const SIGNAL_ROAD_HALF_WIDTH =
+    SIGNAL_ROAD_WIDTH / 2;
+
+// 500m road:
+// 2 lanes + median + 2 lanes
 
 const MAJOR_ROAD_WIDTH =
     MAIN_ROAD_TOTAL_WIDTH;
 
-// Materials
+const MAJOR_ROAD_HALF_WIDTH =
+    MAJOR_ROAD_WIDTH / 2;
+
+// --------------------------------------
+// LENGTHS
+// --------------------------------------
+
+const RESIDENTIAL_ROAD_LENGTH = 120;
+const SIGNAL_ROAD_LENGTH = 180;
+const MAJOR_ROAD_LENGTH = 220;
+
+const MAP_START = -5000;
+const MAP_END = 5000;
+
+// --------------------------------------
+// HEIGHTS
+// --------------------------------------
+
+const ROAD_Y = 0.1;
+const SIDEWALK_Y = 0.17;
+const MEDIAN_Y = 0.25;
+const MARKING_Y = 0.225;
+
+// --------------------------------------
+// MATERIALS
+// --------------------------------------
 
 const roadMaterial =
     new THREE.MeshLambertMaterial({
@@ -206,11 +253,292 @@ const medianMaterial =
         color: 0x4d8a3d
     });
 
-const lineMaterial =
+const whiteMarkingMaterial =
     new THREE.MeshBasicMaterial({
         color: 0xffffff
     });
 
+const yellowMarkingMaterial =
+    new THREE.MeshBasicMaterial({
+        color: 0xffcc33
+    });
+
+// ======================================
+// HELPER FUNCTIONS
+// ======================================
+
+function createBox(
+    width,
+    height,
+    depth,
+    material,
+    x,
+    y,
+    z
+){
+
+    const mesh =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                width,
+                height,
+                depth
+            ),
+            material
+        );
+
+    mesh.position.set(
+        x,
+        y,
+        z
+    );
+
+    scene.add(mesh);
+
+    return mesh;
+}
+
+function addHorizontalMarkingSegment(
+    startX,
+    endX,
+    z,
+    thickness = 0.18,
+    material = whiteMarkingMaterial
+){
+
+    const length =
+        endX - startX;
+
+    if(length <= 0){
+        return;
+    }
+
+    createBox(
+        length,
+        0.03,
+        thickness,
+        material,
+        startX + length / 2,
+        MARKING_Y,
+        z
+    );
+}
+
+function addVerticalMarkingSegment(
+    x,
+    startZ,
+    endZ,
+    thickness = 0.18,
+    material = whiteMarkingMaterial
+){
+
+    const length =
+        endZ - startZ;
+
+    if(length <= 0){
+        return;
+    }
+
+    createBox(
+        thickness,
+        0.03,
+        length,
+        material,
+        x,
+        MARKING_Y,
+        startZ + length / 2
+    );
+}
+
+// Crosswalk across the X direction
+
+function createCrosswalkAcrossX(
+    centerZ,
+    roadWidth
+){
+
+    const stripeWidth = 0.75;
+    const stripeDepth = 4;
+    const stripeGap = 0.75;
+
+    const usableWidth =
+        roadWidth - 2;
+
+    const stripeCount =
+        Math.floor(
+            usableWidth /
+            (
+                stripeWidth +
+                stripeGap
+            )
+        );
+
+    const totalWidth =
+        stripeCount *
+        (
+            stripeWidth +
+            stripeGap
+        ) -
+        stripeGap;
+
+    const startX =
+        -totalWidth / 2 +
+        stripeWidth / 2;
+
+    for(let i = 0; i < stripeCount; i++){
+
+        createBox(
+            stripeWidth,
+            0.035,
+            stripeDepth,
+            whiteMarkingMaterial,
+            startX +
+            i *
+            (
+                stripeWidth +
+                stripeGap
+            ),
+            MARKING_Y + 0.005,
+            centerZ
+        );
+
+    }
+
+}
+
+// Crosswalk across the Z direction
+
+function createCrosswalkAcrossZ(
+    centerX,
+    roadWidth,
+    centerZ
+){
+
+    const stripeWidth = 0.75;
+    const stripeDepth = 4;
+    const stripeGap = 0.75;
+
+    const stripeCount =
+        Math.floor(
+            roadWidth /
+            (
+                stripeWidth +
+                stripeGap
+            )
+        );
+
+    const totalDepth =
+        stripeCount *
+        (
+            stripeWidth +
+            stripeGap
+        ) -
+        stripeGap;
+
+    const startZ =
+        centerZ -
+        totalDepth / 2 +
+        stripeWidth / 2;
+
+    for(let i = 0; i < stripeCount; i++){
+
+        createBox(
+            stripeDepth,
+            0.035,
+            stripeWidth,
+            whiteMarkingMaterial,
+            centerX,
+            MARKING_Y + 0.005,
+            startZ +
+            i *
+            (
+                stripeWidth +
+                stripeGap
+            )
+        );
+
+    }
+
+}
+
+// Road arrow
+
+function createRoadArrow(
+    x,
+    z,
+    rotationY = 0
+){
+
+    const shape =
+        new THREE.Shape();
+
+    shape.moveTo(
+        -0.35,
+        -1.8
+    );
+
+    shape.lineTo(
+        0.35,
+        -1.8
+    );
+
+    shape.lineTo(
+        0.35,
+        0.3
+    );
+
+    shape.lineTo(
+        0.95,
+        0.3
+    );
+
+    shape.lineTo(
+        0,
+        1.8
+    );
+
+    shape.lineTo(
+        -0.95,
+        0.3
+    );
+
+    shape.lineTo(
+        -0.35,
+        0.3
+    );
+
+    shape.lineTo(
+        -0.35,
+        -1.8
+    );
+
+    const geometry =
+        new THREE.ShapeGeometry(
+            shape
+        );
+
+    const arrow =
+        new THREE.Mesh(
+            geometry,
+            whiteMarkingMaterial
+        );
+
+    arrow.rotation.x =
+        -Math.PI / 2;
+
+    arrow.rotation.z =
+        rotationY;
+
+    arrow.position.set(
+        x,
+        MARKING_Y + 0.01,
+        z
+    );
+
+    scene.add(arrow);
+
+    return arrow;
+}
 
 // ======================================
 // MAIN BOULEVARD
@@ -218,42 +546,182 @@ const lineMaterial =
 
 // Left carriageway
 
-const leftMainRoad = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        MAIN_CARRIAGEWAY_WIDTH,
-        0.2,
-        10000
-    ),
-    roadMaterial
-);
-
-leftMainRoad.position.set(
-    -MAIN_ROAD_CENTER_OFFSET,
-    0.1,
+createBox(
+    MAIN_CARRIAGEWAY_WIDTH,
+    0.2,
+    10000,
+    roadMaterial,
+    -MAIN_CARRIAGEWAY_CENTER,
+    ROAD_Y,
     0
 );
-
-scene.add(leftMainRoad);
 
 // Right carriageway
 
-const rightMainRoad = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        MAIN_CARRIAGEWAY_WIDTH,
-        0.2,
-        10000
-    ),
-    roadMaterial
-);
-
-rightMainRoad.position.set(
-    MAIN_ROAD_CENTER_OFFSET,
-    0.1,
+createBox(
+    MAIN_CARRIAGEWAY_WIDTH,
+    0.2,
+    10000,
+    roadMaterial,
+    MAIN_CARRIAGEWAY_CENTER,
+    ROAD_Y,
     0
 );
 
-scene.add(rightMainRoad);
+// ======================================
+// INTERSECTION ZONES
+// Used to create continuous sidewalks
+// without gaps.
+// ======================================
 
+const sidewalkZones = [];
+
+// Residential zones
+
+for(const z of minorRoads){
+
+    sidewalkZones.push({
+        z: z,
+        halfWidth:
+            RESIDENTIAL_ROAD_WIDTH / 2 +
+            RESIDENTIAL_SIDEWALK_WIDTH
+    });
+
+}
+
+// 250m zones
+
+for(const z of signalIntersections){
+
+    sidewalkZones.push({
+        z: z,
+        halfWidth:
+            SIGNAL_ROAD_HALF_WIDTH +
+            STANDARD_SIDEWALK_WIDTH
+    });
+
+}
+
+// 500m zones
+
+for(const z of majorIntersections){
+
+    sidewalkZones.push({
+        z: z,
+        halfWidth:
+            MAJOR_ROAD_HALF_WIDTH +
+            STANDARD_SIDEWALK_WIDTH
+    });
+
+}
+
+// Scramble zone
+
+sidewalkZones.push({
+    z: 0,
+    halfWidth:
+        MAJOR_ROAD_HALF_WIDTH +
+        STANDARD_SIDEWALK_WIDTH
+});
+
+sidewalkZones.sort(
+    (a, b) =>
+        a.z - b.z
+);
+
+// ======================================
+// MAIN BOULEVARD SIDEWALKS
+// Created as continuous sections.
+// ======================================
+
+const mainSidewalkCenterX =
+    MAIN_ROAD_HALF_WIDTH +
+    STANDARD_SIDEWALK_WIDTH / 2;
+
+let previousSidewalkEnd =
+    MAP_START;
+
+for(const zone of sidewalkZones){
+
+    const sectionEnd =
+        zone.z -
+        zone.halfWidth;
+
+    const sectionLength =
+        sectionEnd -
+        previousSidewalkEnd;
+
+    if(sectionLength > 0){
+
+        const sectionCenter =
+            previousSidewalkEnd +
+            sectionLength / 2;
+
+        // Left sidewalk
+
+        createBox(
+            STANDARD_SIDEWALK_WIDTH,
+            0.35,
+            sectionLength,
+            mainSidewalkMaterial,
+            -mainSidewalkCenterX,
+            SIDEWALK_Y,
+            sectionCenter
+        );
+
+        // Right sidewalk
+
+        createBox(
+            STANDARD_SIDEWALK_WIDTH,
+            0.35,
+            sectionLength,
+            mainSidewalkMaterial,
+            mainSidewalkCenterX,
+            SIDEWALK_Y,
+            sectionCenter
+        );
+
+    }
+
+    previousSidewalkEnd =
+        zone.z +
+        zone.halfWidth;
+
+}
+
+// Last sidewalk section
+
+if(previousSidewalkEnd < MAP_END){
+
+    const sectionLength =
+        MAP_END -
+        previousSidewalkEnd;
+
+    const sectionCenter =
+        previousSidewalkEnd +
+        sectionLength / 2;
+
+    createBox(
+        STANDARD_SIDEWALK_WIDTH,
+        0.35,
+        sectionLength,
+        mainSidewalkMaterial,
+        -mainSidewalkCenterX,
+        SIDEWALK_Y,
+        sectionCenter
+    );
+
+    createBox(
+        STANDARD_SIDEWALK_WIDTH,
+        0.35,
+        sectionLength,
+        mainSidewalkMaterial,
+        mainSidewalkCenterX,
+        SIDEWALK_Y,
+        sectionCenter
+    );
+
+}
 
 // ======================================
 // 125m RESIDENTIAL ROADS
@@ -262,13 +730,11 @@ scene.add(rightMainRoad);
 // Sidewalk: 2m
 // ======================================
 
-const residentialRoadLength = 120;
+const residentialRoadCenterX =
+    MAIN_ROAD_HALF_WIDTH +
+    RESIDENTIAL_ROAD_LENGTH / 2;
 
-const residentialRoadCenter =
-    MAIN_ROAD_OUTER_EDGE +
-    residentialRoadLength / 2;
-
-const residentialSidewalkOffset =
+const residentialSidewalkOffsetZ =
     RESIDENTIAL_ROAD_WIDTH / 2 +
     RESIDENTIAL_SIDEWALK_WIDTH / 2;
 
@@ -276,504 +742,790 @@ for(const z of minorRoads){
 
     // Right road
 
-    const rightResidentialRoad =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                residentialRoadLength,
-                0.2,
-                RESIDENTIAL_ROAD_WIDTH
-            ),
-            roadMaterial
-        );
-
-    rightResidentialRoad.position.set(
-        residentialRoadCenter,
-        0.1,
+    createBox(
+        RESIDENTIAL_ROAD_LENGTH,
+        0.2,
+        RESIDENTIAL_ROAD_WIDTH,
+        roadMaterial,
+        residentialRoadCenterX,
+        ROAD_Y,
         z
     );
 
-    scene.add(rightResidentialRoad);
-
     // Left road
 
-    const leftResidentialRoad =
-        rightResidentialRoad.clone();
-
-    leftResidentialRoad.position.x =
-        -residentialRoadCenter;
-
-    scene.add(leftResidentialRoad);
+    createBox(
+        RESIDENTIAL_ROAD_LENGTH,
+        0.2,
+        RESIDENTIAL_ROAD_WIDTH,
+        roadMaterial,
+        -residentialRoadCenterX,
+        ROAD_Y,
+        z
+    );
 
     // Right upper sidewalk
 
-    const rightUpperSidewalk =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                residentialRoadLength,
-                0.3,
-                RESIDENTIAL_SIDEWALK_WIDTH
-            ),
-            sidewalkMaterial
-        );
-
-    rightUpperSidewalk.position.set(
-        residentialRoadCenter,
-        0.17,
-        z + residentialSidewalkOffset
+    createBox(
+        RESIDENTIAL_ROAD_LENGTH,
+        0.3,
+        RESIDENTIAL_SIDEWALK_WIDTH,
+        sidewalkMaterial,
+        residentialRoadCenterX,
+        SIDEWALK_Y,
+        z + residentialSidewalkOffsetZ
     );
-
-    scene.add(rightUpperSidewalk);
 
     // Right lower sidewalk
 
-    const rightLowerSidewalk =
-        rightUpperSidewalk.clone();
-
-    rightLowerSidewalk.position.z =
-        z - residentialSidewalkOffset;
-
-    scene.add(rightLowerSidewalk);
+    createBox(
+        RESIDENTIAL_ROAD_LENGTH,
+        0.3,
+        RESIDENTIAL_SIDEWALK_WIDTH,
+        sidewalkMaterial,
+        residentialRoadCenterX,
+        SIDEWALK_Y,
+        z - residentialSidewalkOffsetZ
+    );
 
     // Left upper sidewalk
 
-    const leftUpperSidewalk =
-        rightUpperSidewalk.clone();
-
-    leftUpperSidewalk.position.set(
-        -residentialRoadCenter,
-        0.17,
-        z + residentialSidewalkOffset
+    createBox(
+        RESIDENTIAL_ROAD_LENGTH,
+        0.3,
+        RESIDENTIAL_SIDEWALK_WIDTH,
+        sidewalkMaterial,
+        -residentialRoadCenterX,
+        SIDEWALK_Y,
+        z + residentialSidewalkOffsetZ
     );
-
-    scene.add(leftUpperSidewalk);
 
     // Left lower sidewalk
 
-    const leftLowerSidewalk =
-        rightUpperSidewalk.clone();
-
-    leftLowerSidewalk.position.set(
-        -residentialRoadCenter,
-        0.17,
-        z - residentialSidewalkOffset
+    createBox(
+        RESIDENTIAL_ROAD_LENGTH,
+        0.3,
+        RESIDENTIAL_SIDEWALK_WIDTH,
+        sidewalkMaterial,
+        -residentialRoadCenterX,
+        SIDEWALK_Y,
+        z - residentialSidewalkOffsetZ
     );
 
-    scene.add(leftLowerSidewalk);
-
 }
-
 
 // ======================================
 // 250m SIGNAL ROADS
 // 1 lane each direction
 // No median
-// Sidewalk: 3m
 // ======================================
 
-const signalRoadLength = 180;
-
-const signalSidewalkOffset =
-    SIGNAL_ROAD_WIDTH / 2 +
+const signalSidewalkOffsetZ =
+    SIGNAL_ROAD_HALF_WIDTH +
     STANDARD_SIDEWALK_WIDTH / 2;
 
 const signalSidewalkSegmentLength =
     (
-        signalRoadLength -
+        SIGNAL_ROAD_LENGTH -
         MAIN_ROAD_TOTAL_WIDTH
     ) / 2;
 
-const signalSidewalkCenter =
-    MAIN_ROAD_OUTER_EDGE +
+const signalSidewalkCenterX =
+    MAIN_ROAD_HALF_WIDTH +
     signalSidewalkSegmentLength / 2;
 
 for(const z of signalIntersections){
 
-    // Main crossing road
+    // Main road
 
-    const signalRoad =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                signalRoadLength,
-                0.2,
-                SIGNAL_ROAD_WIDTH
-            ),
-            roadMaterial
-        );
-
-    signalRoad.position.set(
+    createBox(
+        SIGNAL_ROAD_LENGTH,
+        0.2,
+        SIGNAL_ROAD_WIDTH,
+        roadMaterial,
         0,
-        0.1,
+        ROAD_Y,
         z
     );
 
-    scene.add(signalRoad);
+    // Four sidewalk sections
 
-    // Upper left sidewalk
+    for(const x of [
+        -signalSidewalkCenterX,
+        signalSidewalkCenterX
+    ]){
 
-    const upperLeft =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                signalSidewalkSegmentLength,
-                0.3,
-                STANDARD_SIDEWALK_WIDTH
-            ),
-            sidewalkMaterial
+        createBox(
+            signalSidewalkSegmentLength,
+            0.3,
+            STANDARD_SIDEWALK_WIDTH,
+            sidewalkMaterial,
+            x,
+            SIDEWALK_Y,
+            z + signalSidewalkOffsetZ
         );
 
-    upperLeft.position.set(
-        -signalSidewalkCenter,
-        0.17,
-        z + signalSidewalkOffset
-    );
-
-    scene.add(upperLeft);
-
-    // Upper right sidewalk
-
-    const upperRight =
-        upperLeft.clone();
-
-    upperRight.position.x =
-        signalSidewalkCenter;
-
-    scene.add(upperRight);
-
-    // Lower left sidewalk
-
-    const lowerLeft =
-        upperLeft.clone();
-
-    lowerLeft.position.set(
-        -signalSidewalkCenter,
-        0.17,
-        z - signalSidewalkOffset
-    );
-
-    scene.add(lowerLeft);
-
-    // Lower right sidewalk
-
-    const lowerRight =
-        upperLeft.clone();
-
-    lowerRight.position.set(
-        signalSidewalkCenter,
-        0.17,
-        z - signalSidewalkOffset
-    );
-
-    scene.add(lowerRight);
-
-    // Center line
-
-    const centerLine =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                signalRoadLength,
-                0.03,
-                0.18
-            ),
-            lineMaterial
+        createBox(
+            signalSidewalkSegmentLength,
+            0.3,
+            STANDARD_SIDEWALK_WIDTH,
+            sidewalkMaterial,
+            x,
+            SIDEWALK_Y,
+            z - signalSidewalkOffsetZ
         );
 
-    centerLine.position.set(
-        0,
-        0.22,
+    }
+
+    // Center line divided around main road
+
+    const lineSegmentLength =
+        (
+            SIGNAL_ROAD_LENGTH -
+            MAIN_ROAD_TOTAL_WIDTH
+        ) / 2;
+
+    const lineCenterX =
+        MAIN_ROAD_HALF_WIDTH +
+        lineSegmentLength / 2;
+
+    addHorizontalMarkingSegment(
+        -SIGNAL_ROAD_LENGTH / 2,
+        -MAIN_ROAD_HALF_WIDTH,
         z
     );
 
-    scene.add(centerLine);
+    addHorizontalMarkingSegment(
+        MAIN_ROAD_HALF_WIDTH,
+        SIGNAL_ROAD_LENGTH / 2,
+        z
+    );
+
+    // Crosswalk positions
+
+    const northCrosswalkZ =
+        z +
+        SIGNAL_ROAD_HALF_WIDTH +
+        3;
+
+    const southCrosswalkZ =
+        z -
+        SIGNAL_ROAD_HALF_WIDTH -
+        3;
+
+    const westCrosswalkX =
+        -MAIN_ROAD_HALF_WIDTH -
+        3;
+
+    const eastCrosswalkX =
+        MAIN_ROAD_HALF_WIDTH +
+        3;
+
+    // North and south crosswalks
+
+    createCrosswalkAcrossX(
+        northCrosswalkZ,
+        MAIN_ROAD_TOTAL_WIDTH
+    );
+
+    createCrosswalkAcrossX(
+        southCrosswalkZ,
+        MAIN_ROAD_TOTAL_WIDTH
+    );
+
+    // West and east crosswalks
+
+    createCrosswalkAcrossZ(
+        westCrosswalkX,
+        SIGNAL_ROAD_WIDTH,
+        z
+    );
+
+    createCrosswalkAcrossZ(
+        eastCrosswalkX,
+        SIGNAL_ROAD_WIDTH,
+        z
+    );
+
+    // Stop lines for main road
+
+    createBox(
+        MAIN_CARRIAGEWAY_WIDTH,
+        0.04,
+        0.45,
+        whiteMarkingMaterial,
+        -MAIN_CARRIAGEWAY_CENTER,
+        MARKING_Y,
+        southCrosswalkZ - 3
+    );
+
+    createBox(
+        MAIN_CARRIAGEWAY_WIDTH,
+        0.04,
+        0.45,
+        whiteMarkingMaterial,
+        MAIN_CARRIAGEWAY_CENTER,
+        MARKING_Y,
+        northCrosswalkZ + 3
+    );
+
+    // Stop lines for crossing road
+
+    createBox(
+        0.45,
+        0.04,
+        SIGNAL_ROAD_WIDTH / 2,
+        whiteMarkingMaterial,
+        westCrosswalkX - 3,
+        MARKING_Y,
+        z
+    );
+
+    createBox(
+        0.45,
+        0.04,
+        SIGNAL_ROAD_WIDTH / 2,
+        whiteMarkingMaterial,
+        eastCrosswalkX + 3,
+        MARKING_Y,
+        z
+    );
+
+    // Main road arrows
+
+    createRoadArrow(
+        -MAIN_CARRIAGEWAY_CENTER,
+        southCrosswalkZ - 10,
+        0
+    );
+
+    createRoadArrow(
+        MAIN_CARRIAGEWAY_CENTER,
+        northCrosswalkZ + 10,
+        Math.PI
+    );
+
+    // Crossing-road arrows
+
+    createRoadArrow(
+        westCrosswalkX - 10,
+        z,
+        -Math.PI / 2
+    );
+
+    createRoadArrow(
+        eastCrosswalkX + 10,
+        z,
+        Math.PI / 2
+    );
 
 }
-
 
 // ======================================
 // 500m MAJOR ROADS
 // 2 lanes each direction
 // Median: 5m
-// Sidewalk: 3m
 // ======================================
 
-const majorRoadLength = 220;
-
-const majorSidewalkOffset =
-    MAJOR_ROAD_WIDTH / 2 +
+const majorSidewalkOffsetZ =
+    MAJOR_ROAD_HALF_WIDTH +
     STANDARD_SIDEWALK_WIDTH / 2;
 
 const majorSidewalkSegmentLength =
     (
-        majorRoadLength -
+        MAJOR_ROAD_LENGTH -
         MAIN_ROAD_TOTAL_WIDTH
     ) / 2;
 
-const majorSidewalkCenter =
-    MAIN_ROAD_OUTER_EDGE +
+const majorSidewalkCenterX =
+    MAIN_ROAD_HALF_WIDTH +
     majorSidewalkSegmentLength / 2;
 
 for(const z of majorIntersections){
 
     // Main crossing road
 
-    const majorRoad =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                majorRoadLength,
-                0.2,
-                MAJOR_ROAD_WIDTH
-            ),
-            majorRoadMaterial
-        );
-
-    majorRoad.position.set(
+    createBox(
+        MAJOR_ROAD_LENGTH,
+        0.2,
+        MAJOR_ROAD_WIDTH,
+        majorRoadMaterial,
         0,
-        0.1,
+        ROAD_Y,
         z
     );
 
-    scene.add(majorRoad);
+    // Sidewalk sections
 
-    // Upper left sidewalk
+    for(const x of [
+        -majorSidewalkCenterX,
+        majorSidewalkCenterX
+    ]){
 
-    const upperLeft =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                majorSidewalkSegmentLength,
-                0.3,
-                STANDARD_SIDEWALK_WIDTH
-            ),
-            sidewalkMaterial
+        createBox(
+            majorSidewalkSegmentLength,
+            0.3,
+            STANDARD_SIDEWALK_WIDTH,
+            sidewalkMaterial,
+            x,
+            SIDEWALK_Y,
+            z + majorSidewalkOffsetZ
         );
 
-    upperLeft.position.set(
-        -majorSidewalkCenter,
-        0.17,
-        z + majorSidewalkOffset
-    );
-
-    scene.add(upperLeft);
-
-    // Upper right sidewalk
-
-    const upperRight =
-        upperLeft.clone();
-
-    upperRight.position.x =
-        majorSidewalkCenter;
-
-    scene.add(upperRight);
-
-    // Lower left sidewalk
-
-    const lowerLeft =
-        upperLeft.clone();
-
-    lowerLeft.position.set(
-        -majorSidewalkCenter,
-        0.17,
-        z - majorSidewalkOffset
-    );
-
-    scene.add(lowerLeft);
-
-    // Lower right sidewalk
-
-    const lowerRight =
-        upperLeft.clone();
-
-    lowerRight.position.set(
-        majorSidewalkCenter,
-        0.17,
-        z - majorSidewalkOffset
-    );
-
-    scene.add(lowerRight);
-
-    // Left-side lane divider
-
-    const leftLaneLine =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                majorRoadLength,
-                0.03,
-                0.18
-            ),
-            lineMaterial
+        createBox(
+            majorSidewalkSegmentLength,
+            0.3,
+            STANDARD_SIDEWALK_WIDTH,
+            sidewalkMaterial,
+            x,
+            SIDEWALK_Y,
+            z - majorSidewalkOffsetZ
         );
 
-    leftLaneLine.position.set(
-        0,
-        0.22,
-        z - (
-            MEDIAN_WIDTH / 2 +
-            LANE_WIDTH
-        )
+    }
+
+    // Horizontal median divided around main road
+
+    const horizontalMedianLength =
+        (
+            MAJOR_ROAD_LENGTH -
+            MAIN_ROAD_TOTAL_WIDTH
+        ) / 2;
+
+    const horizontalMedianCenterX =
+        MAIN_ROAD_HALF_WIDTH +
+        horizontalMedianLength / 2;
+
+    createBox(
+        horizontalMedianLength,
+        0.3,
+        MEDIAN_WIDTH,
+        medianMaterial,
+        -horizontalMedianCenterX,
+        MEDIAN_Y,
+        z
     );
 
-    scene.add(leftLaneLine);
+    createBox(
+        horizontalMedianLength,
+        0.3,
+        MEDIAN_WIDTH,
+        medianMaterial,
+        horizontalMedianCenterX,
+        MEDIAN_Y,
+        z
+    );
 
-    // Right-side lane divider
+    // Horizontal lane lines divided around main road
 
-    const rightLaneLine =
-        leftLaneLine.clone();
+    const horizontalLaneLineOffset =
+        MEDIAN_WIDTH / 2 +
+        LANE_WIDTH;
 
-    rightLaneLine.position.z =
-        z + (
-            MEDIAN_WIDTH / 2 +
-            LANE_WIDTH
+    for(const lineZ of [
+        z - horizontalLaneLineOffset,
+        z + horizontalLaneLineOffset
+    ]){
+
+        addHorizontalMarkingSegment(
+            -MAJOR_ROAD_LENGTH / 2,
+            -MAIN_ROAD_HALF_WIDTH,
+            lineZ
         );
 
-    scene.add(rightLaneLine);
+        addHorizontalMarkingSegment(
+            MAIN_ROAD_HALF_WIDTH,
+            MAJOR_ROAD_LENGTH / 2,
+            lineZ
+        );
+
+    }
+
+    // Crosswalk positions
+
+    const northCrosswalkZ =
+        z +
+        MAJOR_ROAD_HALF_WIDTH +
+        3;
+
+    const southCrosswalkZ =
+        z -
+        MAJOR_ROAD_HALF_WIDTH -
+        3;
+
+    const westCrosswalkX =
+        -MAIN_ROAD_HALF_WIDTH -
+        3;
+
+    const eastCrosswalkX =
+        MAIN_ROAD_HALF_WIDTH +
+        3;
+
+    createCrosswalkAcrossX(
+        northCrosswalkZ,
+        MAIN_ROAD_TOTAL_WIDTH
+    );
+
+    createCrosswalkAcrossX(
+        southCrosswalkZ,
+        MAIN_ROAD_TOTAL_WIDTH
+    );
+
+    createCrosswalkAcrossZ(
+        westCrosswalkX,
+        MAJOR_ROAD_WIDTH,
+        z
+    );
+
+    createCrosswalkAcrossZ(
+        eastCrosswalkX,
+        MAJOR_ROAD_WIDTH,
+        z
+    );
+
+    // Stop lines
+
+    createBox(
+        MAIN_CARRIAGEWAY_WIDTH,
+        0.04,
+        0.5,
+        whiteMarkingMaterial,
+        -MAIN_CARRIAGEWAY_CENTER,
+        MARKING_Y,
+        southCrosswalkZ - 3
+    );
+
+    createBox(
+        MAIN_CARRIAGEWAY_WIDTH,
+        0.04,
+        0.5,
+        whiteMarkingMaterial,
+        MAIN_CARRIAGEWAY_CENTER,
+        MARKING_Y,
+        northCrosswalkZ + 3
+    );
+
+    createBox(
+        0.5,
+        0.04,
+        MAJOR_CARRIAGEWAY_WIDTH,
+        whiteMarkingMaterial,
+        westCrosswalkX - 3,
+        MARKING_Y,
+        z
+    );
+
+    createBox(
+        0.5,
+        0.04,
+        MAJOR_CARRIAGEWAY_WIDTH,
+        whiteMarkingMaterial,
+        eastCrosswalkX + 3,
+        MARKING_Y,
+        z
+    );
+
+    // Direction arrows
+
+    createRoadArrow(
+        -MAIN_CARRIAGEWAY_CENTER -
+        LANE_WIDTH / 2,
+        southCrosswalkZ - 11,
+        0
+    );
+
+    createRoadArrow(
+        -MAIN_CARRIAGEWAY_CENTER +
+        LANE_WIDTH / 2,
+        southCrosswalkZ - 11,
+        0
+    );
+
+    createRoadArrow(
+        MAIN_CARRIAGEWAY_CENTER -
+        LANE_WIDTH / 2,
+        northCrosswalkZ + 11,
+        Math.PI
+    );
+
+    createRoadArrow(
+        MAIN_CARRIAGEWAY_CENTER +
+        LANE_WIDTH / 2,
+        northCrosswalkZ + 11,
+        Math.PI
+    );
 
 }
-
 
 // ======================================
 // SCRAMBLE INTERSECTION
 // Center: z = 0
-// Road shape only
-// Crosswalks are added later
 // ======================================
 
-const scrambleRoad =
-    new THREE.Mesh(
-        new THREE.BoxGeometry(
-            majorRoadLength,
-            0.2,
-            MAJOR_ROAD_WIDTH
-        ),
-        majorRoadMaterial
-    );
-
-scrambleRoad.position.set(
+createBox(
+    MAJOR_ROAD_LENGTH,
+    0.2,
+    MAJOR_ROAD_WIDTH,
+    majorRoadMaterial,
     0,
-    0.1,
+    ROAD_Y,
     0
 );
 
-scene.add(scrambleRoad);
+// Normal crosswalks
 
+const scrambleNorthZ =
+    MAJOR_ROAD_HALF_WIDTH +
+    3;
+
+const scrambleSouthZ =
+    -MAJOR_ROAD_HALF_WIDTH -
+    3;
+
+const scrambleWestX =
+    -MAIN_ROAD_HALF_WIDTH -
+    3;
+
+const scrambleEastX =
+    MAIN_ROAD_HALF_WIDTH +
+    3;
+
+createCrosswalkAcrossX(
+    scrambleNorthZ,
+    MAIN_ROAD_TOTAL_WIDTH
+);
+
+createCrosswalkAcrossX(
+    scrambleSouthZ,
+    MAIN_ROAD_TOTAL_WIDTH
+);
+
+createCrosswalkAcrossZ(
+    scrambleWestX,
+    MAJOR_ROAD_WIDTH,
+    0
+);
+
+createCrosswalkAcrossZ(
+    scrambleEastX,
+    MAJOR_ROAD_WIDTH,
+    0
+);
+
+// Diagonal crosswalks
+
+function createDiagonalCrosswalk(
+    rotation
+){
+
+    const stripeCount = 15;
+    const crossingLength = 32;
+    const crossingWidth = 4;
+
+    for(let i = 0; i < stripeCount; i++){
+
+        const progress =
+            (
+                i /
+                (
+                    stripeCount - 1
+                )
+            ) -
+            0.5;
+
+        const stripe =
+            createBox(
+                0.7,
+                0.035,
+                crossingWidth,
+                whiteMarkingMaterial,
+                0,
+                MARKING_Y + 0.01,
+                progress * crossingLength
+            );
+
+        stripe.rotation.y =
+            rotation;
+
+        stripe.position.x =
+            Math.sin(rotation) *
+            progress *
+            crossingLength;
+
+        stripe.position.z =
+            Math.cos(rotation) *
+            progress *
+            crossingLength;
+
+    }
+
+}
+
+createDiagonalCrosswalk(
+    Math.PI / 4
+);
+
+createDiagonalCrosswalk(
+    -Math.PI / 4
+);
 
 // ======================================
-// MAIN BOULEVARD SIDEWALKS
+// MAIN MEDIAN
+// Removed near all intersections.
 // ======================================
 
-const mainSidewalkCenter =
-    MAIN_ROAD_OUTER_EDGE +
-    STANDARD_SIDEWALK_WIDTH / 2;
+const medianZones = [];
 
-const sidewalkSectionLength = 10;
+// Signal intersections
 
-function shouldSkipMainSidewalk(z){
+for(const z of signalIntersections){
+
+    medianZones.push({
+        z: z,
+        halfWidth:
+            SIGNAL_ROAD_HALF_WIDTH +
+            12
+    });
+
+}
+
+// Major intersections
+
+for(const z of majorIntersections){
+
+    medianZones.push({
+        z: z,
+        halfWidth:
+            MAJOR_ROAD_HALF_WIDTH +
+            60
+    });
+
+}
+
+// Scramble intersection
+
+medianZones.push({
+    z: 0,
+    halfWidth: 60
+});
+
+function isInsideMedianZone(z){
+
+    return medianZones.some(
+        zone =>
+            Math.abs(
+                z - zone.z
+            ) <
+            zone.halfWidth
+    );
+
+}
+
+const medianSectionLength = 10;
+
+for(
+    let z = MAP_START;
+    z <= MAP_END;
+    z += medianSectionLength
+){
+
+    if(isInsideMedianZone(z)){
+        continue;
+    }
+
+    createBox(
+        MEDIAN_WIDTH,
+        0.3,
+        medianSectionLength,
+        medianMaterial,
+        0,
+        MEDIAN_Y,
+        z
+    );
+
+}
+
+// ======================================
+// RIGHT-TURN APPROACH AREAS
+// Major intersections only.
+// Median space becomes asphalt.
+// ======================================
+
+const turnLaneLength = 60;
+
+for(const z of majorIntersections){
+
+    createBox(
+        MEDIAN_WIDTH,
+        0.21,
+        turnLaneLength,
+        majorRoadMaterial,
+        0,
+        ROAD_Y + 0.01,
+        z +
+        MAJOR_ROAD_HALF_WIDTH +
+        turnLaneLength / 2
+    );
+
+    createBox(
+        MEDIAN_WIDTH,
+        0.21,
+        turnLaneLength,
+        majorRoadMaterial,
+        0,
+        ROAD_Y + 0.01,
+        z -
+        MAJOR_ROAD_HALF_WIDTH -
+        turnLaneLength / 2
+    );
+
+    // Right-turn arrows
+
+    createRoadArrow(
+        0,
+        z +
+        MAJOR_ROAD_HALF_WIDTH +
+        18,
+        Math.PI
+    );
+
+    createRoadArrow(
+        0,
+        z -
+        MAJOR_ROAD_HALF_WIDTH -
+        18,
+        0
+    );
+
+}
+
+// ======================================
+// MAIN BOULEVARD LANE MARKINGS
+// ======================================
+
+const MAIN_LANE_LINE_X =
+    MEDIAN_WIDTH / 2 +
+    LANE_WIDTH;
+
+const laneDashLength = 8;
+const laneDashCycle = 20;
+
+function isInsideRoadIntersection(z){
 
     if(Math.abs(z) < 60){
         return true;
     }
-
-    const minorClearance =
-        RESIDENTIAL_ROAD_WIDTH / 2 +
-        RESIDENTIAL_SIDEWALK_WIDTH +
-        sidewalkSectionLength / 2;
-
-    const signalClearance =
-        SIGNAL_ROAD_WIDTH / 2 +
-        STANDARD_SIDEWALK_WIDTH +
-        sidewalkSectionLength / 2;
-
-    const majorClearance =
-        MAJOR_ROAD_WIDTH / 2 +
-        STANDARD_SIDEWALK_WIDTH +
-        sidewalkSectionLength / 2;
 
     if(
         minorRoads.some(
             intersectionZ =>
                 Math.abs(
                     z - intersectionZ
-                ) < minorClearance
+                ) <
+                RESIDENTIAL_ROAD_WIDTH / 2 +
+                4
         )
     ){
-        return true;
-    }
-
-    if(
-        signalIntersections.some(
-            intersectionZ =>
-                Math.abs(
-                    z - intersectionZ
-                ) < signalClearance
-        )
-    ){
-        return true;
-    }
-
-    if(
-        majorIntersections.some(
-            intersectionZ =>
-                Math.abs(
-                    z - intersectionZ
-                ) < majorClearance
-        )
-    ){
-        return true;
-    }
-
-    return false;
-}
-
-for(
-    let z = -5000;
-    z <= 5000;
-    z += sidewalkSectionLength
-){
-
-    if(shouldSkipMainSidewalk(z)){
-        continue;
-    }
-
-    // Left sidewalk
-
-    const leftSidewalk =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                STANDARD_SIDEWALK_WIDTH,
-                0.35,
-                sidewalkSectionLength
-            ),
-            mainSidewalkMaterial
-        );
-
-    leftSidewalk.position.set(
-        -mainSidewalkCenter,
-        0.17,
-        z
-    );
-
-    scene.add(leftSidewalk);
-
-    // Right sidewalk
-
-    const rightSidewalk =
-        leftSidewalk.clone();
-
-    rightSidewalk.position.x =
-        mainSidewalkCenter;
-
-    scene.add(rightSidewalk);
-
-}
-
-
-// ======================================
-// MAIN BOULEVARD MEDIAN
-// The median is removed near intersections.
-// Major intersections receive turn-lane space.
-// ======================================
-
-const medianSectionLength = 10;
-
-function shouldSkipMedian(z){
-
-    if(Math.abs(z) < 60){
         return true;
     }
 
@@ -783,8 +1535,8 @@ function shouldSkipMedian(z){
                 Math.abs(
                     z - intersectionZ
                 ) <
-                SIGNAL_ROAD_WIDTH / 2 +
-                8
+                SIGNAL_ROAD_HALF_WIDTH +
+                4
         )
     ){
         return true;
@@ -795,7 +1547,9 @@ function shouldSkipMedian(z){
             intersectionZ =>
                 Math.abs(
                     z - intersectionZ
-                ) < 80
+                ) <
+                MAJOR_ROAD_HALF_WIDTH +
+                4
         )
     ){
         return true;
@@ -805,150 +1559,45 @@ function shouldSkipMedian(z){
 }
 
 for(
-    let z = -5000;
-    z <= 5000;
-    z += medianSectionLength
+    let z = MAP_START;
+    z <= MAP_END;
+    z += laneDashCycle
 ){
 
-    if(shouldSkipMedian(z)){
+    if(isInsideRoadIntersection(z)){
         continue;
     }
 
-    const median =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                MEDIAN_WIDTH,
-                0.3,
-                medianSectionLength
-            ),
-            medianMaterial
-        );
-
-    median.position.set(
-        0,
-        0.25,
+    createBox(
+        0.18,
+        0.04,
+        laneDashLength,
+        whiteMarkingMaterial,
+        -MAIN_LANE_LINE_X,
+        MARKING_Y,
         z
     );
 
-    scene.add(median);
-
-}
-
-
-// ======================================
-// 500m RIGHT-TURN APPROACH LANES
-// One approach becomes 3 lanes.
-// The opposite side remains 2 lanes.
-// ======================================
-
-const turnApproachLength = 60;
-
-for(const z of majorIntersections){
-
-    // Approach from positive Z
-
-    const positiveApproach =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                MEDIAN_WIDTH,
-                0.21,
-                turnApproachLength
-            ),
-            majorRoadMaterial
-        );
-
-    positiveApproach.position.set(
-        0,
-        0.11,
-        z + (
-            MAJOR_ROAD_WIDTH / 2 +
-            turnApproachLength / 2
-        )
-    );
-
-    scene.add(positiveApproach);
-
-    // Approach from negative Z
-
-    const negativeApproach =
-        positiveApproach.clone();
-
-    negativeApproach.position.z =
-        z - (
-            MAJOR_ROAD_WIDTH / 2 +
-            turnApproachLength / 2
-        );
-
-    scene.add(negativeApproach);
-
-}
-
-
-// ======================================
-// MAIN BOULEVARD LANE MARKINGS
-// ======================================
-
-const laneDashLength = 8;
-const laneDashGap = 12;
-
-for(
-    let z = -5000;
-    z <= 5000;
-    z += laneDashLength + laneDashGap
-){
-
-    if(
-        isSignalIntersection(z) ||
-        isMajorIntersection(z) ||
-        Math.abs(z) < 60
-    ){
-        continue;
-    }
-
-    // Left carriageway divider
-
-    const leftDash =
-        new THREE.Mesh(
-            new THREE.BoxGeometry(
-                0.18,
-                0.04,
-                laneDashLength
-            ),
-            lineMaterial
-        );
-
-    leftDash.position.set(
-        -MAIN_ROAD_CENTER_OFFSET,
-        0.22,
+    createBox(
+        0.18,
+        0.04,
+        laneDashLength,
+        whiteMarkingMaterial,
+        MAIN_LANE_LINE_X,
+        MARKING_Y,
         z
     );
 
-    scene.add(leftDash);
-
-    // Right carriageway divider
-
-    const rightDash =
-        leftDash.clone();
-
-    rightDash.position.x =
-        MAIN_ROAD_CENTER_OFFSET;
-
-    scene.add(rightDash);
-
 }
-
 
 // ======================================
 // STREET TREES
+// Trees remain inside the median.
 // ======================================
 
-for(let z = -5000; z <= 5000; z += 70){
+for(let z = MAP_START; z <= MAP_END; z += 70){
 
-    if(
-        isSignalIntersection(z) ||
-        isMajorIntersection(z) ||
-        Math.abs(z) < 60
-    ){
+    if(isInsideMedianZone(z)){
         continue;
     }
 
