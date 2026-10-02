@@ -93,8 +93,13 @@ const MARKING_Y = 0.225;
 
 // Road-marking settings.
 const CROSSWALK_DISTANCE_FROM_EDGE = 3;
-const STOP_LINE_GAP = 1.35;
+const CROSSWALK_DEPTH = 4;
+const STOP_LINE_CLEARANCE = 1.0;
 const STOP_LINE_THICKNESS = 0.52;
+const STOP_LINE_OFFSET =
+    CROSSWALK_DEPTH / 2 +
+    STOP_LINE_CLEARANCE +
+    STOP_LINE_THICKNESS / 2;
 const ARROW_DISTANCE_FROM_STOP_LINE = 13;
 
 // Right-turn approach settings.
@@ -209,7 +214,7 @@ function createStopLineAcrossZ(x, centerZ, width) {
 
 function createCrosswalkAcrossX(centerZ, roadWidth) {
     const stripeWidth = 0.75;
-    const stripeDepth = 4;
+    const stripeDepth = CROSSWALK_DEPTH;
     const stripeGap = 0.75;
     const sideMargin = 1;
     const usableWidth = roadWidth - sideMargin * 2;
@@ -236,7 +241,7 @@ function createCrosswalkAcrossX(centerZ, roadWidth) {
 
 function createCrosswalkAcrossZ(centerX, roadWidth, centerZ) {
     const stripeWidth = 0.75;
-    const stripeDepth = 4;
+    const stripeDepth = CROSSWALK_DEPTH;
     const stripeGap = 0.75;
     const sideMargin = 1;
     const usableWidth = roadWidth - sideMargin * 2;
@@ -354,7 +359,7 @@ function createTurnArrowShape(turnDirection) {
     return shape;
 }
 
-function createRoadArrow(x, z, rotationY = 0, type = "straight") {
+function createRoadArrow(x, z, direction = 0, type = "straight") {
     let shape;
 
     if (type === "right") {
@@ -365,15 +370,18 @@ function createRoadArrow(x, z, rotationY = 0, type = "straight") {
         shape = createStraightArrowShape();
     }
 
-    const arrow = new THREE.Mesh(
+    const arrowMesh = new THREE.Mesh(
         new THREE.ShapeGeometry(shape),
         whiteMarkingMaterial
     );
-    arrow.rotation.x = -Math.PI / 2;
-    arrow.rotation.z = rotationY;
-    arrow.position.set(x, MARKING_Y + 0.015, z);
-    scene.add(arrow);
-    return arrow;
+    arrowMesh.rotation.x = -Math.PI / 2;
+
+    const arrowGroup = new THREE.Group();
+    arrowGroup.add(arrowMesh);
+    arrowGroup.position.set(x, MARKING_Y + 0.015, z);
+    arrowGroup.rotation.y = direction;
+    scene.add(arrowGroup);
+    return arrowGroup;
 }
 
 // ======================================
@@ -665,19 +673,19 @@ for (const z of signalIntersections) {
     createCrosswalkAcrossZ(westCrosswalkX, SIGNAL_ROAD_WIDTH, z);
     createCrosswalkAcrossZ(eastCrosswalkX, SIGNAL_ROAD_WIDTH, z);
 
-    const southStopLineZ = southCrosswalkZ - STOP_LINE_GAP;
-    const northStopLineZ = northCrosswalkZ + STOP_LINE_GAP;
-    const westStopLineX = westCrosswalkX - STOP_LINE_GAP;
-    const eastStopLineX = eastCrosswalkX + STOP_LINE_GAP;
+    const southStopLineZ = southCrosswalkZ - STOP_LINE_OFFSET;
+    const northStopLineZ = northCrosswalkZ + STOP_LINE_OFFSET;
+    const westStopLineX = westCrosswalkX - STOP_LINE_OFFSET;
+    const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
     createStopLineAcrossX(
         -MAIN_CARRIAGEWAY_CENTER,
-        southStopLineZ,
+        northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
         MAIN_CARRIAGEWAY_CENTER,
-        northStopLineZ,
+        southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
@@ -694,25 +702,25 @@ for (const z of signalIntersections) {
     // Main-boulevard arrows: one per lane.
     createRoadArrow(
         NEGATIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
         NEGATIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
         POSITIVE_INNER_LANE_X,
-        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
         Math.PI,
         "straight"
     );
     createRoadArrow(
         POSITIVE_OUTER_LANE_X,
-        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
         Math.PI,
         "straight"
     );
@@ -833,19 +841,19 @@ for (const z of majorIntersections) {
     createCrosswalkAcrossZ(westCrosswalkX, MAJOR_ROAD_WIDTH, z);
     createCrosswalkAcrossZ(eastCrosswalkX, MAJOR_ROAD_WIDTH, z);
 
-    const southStopLineZ = southCrosswalkZ - STOP_LINE_GAP;
-    const northStopLineZ = northCrosswalkZ + STOP_LINE_GAP;
-    const westStopLineX = westCrosswalkX - STOP_LINE_GAP;
-    const eastStopLineX = eastCrosswalkX + STOP_LINE_GAP;
+    const southStopLineZ = southCrosswalkZ - STOP_LINE_OFFSET;
+    const northStopLineZ = northCrosswalkZ + STOP_LINE_OFFSET;
+    const westStopLineX = westCrosswalkX - STOP_LINE_OFFSET;
+    const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
     createStopLineAcrossX(
         -MAIN_CARRIAGEWAY_CENTER,
-        southStopLineZ,
+        northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
         MAIN_CARRIAGEWAY_CENTER,
-        northStopLineZ,
+        southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
@@ -862,25 +870,25 @@ for (const z of majorIntersections) {
     // Main-boulevard straight arrows, one per lane.
     createRoadArrow(
         NEGATIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
         NEGATIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
         POSITIVE_INNER_LANE_X,
-        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
         Math.PI,
         "straight"
     );
     createRoadArrow(
         POSITIVE_OUTER_LANE_X,
-        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
         Math.PI,
         "straight"
     );
@@ -979,19 +987,19 @@ createDiagonalCrosswalk(Math.PI / 4);
 createDiagonalCrosswalk(-Math.PI / 4);
 
 // Scramble stop lines.
-const scrambleSouthStopLineZ = scrambleSouthZ - STOP_LINE_GAP;
-const scrambleNorthStopLineZ = scrambleNorthZ + STOP_LINE_GAP;
-const scrambleWestStopLineX = scrambleWestX - STOP_LINE_GAP;
-const scrambleEastStopLineX = scrambleEastX + STOP_LINE_GAP;
+const scrambleSouthStopLineZ = scrambleSouthZ - STOP_LINE_OFFSET;
+const scrambleNorthStopLineZ = scrambleNorthZ + STOP_LINE_OFFSET;
+const scrambleWestStopLineX = scrambleWestX - STOP_LINE_OFFSET;
+const scrambleEastStopLineX = scrambleEastX + STOP_LINE_OFFSET;
 
 createStopLineAcrossX(
     -MAIN_CARRIAGEWAY_CENTER,
-    scrambleSouthStopLineZ,
+    scrambleNorthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossX(
     MAIN_CARRIAGEWAY_CENTER,
-    scrambleNorthStopLineZ,
+    scrambleSouthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossZ(
@@ -1008,25 +1016,25 @@ createStopLineAcrossZ(
 // Scramble approach arrows, one per lane.
 createRoadArrow(
     NEGATIVE_INNER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 createRoadArrow(
     NEGATIVE_OUTER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 createRoadArrow(
     POSITIVE_INNER_LANE_X,
-    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
     Math.PI,
     "straight"
 );
 createRoadArrow(
     POSITIVE_OUTER_LANE_X,
-    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
     Math.PI,
     "straight"
 );
@@ -1178,14 +1186,7 @@ const laneDashCycle = 20;
 function isInsideRoadIntersection(z) {
     if (Math.abs(z) < 60) return true;
 
-    if (
-        minorRoads.some((intersectionZ) =>
-            Math.abs(z - intersectionZ) <
-            RESIDENTIAL_ROAD_WIDTH / 2 + 4
-        )
-    ) {
-        return true;
-    }
+    // Keep the dashed lane divider through 125m residential junctions.
 
     if (
         signalIntersections.some((intersectionZ) =>
@@ -1272,654 +1273,486 @@ for (let z = MAP_START; z <= MAP_END; z += 70) {
 
 // ======================================
 // VEHICLES
-// Continue your existing vehicle code below.
+// Rebuilt vehicle system.
+// ======================================
+// ======================================
+// VEHICLES
+// 1990s Japanese luxury sedan inspired design.
 // ======================================
 
-let car;
+let car = null;
+let speed = 0;
+let steeringVisual = 0;
+let lastFrameTime = performance.now();
 
 let taillights = [];
 let reverseLights = [];
+let rearIndicators = [];
+let reverseSpotLights = [];
+let wheelMeshes = [];
 
-function createCar(type){
+const keys = Object.create(null);
 
-    taillights = [];
-    reverseLights = [];
+const CAR_PRESETS = {
+    sedan:  { body: 0xe4e4df, trim: 0x4b5151 },
+    compact:{ body: 0x4e9b55, trim: 0x353b3b },
+    suv:    { body: 0x495b8f, trim: 0x30363a },
+    sports: { body: 0xa72d29, trim: 0x303030 }
+};
 
-    if(car){
-        scene.remove(car);
+function carMaterial(color, options = {}) {
+    return new THREE.MeshStandardMaterial({
+        color,
+        roughness: options.roughness ?? 0.38,
+        metalness: options.metalness ?? 0.22,
+        transparent: options.transparent ?? false,
+        opacity: options.opacity ?? 1,
+        emissive: options.emissive ?? 0x000000,
+        emissiveIntensity: options.emissiveIntensity ?? 0
+    });
+}
+
+function addCarBox(parent, size, position, material, rotation = [0, 0, 0]) {
+    const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(size[0], size[1], size[2]),
+        material
+    );
+    mesh.position.set(position[0], position[1], position[2]);
+    mesh.rotation.set(rotation[0], rotation[1], rotation[2]);
+    parent.add(mesh);
+    return mesh;
+}
+
+function createCabinShell(bodyMaterial) {
+    const shape = new THREE.Shape();
+    shape.moveTo(-2.35, 0);
+    shape.lineTo(-1.55, 1.45);
+    shape.lineTo(1.25, 1.45);
+    shape.lineTo(2.1, 0);
+    shape.closePath();
+
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth: 3.15,
+        bevelEnabled: true,
+        bevelThickness: 0.08,
+        bevelSize: 0.08,
+        bevelSegments: 2
+    });
+    geometry.rotateY(Math.PI / 2);
+    geometry.translate(-1.575, 0, 0);
+
+    const shell = new THREE.Mesh(geometry, bodyMaterial);
+    shell.position.set(0, 1.18, -0.35);
+    return shell;
+}
+
+function createWheel(sideX, axleZ) {
+    const wheelGroup = new THREE.Group();
+    const tireMaterial = carMaterial(0x121212, { roughness: 0.9, metalness: 0 });
+    const rimMaterial = carMaterial(0xb8bcba, { roughness: 0.25, metalness: 0.75 });
+    const darkRimMaterial = carMaterial(0x4a4d4c, { roughness: 0.4, metalness: 0.55 });
+
+    const tire = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.82, 0.82, 0.5, 32),
+        tireMaterial
+    );
+    tire.rotation.z = Math.PI / 2;
+    wheelGroup.add(tire);
+
+    const rim = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.56, 0.56, 0.53, 32),
+        rimMaterial
+    );
+    rim.rotation.z = Math.PI / 2;
+    wheelGroup.add(rim);
+
+    const hub = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.16, 0.16, 0.56, 20),
+        darkRimMaterial
+    );
+    hub.rotation.z = Math.PI / 2;
+    wheelGroup.add(hub);
+
+    for (let i = 0; i < 12; i++) {
+        const spoke = addCarBox(
+            wheelGroup,
+            [0.56, 0.045, 0.07],
+            [0, 0, 0],
+            darkRimMaterial
+        );
+        spoke.rotation.x = (Math.PI * 2 * i) / 12;
     }
 
-    car = new THREE.Group();
+    wheelGroup.position.set(sideX, 0.82, axleZ);
+    wheelMeshes.push(wheelGroup);
+    return wheelGroup;
+}
 
-    let bodyColor = 0x888888;
+function createRearLampUnit(parent, side) {
+    const x = side * 1.18;
+    const rearZ = -5.47;
+    const housingMaterial = carMaterial(0x141414, { roughness: 0.55, metalness: 0 });
+    const amberMaterial = carMaterial(0x8a3c02, {
+        roughness: 0.28,
+        metalness: 0,
+        emissive: 0x1a0700,
+        emissiveIntensity: 0.25
+    });
+    const redMaterial = carMaterial(0x5a0000, {
+        roughness: 0.25,
+        metalness: 0,
+        emissive: 0x220000,
+        emissiveIntensity: 0.55
+    });
+    const reverseMaterial = carMaterial(0xb8bcb8, {
+        roughness: 0.2,
+        metalness: 0,
+        emissive: 0x000000,
+        emissiveIntensity: 0
+    });
 
-    if(type === "compact"){
-        bodyColor = 0x44aa44;
+    addCarBox(parent, [1.58, 0.48, 0.12], [x, 0.96, rearZ], housingMaterial);
+
+    const indicator = addCarBox(
+        parent,
+        [0.36, 0.34, 0.07],
+        [x + side * 0.53, 0.96, rearZ - 0.08],
+        amberMaterial
+    );
+    rearIndicators.push(indicator);
+
+    const tail = addCarBox(
+        parent,
+        [0.72, 0.34, 0.07],
+        [x, 0.96, rearZ - 0.08],
+        redMaterial
+    );
+    taillights.push(tail);
+
+    const reverse = addCarBox(
+        parent,
+        [0.3, 0.3, 0.07],
+        [x - side * 0.51, 0.96, rearZ - 0.08],
+        reverseMaterial
+    );
+    reverseLights.push(reverse);
+
+    const lensLineMaterial = new THREE.MeshBasicMaterial({
+        color: 0xd8d8d8,
+        transparent: true,
+        opacity: 0.32
+    });
+    for (const yOffset of [-0.11, 0, 0.11]) {
+        addCarBox(
+            parent,
+            [1.45, 0.018, 0.018],
+            [x, 0.96 + yOffset, rearZ - 0.122],
+            lensLineMaterial
+        );
     }
 
-    if(type === "suv"){
-        bodyColor = 0x4444aa;
-    }
-
-    if(type === "sports"){
-        bodyColor = 0xaa2222;
-    }
-
-    // Main Body
-
-    const body = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            4,
-            0.7,
-            11
-        ),
-        new THREE.MeshLambertMaterial({
-            color: bodyColor
-        })
-    );
-
-    body.position.y = 0.7;
-
-    car.add(body);
-
-    // Cabin
-
-    const cabin = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            2.7,
-            0.7,
-            4.2
-        ),
-        new THREE.MeshLambertMaterial({
-            color: 0x222222
-        })
-    );
-
-    cabin.position.set(
+    const reverseSpot = new THREE.SpotLight(
+        0xf7fbff,
         0,
-        1.15,
-        -0.4
-    );
-
-    car.add(cabin);
-
-    // Hood
-
-    const hood = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            3.8,
-            0.55,
-            4
-        ),
-        new THREE.MeshLambertMaterial({
-            color: bodyColor
-        })
-    );
-
-    hood.position.set(
-        0,
-        0.85,
-        3.2
-    );
-
-    car.add(hood);
-
-    // Trunk
-
-    const trunk = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            3.8,
-            0.55,
-            2.8
-        ),
-        new THREE.MeshLambertMaterial({
-            color: bodyColor
-        })
-    );
-
-    trunk.position.set(
-        0,
-        0.85,
-        -4.2
-    );
-
-    car.add(trunk);
-
-    // Front Window
-
-    const frontWindow = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            2.5,
-            0.7,
-            0.08
-        ),
-        new THREE.MeshLambertMaterial({
-            color: 0x88bbff,
-            transparent: true,
-            opacity: 0.7
-        })
-    );
-
-    frontWindow.rotation.x = -0.65;
-
-    frontWindow.position.set(
-        0,
-        1.35,
+        18,
+        Math.PI / 8,
+        0.6,
         1.5
     );
+    reverseSpot.position.set(x - side * 0.51, 0.98, rearZ - 0.12);
+    const target = new THREE.Object3D();
+    target.position.set(x - side * 0.51, 0.15, -14);
+    parent.add(reverseSpot, target);
+    reverseSpot.target = target;
+    reverseSpotLights.push(reverseSpot);
+}
 
-    car.add(frontWindow);
-
-    // Rear Window
-
-    const rearWindow = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            2.5,
-            0.7,
-            0.08
-        ),
-        new THREE.MeshLambertMaterial({
-            color: 0x88bbff,
-            transparent: true,
-            opacity: 0.7
-        })
-    );
-
-    rearWindow.rotation.x = 0.45;
-
-    rearWindow.position.set(
-        0,
-        1.3,
-        -2.4
-    );
-
-    car.add(rearWindow);
-
-    // Side Windows
-
-    const leftWindow = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            0.08,
-            0.6,
-            3.8
-        ),
-        new THREE.MeshLambertMaterial({
-            color: 0x88bbff,
-            transparent: true,
-            opacity: 0.7
-        })
-    );
-
-    leftWindow.position.set(
-        -1.36,
-        1.3,
-        -0.4
-    );
-
-    car.add(leftWindow);
-
-    const rightWindow = leftWindow.clone();
-
-    rightWindow.position.x = 1.36;
-
-    car.add(rightWindow);
-
-    // Grille
-
-    const grille = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            2.3,
-            0.45,
-            0.08
-        ),
-        new THREE.MeshLambertMaterial({
-            color: 0xc0c0c0
-        })
-    );
-
-    grille.position.set(
-        0,
-        0.8,
-        5.55
-    );
-
-    car.add(grille);
-
-    // Headlights
-
-    const leftHeadlight = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            0.9,
-            0.2,
-            0.08
-        ),
-        new THREE.MeshBasicMaterial({
-            color: 0xffffdd
-        })
-    );
-
-    leftHeadlight.position.set(
-        -1.3,
-        0.8,
-        5.55
-    );
-
-    car.add(leftHeadlight);
-
-    const rightHeadlight =
-        leftHeadlight.clone();
-
-    rightHeadlight.position.x = 1.3;
-
-    car.add(rightHeadlight);
-
-    // Left Taillight
-
-    const leftTaillight = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            1.8,
-            0.25,
-            0.08
-        ),
-        new THREE.MeshBasicMaterial({
-            color: 0x660000
-        })
-    );
-
-    leftTaillight.position.set(
-        -0.9,
-        0.8,
-        -5.55
-    );
-
-    car.add(leftTaillight);
-
-    // Right Taillight
-
-    const rightTaillight =
-        leftTaillight.clone();
-
-    rightTaillight.position.x = 0.9;
-
-    car.add(rightTaillight);
-
-    taillights.push(
-        leftTaillight,
-        rightTaillight
-    );
-
-    // Reverse Lights
-
-    const leftReverseLight = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            0.5,
-            0.2,
-            0.08
-        ),
-        new THREE.MeshBasicMaterial({
-            color: 0xffffff
-        })
-    );
-
-    leftReverseLight.position.set(
-        -0.2,
-        0.8,
-        -5.55
-    );
-
-    car.add(leftReverseLight);
-
-    const rightReverseLight =
-        leftReverseLight.clone();
-
-    rightReverseLight.position.x = 0.2;
-
-    car.add(rightReverseLight);
-
-    reverseLights.push(
-        leftReverseLight,
-        rightReverseLight
-    );
-
-    reverseLights.forEach(
-        light => {
-            light.visible = false;
+function disposeObject3D(root) {
+    root.traverse((child) => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+            const materials = Array.isArray(child.material)
+                ? child.material
+                : [child.material];
+            for (const material of materials) material.dispose();
         }
-    );
+    });
+}
 
-    // Wheels
+function createCar(type = "sedan") {
+    taillights = [];
+    reverseLights = [];
+    rearIndicators = [];
+    reverseSpotLights = [];
+    wheelMeshes = [];
 
-    for(const x of [-1.8, 1.8]){
-
-        for(const z of [-3.2, 3.2]){
-
-            const wheel = new THREE.Mesh(
-                new THREE.CylinderGeometry(
-                    1,
-                    1,
-                    0.7,
-                    32
-                ),
-                new THREE.MeshLambertMaterial({
-                    color: 0x111111
-                })
-            );
-
-            wheel.rotation.z =
-                Math.PI / 2;
-
-            wheel.position.set(
-                x,
-                0.6,
-                z
-            );
-
-            const hubcap = new THREE.Mesh(
-                new THREE.CylinderGeometry(
-                    0.55,
-                    0.55,
-                    0.72,
-                    24
-                ),
-                new THREE.MeshLambertMaterial({
-                    color: 0xc0c0c0
-                })
-            );
-
-            hubcap.rotation.z =
-                Math.PI / 2;
-
-            wheel.add(hubcap);
-
-            car.add(wheel);
-
-        }
-
+    if (car) {
+        scene.remove(car);
+        disposeObject3D(car);
     }
 
-    scene.add(car);
+    const preset = CAR_PRESETS[type] || CAR_PRESETS.sedan;
+    car = new THREE.Group();
+    car.name = "playerCar";
 
-    car.position.set(
-        -7,
-        0,
-        0
+    const bodyMaterial = carMaterial(preset.body, { roughness: 0.3, metalness: 0.32 });
+    const lowerBodyMaterial = carMaterial(preset.trim, { roughness: 0.6, metalness: 0.12 });
+    const chromeMaterial = carMaterial(0xc3c7c6, { roughness: 0.22, metalness: 0.78 });
+    const blackMaterial = carMaterial(0x171a1a, { roughness: 0.7, metalness: 0.05 });
+    const glassMaterial = carMaterial(0x273640, {
+        roughness: 0.15,
+        metalness: 0.08,
+        transparent: true,
+        opacity: 0.76
+    });
+
+    // Main three-box sedan body.
+    addCarBox(car, [4.0, 0.72, 10.7], [0, 0.92, 0], bodyMaterial);
+    addCarBox(car, [3.9, 0.4, 10.45], [0, 0.55, 0], lowerBodyMaterial);
+    addCarBox(car, [3.82, 0.42, 3.25], [0, 1.34, 3.72], bodyMaterial, [-0.035, 0, 0]);
+    addCarBox(car, [3.82, 0.5, 2.45], [0, 1.24, -4.0], bodyMaterial, [0.025, 0, 0]);
+    car.add(createCabinShell(bodyMaterial));
+
+    // Roof and glazing.
+    addCarBox(car, [3.08, 0.16, 3.35], [0, 2.69, -0.28], bodyMaterial);
+    addCarBox(car, [2.98, 0.8, 0.08], [0, 2.05, 1.53], glassMaterial, [-0.64, 0, 0]);
+    addCarBox(car, [2.98, 0.78, 0.08], [0, 2.0, -2.05], glassMaterial, [0.58, 0, 0]);
+
+    // Side windows and pillars.
+    for (const side of [-1, 1]) {
+        const sideX = side * 1.59;
+        addCarBox(car, [0.07, 0.82, 1.52], [sideX, 2.14, 0.72], glassMaterial);
+        addCarBox(car, [0.07, 0.82, 1.48], [sideX, 2.14, -1.08], glassMaterial);
+        addCarBox(car, [0.1, 0.94, 0.14], [sideX, 2.14, -0.18], blackMaterial);
+        addCarBox(car, [0.12, 0.9, 0.15], [sideX, 2.1, -1.92], bodyMaterial, [0.2, 0, 0]);
+
+        // Door seams, handles and side molding.
+        addCarBox(car, [0.035, 0.72, 0.055], [side * 2.01, 1.22, -0.1], blackMaterial);
+        addCarBox(car, [0.055, 0.12, 0.48], [side * 2.03, 1.58, 0.7], chromeMaterial);
+        addCarBox(car, [0.055, 0.12, 0.48], [side * 2.03, 1.58, -1.6], chromeMaterial);
+        addCarBox(car, [0.07, 0.14, 8.8], [side * 2.02, 0.88, -0.1], lowerBodyMaterial);
+        addCarBox(car, [0.055, 0.06, 8.65], [side * 2.06, 1.0, -0.1], chromeMaterial);
+
+        // Door mirror.
+        addCarBox(car, [0.42, 0.3, 0.55], [side * 1.95, 1.82, 1.48], bodyMaterial);
+        addCarBox(car, [0.06, 0.22, 0.34], [side * 2.18, 1.82, 1.48], glassMaterial);
+    }
+
+    // Front grille, lamps and bumper.
+    addCarBox(car, [2.25, 0.52, 0.1], [0, 1.02, 5.39], blackMaterial);
+    for (let x = -1.0; x <= 1.001; x += 0.2) {
+        addCarBox(car, [0.035, 0.42, 0.03], [x, 1.02, 5.46], chromeMaterial);
+    }
+    addCarBox(car, [2.4, 0.06, 0.04], [0, 1.27, 5.48], chromeMaterial);
+    addCarBox(car, [2.4, 0.06, 0.04], [0, 0.77, 5.48], chromeMaterial);
+
+    const headlightMaterial = carMaterial(0xf5f1d8, {
+        roughness: 0.16,
+        metalness: 0,
+        emissive: 0x332f1d,
+        emissiveIntensity: 0.45
+    });
+    const frontIndicatorMaterial = carMaterial(0xb55b06, {
+        roughness: 0.2,
+        metalness: 0,
+        emissive: 0x2a0e00,
+        emissiveIntensity: 0.25
+    });
+    for (const side of [-1, 1]) {
+        addCarBox(car, [0.92, 0.42, 0.1], [side * 1.43, 1.03, 5.4], headlightMaterial);
+        addCarBox(car, [0.3, 0.31, 0.1], [side * 1.9, 0.98, 5.37], frontIndicatorMaterial);
+    }
+    addCarBox(car, [4.18, 0.32, 0.42], [0, 0.48, 5.33], chromeMaterial);
+    addCarBox(car, [4.08, 0.1, 0.46], [0, 0.53, 5.38], blackMaterial);
+    addCarBox(car, [1.18, 0.43, 0.06], [0, 0.55, 5.58], carMaterial(0xf0f0e8));
+
+    // Rear panel, combination lamps and bumper.
+    createRearLampUnit(car, -1);
+    createRearLampUnit(car, 1);
+    addCarBox(car, [1.08, 0.5, 0.12], [0, 0.96, -5.47], bodyMaterial);
+    addCarBox(car, [0.85, 0.055, 0.04], [0, 1.2, -5.56], chromeMaterial);
+    addCarBox(car, [1.25, 0.46, 0.055], [0, 0.55, -5.6], carMaterial(0xf2f2e8));
+    addCarBox(car, [1.38, 0.56, 0.04], [0, 0.55, -5.54], blackMaterial);
+    addCarBox(car, [4.18, 0.34, 0.43], [0, 0.42, -5.35], chromeMaterial);
+    addCarBox(car, [4.06, 0.1, 0.47], [0, 0.48, -5.42], blackMaterial);
+
+    // Wheels and simple wheel arches.
+    const frontAxleZ = 3.45;
+    const rearAxleZ = -3.35;
+    for (const side of [-1, 1]) {
+        car.add(createWheel(side * 1.9, frontAxleZ));
+        car.add(createWheel(side * 1.9, rearAxleZ));
+    }
+
+    // Exhaust.
+    const exhaust = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.11, 0.11, 0.75, 12),
+        carMaterial(0x3d4141, { roughness: 0.45, metalness: 0.65 })
     );
+    exhaust.rotation.x = Math.PI / 2;
+    exhaust.position.set(-1.25, 0.22, -5.55);
+    car.add(exhaust);
 
+    scene.add(car);
+    car.position.set(NEGATIVE_OUTER_LANE_X, 0, 90);
+    car.rotation.y = 0;
+}
+
+function updateVehicleLights() {
+    const braking = keys["s"] && speed > 0.5;
+    const reversing = speed < -0.5;
+
+    for (const light of taillights) {
+        light.material.color.set(braking ? 0xff180d : 0x640000);
+        light.material.emissive.set(braking ? 0xff0900 : 0x260000);
+        light.material.emissiveIntensity = braking ? 3.2 : 0.6;
+    }
+
+    for (const light of reverseLights) {
+        light.material.color.set(reversing ? 0xffffff : 0xb8bcb8);
+        light.material.emissive.set(reversing ? 0xffffff : 0x000000);
+        light.material.emissiveIntensity = reversing ? 2.8 : 0;
+    }
+
+    for (const spot of reverseSpotLights) {
+        spot.intensity = reversing ? 11 : 0;
+    }
 }
 
 createCar("sedan");
 
-// HUD
+// ======================================
+// HUD AND INPUT
+// ======================================
 
-const speedometer =
-document.getElementById(
-    "speedometer"
-);
+const speedometer = document.getElementById("speedometer");
+const tachometer = document.getElementById("tachometer");
 
-const tachometer =
-document.getElementById(
-    "tachometer"
-);
-
-// Vehicle Controls
-
-const keys = {};
-
-window.addEventListener(
-    "keydown",
-    (event) => {
-
-        keys[
-            event.key.toLowerCase()
-        ] = true;
-
+window.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+    if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(key)) {
+        event.preventDefault();
     }
-);
-
-window.addEventListener(
-    "keyup",
-    (event) => {
-
-        keys[
-            event.key.toLowerCase()
-        ] = false;
-
-    }
-);
-
-let speed = 0;
-
-// Play Button
-
-document
-.getElementById("playBtn")
-.addEventListener(
-"click",
-() => {
-
-    document
-    .getElementById("menu")
-    .style.display = "none";
-
-    document
-    .getElementById("hud")
-    .style.display = "block";
-
-    renderer
-    .domElement
-    .style.display = "block";
-
+    keys[key] = true;
 });
 
-document
-.getElementById("carBtn")
-.addEventListener(
-"click",
-() => {
-
-    const choice = prompt(
-`SELECT CAR
-
-compact
-sedan
-suv
-sports`
-    );
-
-    if(
-        choice === "compact" ||
-        choice === "sedan" ||
-        choice === "suv" ||
-        choice === "sports"
-    ){
-
-        createCar(choice);
-
-    }
-
+window.addEventListener("keyup", (event) => {
+    keys[event.key.toLowerCase()] = false;
 });
 
-// Resize
-
-window.addEventListener(
-    "resize",
-    () => {
-
-        camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
-
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
-
-    }
-);
-
-// Animation Loop
-
-function animate(){
-
-    requestAnimationFrame(
-        animate
-    );
-
-    // Acceleration
-
-    if(keys["w"]){
-
-        if(speed < 70){
-
-            speed += 0.3;
-
-        }
-        else if(speed < 100){
-
-            speed += 0.15;
-
-        }
-        else if(speed < 160){
-
-            speed += 0.12;
-
-        }
-
-    }
-
-    // Brake
-
-    if(keys["s"]){
-
-        speed -= 0.4;
-
-    }
-
-    // Natural Deceleration
-
-    speed *= 0.999;
-
-    // Speed Limit
-
-    speed =
-    Math.max(-40, speed);
-
-    speed =
-    Math.min(160, speed);
-
-    // Steering
-
-if(keys["a"]){
-
-    car.rotation.y += 0.03;
-
+const playButton = document.getElementById("playBtn");
+if (playButton) {
+    playButton.addEventListener("click", () => {
+        const menu = document.getElementById("menu");
+        const hud = document.getElementById("hud");
+        if (menu) menu.style.display = "none";
+        if (hud) hud.style.display = "block";
+        renderer.domElement.style.display = "block";
+    });
 }
 
-if(keys["d"]){
-
-    car.rotation.y -= 0.03;
-
+const carButton = document.getElementById("carBtn");
+if (carButton) {
+    carButton.addEventListener("click", () => {
+        const choice = prompt("SELECT CAR\n\ncompact\nsedan\nsuv\nsports");
+        if (choice && CAR_PRESETS[choice]) createCar(choice);
+    });
 }
 
-// Vehicle Movement
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
-car.position.x -=
-    Math.sin(
-        car.rotation.y
-    ) *
-    speed *
-    0.007;
+// ======================================
+// VEHICLE PHYSICS AND ANIMATION
+// ======================================
 
-car.position.z -=
-    Math.cos(
-        car.rotation.y
-    ) *
-    speed *
-    0.007;
+function updateVehicle(deltaSeconds) {
+    const accelerating = keys["w"] || keys["arrowup"];
+    const brakingOrReverse = keys["s"] || keys["arrowdown"];
+    const steerLeft = keys["a"] || keys["arrowleft"];
+    const steerRight = keys["d"] || keys["arrowright"];
 
-    // Rear Lights
-
-taillights.forEach(
-    light => {
-
-        if(keys["s"]){
-
-            light.material.color.set(
-                0xff0000
-            );
-
-        }
-        else if(speed <= 1){
-
-            light.material.color.set(
-                0xff4444
-            );
-
-        }
-        else{
-
-            light.material.color.set(
-                0x660000
-            );
-
-        }
-
+    if (accelerating) {
+        if (speed < 70) speed += 20 * deltaSeconds;
+        else if (speed < 100) speed += 10 * deltaSeconds;
+        else speed += 7 * deltaSeconds;
     }
-);
 
-// Reverse Lights
-
-reverseLights.forEach(
-    light => {
-
-        light.visible =
-            speed < 0;
-
+    if (brakingOrReverse) {
+        if (speed > 1) speed -= 34 * deltaSeconds;
+        else speed -= 14 * deltaSeconds;
     }
-);
 
-    // HUD Update
+    if (!accelerating && !brakingOrReverse) {
+        const drag = 5.2 * deltaSeconds;
+        if (Math.abs(speed) <= drag) speed = 0;
+        else speed -= Math.sign(speed) * drag;
+    }
 
-    speedometer.textContent =
-        Math.round(speed)
-        + " km/h";
+    speed = THREE.MathUtils.clamp(speed, -35, 160);
 
-    tachometer.textContent =
-        Math.round(
-            700 +
-            speed * 40
-        )
-        + " RPM";
-
-    // Chase Camera
-
-    camera.position.x =
-        car.position.x +
-        Math.sin(
-            car.rotation.y
-        ) *
-        15;
-
-    camera.position.z =
-        car.position.z +
-        Math.cos(
-            car.rotation.y
-        ) *
-        15;
-
-    camera.position.y = 6;
-
-    camera.lookAt(
-        car.position
+    const steerInput = (steerLeft ? 1 : 0) - (steerRight ? 1 : 0);
+    steeringVisual = THREE.MathUtils.lerp(
+        steeringVisual,
+        steerInput,
+        Math.min(1, deltaSeconds * 8)
     );
 
-    renderer.render(
-        scene,
-        camera
+    if (Math.abs(speed) > 0.2) {
+        const reverseSteer = speed >= 0 ? 1 : -1;
+        car.rotation.y +=
+            steeringVisual * reverseSteer * deltaSeconds *
+            (0.55 + Math.min(Math.abs(speed), 80) / 220);
+    }
+
+    const movement = speed * deltaSeconds * 0.11;
+    car.position.x -= Math.sin(car.rotation.y) * movement;
+    car.position.z -= Math.cos(car.rotation.y) * movement;
+
+    for (const wheel of wheelMeshes) {
+        wheel.rotation.x -= movement / 0.82;
+    }
+}
+
+function updateCamera(deltaSeconds) {
+    const desiredPosition = new THREE.Vector3(
+        car.position.x + Math.sin(car.rotation.y) * 15,
+        car.position.y + 6,
+        car.position.z + Math.cos(car.rotation.y) * 15
     );
 
+    const smoothing = 1 - Math.pow(0.001, deltaSeconds);
+    camera.position.lerp(desiredPosition, smoothing);
+
+    const lookTarget = car.position.clone();
+    lookTarget.y += 1.1;
+    camera.lookAt(lookTarget);
+}
+
+function updateHud() {
+    if (speedometer) {
+        speedometer.textContent = `${Math.round(Math.abs(speed))} km/h`;
+    }
+    if (tachometer) {
+        const rpm = 700 + Math.abs(speed) * 40;
+        tachometer.textContent = `${Math.round(rpm)} RPM`;
+    }
+}
+
+function animate(now = performance.now()) {
+    requestAnimationFrame(animate);
+
+    const deltaSeconds = Math.min((now - lastFrameTime) / 1000, 0.05);
+    lastFrameTime = now;
+
+    updateVehicle(deltaSeconds);
+    updateVehicleLights();
+    updateCamera(deltaSeconds);
+    updateHud();
+    renderer.render(scene, camera);
 }
 
 animate();
