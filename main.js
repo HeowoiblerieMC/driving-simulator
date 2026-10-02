@@ -256,7 +256,7 @@ for(const z of minorRoads){
 
 }
 
-// Signal Roads (250m)
+/// Signal Roads (250m)
 
 for(const z of signalIntersections){
 
@@ -289,59 +289,60 @@ for(const z of signalIntersections){
 
     scene.add(road);
 
-    // Upper Sidewalk
+    // Upper Left Sidewalk
 
-    const upperSidewalk =
-        new THREE.Mesh(
+    const s1 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            70,
+            0.3,
+            4
+        ),
+        sidewalkMaterial
+    );
 
-            new THREE.BoxGeometry(
-                181,
-                0.3,
-                4
-            ),
-
-            sidewalkMaterial
-
-        );
-
-    upperSidewalk.position.set(
-        0,
+    s1.position.set(
+        -55,
         0.17,
         z + 12
     );
 
-    scene.add(
-        upperSidewalk
-    );
+    scene.add(s1);
 
-    // Lower Sidewalk
+    // Upper Right Sidewalk
 
-    const lowerSidewalk =
-        new THREE.Mesh(
+    const s2 = s1.clone();
 
-            new THREE.BoxGeometry(
-                181,
-                0.3,
-                4
-            ),
+    s2.position.x = 55;
 
-            sidewalkMaterial
+    scene.add(s2);
 
-        );
+    // Lower Left Sidewalk
 
-    lowerSidewalk.position.set(
-        0,
+    const s3 = s1.clone();
+
+    s3.position.set(
+        -55,
         0.17,
         z - 12
     );
 
-    scene.add(
-        lowerSidewalk
+    scene.add(s3);
+
+    // Lower Right Sidewalk
+
+    const s4 = s1.clone();
+
+    s4.position.set(
+        55,
+        0.17,
+        z - 12
     );
+
+    scene.add(s4);
 
 }
 
-// Major Roads (500m)
+/// Major Roads (500m)
 
 for(const z of majorIntersections){
 
@@ -354,8 +355,6 @@ for(const z of majorIntersections){
         new THREE.MeshLambertMaterial({
             color: 0xd0d0d0
         });
-
-    // Main Road
 
     const road = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -374,55 +373,48 @@ for(const z of majorIntersections){
 
     scene.add(road);
 
-    // Upper Sidewalk
+    const s1 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            90,
+            0.3,
+            4
+        ),
+        sidewalkMaterial
+    );
 
-    const upperSidewalk =
-        new THREE.Mesh(
-
-            new THREE.BoxGeometry(
-                221,
-                0.3,
-                4
-            ),
-
-            sidewalkMaterial
-
-        );
-
-    upperSidewalk.position.set(
-        0,
+    s1.position.set(
+        -65,
         0.17,
         z + 17
     );
 
-    scene.add(
-        upperSidewalk
-    );
+    scene.add(s1);
 
-    // Lower Sidewalk
+    const s2 = s1.clone();
 
-    const lowerSidewalk =
-        new THREE.Mesh(
+    s2.position.x = 65;
 
-            new THREE.BoxGeometry(
-                221,
-                0.3,
-                4
-            ),
+    scene.add(s2);
 
-            sidewalkMaterial
+    const s3 = s1.clone();
 
-        );
-
-    lowerSidewalk.position.set(
-        0,
+    s3.position.set(
+        -65,
         0.17,
         z - 17
     );
 
-    scene.add(
-        lowerSidewalk
+    scene.add(s3);
+
+    const s4 = s1.clone();
+
+    s4.position.set(
+        65,
+        0.17,
+        z - 17
     );
+
+    scene.add(s4);
 
 }
 
