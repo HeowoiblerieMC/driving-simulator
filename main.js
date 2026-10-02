@@ -1337,63 +1337,97 @@ for (let z = MAP_START; z <= MAP_END; z += 70) {
 
 // ======================================
 // TRAFFIC SIGNAL SYSTEM
-// Vehicle signals and pedestrian signals with hoods.
+// Japanese left-side traffic layout.
+// Vehicle heads are mounted over the approach lane.
 // ======================================
 
 const trafficSignalControllers = [];
-const signalDarkMaterial = new THREE.MeshStandardMaterial({
-    color: 0x111314,
-    roughness: 0.7,
-    metalness: 0.15
-});
-const signalPoleMaterial = new THREE.MeshStandardMaterial({
-    color: 0x7d8587,
-    roughness: 0.48,
-    metalness: 0.65
+
+const signalHousingMaterial = new THREE.MeshStandardMaterial({
+    color: 0x303437,
+    roughness: 0.58,
+    metalness: 0.28
 });
 
-function createTextSign(text, width = 4.8, height = 1.25) {
+const signalHoodMaterial = new THREE.MeshStandardMaterial({
+    color: 0x171a1c,
+    roughness: 0.78,
+    metalness: 0.08,
+    side: THREE.DoubleSide
+});
+
+const signalPoleMaterial = new THREE.MeshStandardMaterial({
+    color: 0x889092,
+    roughness: 0.42,
+    metalness: 0.72
+});
+
+function signalBox(parent, size, position, material, rotation = [0, 0, 0]) {
+    const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(size[0], size[1], size[2]),
+        material
+    );
+    mesh.position.set(position[0], position[1], position[2]);
+    mesh.rotation.set(rotation[0], rotation[1], rotation[2]);
+    parent.add(mesh);
+    return mesh;
+}
+
+function createTextSign(text, width = 4.8, height = 1.2) {
     const canvas = document.createElement("canvas");
-    canvas.width = 768;
-    canvas.height = 200;
+    canvas.width = 1024;
+    canvas.height = 256;
     const ctx = canvas.getContext("2d");
+
     ctx.fillStyle = "#f7f4e9";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "#2375b9";
-    ctx.lineWidth = 18;
-    ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
-    ctx.fillStyle = "#176cad";
-    ctx.font = "bold 86px sans-serif";
+    ctx.strokeStyle = "#2477b7";
+    ctx.lineWidth = 22;
+    ctx.strokeRect(11, 11, canvas.width - 22, canvas.height - 22);
+    ctx.fillStyle = "#176eac";
+    ctx.font = "bold 116px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 3);
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 5);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
-    const material = new THREE.MeshBasicMaterial({ map: texture });
-    return new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+    return new THREE.Mesh(
+        new THREE.PlaneGeometry(width, height),
+        new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide })
+    );
 }
 
 function createSignalLamp(radius, color) {
     const material = new THREE.MeshStandardMaterial({
-        color: 0x171717,
+        color: 0x111111,
         emissive: color,
         emissiveIntensity: 0,
-        roughness: 0.28,
-        metalness: 0.05
+        roughness: 0.24,
+        metalness: 0.04
     });
+
     const lamp = new THREE.Mesh(
-        new THREE.CylinderGeometry(radius, radius, 0.12, 24),
+        new THREE.CylinderGeometry(radius, radius, 0.13, 32),
         material
     );
     lamp.rotation.x = Math.PI / 2;
     return lamp;
 }
 
-function createLampHood(radius) {
+function createLampHood(radius, depth) {
     const hood = new THREE.Mesh(
-        new THREE.CylinderGeometry(radius * 1.18, radius * 1.18, radius * 1.9, 24, 1, true, 0, Math.PI),
-        signalDarkMaterial
+        new THREE.CylinderGeometry(
+            radius * 1.12,
+            radius * 1.18,
+            depth,
+            32,
+            1,
+            true,
+            0,
+            Math.PI
+        ),
+        signalHoodMaterial
     );
     hood.rotation.x = Math.PI / 2;
     hood.rotation.z = Math.PI / 2;
@@ -1402,118 +1436,242 @@ function createLampHood(radius) {
 
 function createVehicleSignalHead() {
     const group = new THREE.Group();
-    addCarBox(group, [3.15, 0.95, 0.45], [0, 0, 0], signalDarkMaterial);
+
+    signalBox(group, [3.25, 1.05, 0.48], [0, 0, 0], signalHousingMaterial);
+
     const lamps = {};
-    const defs = [
-        ["red", -1.05, 0xff1800],
-        ["yellow", 0, 0xffb000],
-        ["green", 1.05, 0x10d66b]
+    const definitions = [
+        ["red", -1.06, 0xff1b0b],
+        ["yellow", 0, 0xffb300],
+        ["green", 1.06, 0x19d978]
     ];
-    for (const [name, x, color] of defs) {
-        const lamp = createSignalLamp(0.34, color);
-        lamp.position.set(x, 0, -0.25);
+
+    for (const [name, x, color] of definitions) {
+        const bezel = new THREE.Mesh(
+            new THREE.TorusGeometry(0.39, 0.075, 12, 30),
+            signalHoodMaterial
+        );
+        bezel.position.set(x, 0, -0.255);
+        group.add(bezel);
+
+        const lamp = createSignalLamp(0.31, color);
+        lamp.position.set(x, 0, -0.29);
         group.add(lamp);
-        const hood = createLampHood(0.38);
-        hood.position.set(x, 0.16, -0.38);
+
+        const hood = createLampHood(0.39, 0.72);
+        hood.position.set(x, 0.2, -0.48);
         group.add(hood);
         lamps[name] = lamp;
     }
+
     group.userData.lamps = lamps;
     return group;
 }
 
+function createPedestrianIconTexture(color, walking) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, 256, 256);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 22;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.beginPath();
+    ctx.arc(128, 52, 23, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    if (walking) {
+        ctx.moveTo(125, 86);
+        ctx.lineTo(112, 148);
+        ctx.lineTo(72, 209);
+        ctx.moveTo(113, 148);
+        ctx.lineTo(165, 201);
+        ctx.moveTo(119, 105);
+        ctx.lineTo(75, 140);
+        ctx.moveTo(119, 105);
+        ctx.lineTo(168, 130);
+    } else {
+        ctx.moveTo(128, 86);
+        ctx.lineTo(128, 158);
+        ctx.moveTo(128, 111);
+        ctx.lineTo(85, 145);
+        ctx.moveTo(128, 111);
+        ctx.lineTo(171, 145);
+        ctx.moveTo(128, 158);
+        ctx.lineTo(96, 216);
+        ctx.moveTo(128, 158);
+        ctx.lineTo(160, 216);
+    }
+    ctx.stroke();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+}
+
+function createPedestrianPanel(texture, emissiveColor) {
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        map: texture,
+        emissiveMap: texture,
+        emissive: emissiveColor,
+        emissiveIntensity: 0,
+        roughness: 0.4,
+        metalness: 0.02,
+        transparent: true
+    });
+    return new THREE.Mesh(new THREE.PlaneGeometry(0.72, 0.72), material);
+}
+
 function createPedestrianSignalHead() {
     const group = new THREE.Group();
-    addCarBox(group, [0.9, 1.9, 0.42], [0, 0, 0], signalDarkMaterial);
-    const red = createSignalLamp(0.29, 0xff2818);
-    red.position.set(0, 0.48, -0.24);
-    const green = createSignalLamp(0.29, 0x20df71);
-    green.position.set(0, -0.48, -0.24);
+
+    signalBox(group, [1.18, 2.18, 0.5], [0, 0, 0], signalHousingMaterial);
+    signalBox(group, [1.02, 0.96, 0.05], [0, 0.53, -0.275], signalHoodMaterial);
+    signalBox(group, [1.02, 0.96, 0.05], [0, -0.53, -0.275], signalHoodMaterial);
+
+    const redTexture = createPedestrianIconTexture("#ff3424", false);
+    const greenTexture = createPedestrianIconTexture("#27e37c", true);
+    const red = createPedestrianPanel(redTexture, 0xff2418);
+    const green = createPedestrianPanel(greenTexture, 0x20df71);
+    red.position.set(0, 0.53, -0.31);
+    green.position.set(0, -0.53, -0.31);
     group.add(red, green);
-    const hoodRed = createLampHood(0.33);
-    hoodRed.position.set(0, 0.62, -0.37);
-    const hoodGreen = createLampHood(0.33);
-    hoodGreen.position.set(0, -0.34, -0.37);
-    group.add(hoodRed, hoodGreen);
+
+    const redHood = createLampHood(0.5, 0.64);
+    redHood.position.set(0, 0.75, -0.5);
+    const greenHood = createLampHood(0.5, 0.64);
+    greenHood.position.set(0, -0.31, -0.5);
+    group.add(redHood, greenHood);
+
     group.userData.lamps = { red, green };
     return group;
 }
 
 function setVehicleSignal(head, state) {
     const lamps = head.userData.lamps;
-    lamps.red.material.emissiveIntensity = state === "red" ? 3.8 : 0;
-    lamps.yellow.material.emissiveIntensity = state === "yellow" ? 3.8 : 0;
-    lamps.green.material.emissiveIntensity = state === "green" ? 3.8 : 0;
+    lamps.red.material.emissiveIntensity = state === "red" ? 4.2 : 0;
+    lamps.yellow.material.emissiveIntensity = state === "yellow" ? 4.2 : 0;
+    lamps.green.material.emissiveIntensity = state === "green" ? 4.2 : 0;
 }
 
 function setPedestrianSignal(head, state, blink = false) {
     const lamps = head.userData.lamps;
-    const visibleGreen = state === "green" && (!blink || Math.floor(performance.now() / 420) % 2 === 0);
-    lamps.red.material.emissiveIntensity = state === "red" ? 3.4 : 0;
-    lamps.green.material.emissiveIntensity = visibleGreen ? 3.4 : 0;
+    const greenVisible =
+        state === "green" &&
+        (!blink || Math.floor(performance.now() / 420) % 2 === 0);
+    lamps.red.material.emissiveIntensity = state === "red" ? 3.8 : 0;
+    lamps.green.material.emissiveIntensity = greenVisible ? 3.8 : 0;
 }
 
-function createSignalCorner(x, z, faceDirection, scramble = false) {
+function createSignalMast(x, z, yaw, armLength, scramble = false) {
     const group = new THREE.Group();
+
+    // Approximate Japanese installation heights in project units.
+    const poleHeight = 7.15;
+    const vehicleHeadHeight = 6.6;
+    const pedestrianHeadHeight = 3.35;
+
     const pole = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.13, 0.16, 5.8, 16),
+        new THREE.CylinderGeometry(0.14, 0.19, poleHeight, 18),
         signalPoleMaterial
     );
-    pole.position.y = 2.9;
+    pole.position.y = poleHeight / 2;
     group.add(pole);
 
+    // Curved-looking mast connection: vertical stub, horizontal arm and end cap.
     const arm = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.11, 0.11, 3.8, 16),
+        new THREE.CylinderGeometry(0.12, 0.12, armLength, 18),
         signalPoleMaterial
     );
     arm.rotation.z = Math.PI / 2;
-    arm.position.set(1.75, 5.3, 0);
+    arm.position.set(armLength / 2, vehicleHeadHeight + 0.38, 0);
     group.add(arm);
 
+    const connector = new THREE.Mesh(
+        new THREE.TorusGeometry(0.38, 0.12, 10, 24, Math.PI / 2),
+        signalPoleMaterial
+    );
+    connector.rotation.set(Math.PI / 2, 0, 0);
+    connector.position.set(0.38, vehicleHeadHeight, 0);
+    group.add(connector);
+
     const vehicleHead = createVehicleSignalHead();
-    vehicleHead.position.set(3.3, 5.3, 0);
-    vehicleHead.rotation.y = faceDirection;
+    vehicleHead.position.set(armLength - 1.75, vehicleHeadHeight, 0);
     group.add(vehicleHead);
 
+    // Pedestrian head is mounted to the roadside pole, facing the crosswalk.
     const pedestrianHead = createPedestrianSignalHead();
-    pedestrianHead.position.set(0.25, 3.9, 0);
-    pedestrianHead.rotation.y = faceDirection;
+    pedestrianHead.position.set(0.32, pedestrianHeadHeight, -0.08);
     group.add(pedestrianHead);
 
     if (scramble) {
-        const sign = createTextSign("ã¹ã¯ã©ã³ãã«å¼", 4.5, 1.05);
-        sign.position.set(3.3, 6.35, -0.05);
-        sign.rotation.y = faceDirection;
+        const sign = createTextSign("ã¹ã¯ã©ã³ãã«å¼", 4.8, 1.15);
+        sign.position.set(armLength - 1.75, vehicleHeadHeight + 1.25, -0.28);
         group.add(sign);
     }
 
     group.position.set(x, 0, z);
+    group.rotation.y = yaw;
     scene.add(group);
     return { vehicleHead, pedestrianHead };
 }
 
 function createIntersectionSignals(z, kind) {
-    const halfX = MAIN_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 1.0;
-    const crossingHalf = kind === "signal"
-        ? SIGNAL_ROAD_HALF_WIDTH
-        : MAJOR_ROAD_HALF_WIDTH;
-    const halfZ = crossingHalf + STANDARD_SIDEWALK_WIDTH + 1.0;
+    const crossingHalf =
+        kind === "signal" ? SIGNAL_ROAD_HALF_WIDTH : MAJOR_ROAD_HALF_WIDTH;
+    const sideOffsetX = MAIN_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 0.8;
+    const sideOffsetZ = crossingHalf + STANDARD_SIDEWALK_WIDTH + 0.8;
+    const nsArmLength = MAIN_CARRIAGEWAY_WIDTH + STANDARD_SIDEWALK_WIDTH + 2.1;
+    const ewArmLength =
+        (kind === "signal" ? SIGNAL_ROAD_HALF_WIDTH : MAIN_CARRIAGEWAY_WIDTH) +
+        STANDARD_SIDEWALK_WIDTH + 2.1;
     const scramble = kind === "scramble";
 
-    const north = createSignalCorner(-halfX, z + halfZ, 0, scramble);
-    const south = createSignalCorner(halfX, z - halfZ, Math.PI, scramble);
-    const west = createSignalCorner(-halfX, z - halfZ, -Math.PI / 2, scramble);
-    const east = createSignalCorner(halfX, z + halfZ, Math.PI / 2, scramble);
+    // Pole is on the left roadside of each approaching stream.
+    // Local +X is the arm direction and local -Z is the lens-facing direction.
+    const south = createSignalMast(
+        -sideOffsetX,
+        z - sideOffsetZ,
+        0,
+        nsArmLength,
+        scramble
+    );
+    const north = createSignalMast(
+        sideOffsetX,
+        z + sideOffsetZ,
+        Math.PI,
+        nsArmLength,
+        scramble
+    );
+    const west = createSignalMast(
+        -sideOffsetX,
+        z + sideOffsetZ,
+        Math.PI / 2,
+        ewArmLength,
+        scramble
+    );
+    const east = createSignalMast(
+        sideOffsetX,
+        z - sideOffsetZ,
+        -Math.PI / 2,
+        ewArmLength,
+        scramble
+    );
 
-    const controller = {
+    trafficSignalControllers.push({
         z,
         kind,
-        nsVehicle: [north.vehicleHead, south.vehicleHead],
+        nsVehicle: [south.vehicleHead, north.vehicleHead],
         ewVehicle: [west.vehicleHead, east.vehicleHead],
         nsPed: [west.pedestrianHead, east.pedestrianHead],
-        ewPed: [north.pedestrianHead, south.pedestrianHead]
-    };
-    trafficSignalControllers.push(controller);
+        ewPed: [south.pedestrianHead, north.pedestrianHead]
+    });
 }
 
 for (const z of signalIntersections) createIntersectionSignals(z, "signal");
@@ -1523,47 +1681,92 @@ createIntersectionSignals(0, "scramble");
 function updateTrafficSignals(timeSeconds) {
     for (const controller of trafficSignalControllers) {
         let phases;
+
         if (controller.kind === "signal") {
-            // 250m: main boulevard receives the longer green.
             phases = [
-                [32, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
-                [18, "ewGreen"], [4, "ewYellow"], [3, "allRed"]
+                [32, "nsGreen"],
+                [4, "nsYellow"],
+                [3, "allRed"],
+                [18, "ewGreen"],
+                [4, "ewYellow"],
+                [3, "allRed"]
             ];
         } else if (controller.kind === "major") {
-            // 500m: equal green time in both directions.
             phases = [
-                [25, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
-                [25, "ewGreen"], [4, "ewYellow"], [3, "allRed"]
+                [25, "nsGreen"],
+                [4, "nsYellow"],
+                [3, "allRed"],
+                [25, "ewGreen"],
+                [4, "ewYellow"],
+                [3, "allRed"]
             ];
         } else {
-            // Scramble: longer all-pedestrian phase.
             phases = [
-                [18, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
-                [18, "ewGreen"], [4, "ewYellow"], [3, "allRed"],
-                [28, "pedAll"], [5, "pedBlink"], [3, "allRed"]
+                [18, "nsGreen"],
+                [4, "nsYellow"],
+                [3, "allRed"],
+                [18, "ewGreen"],
+                [4, "ewYellow"],
+                [3, "allRed"],
+                [28, "pedAll"],
+                [5, "pedBlink"],
+                [3, "allRed"]
             ];
         }
 
         const cycle = phases.reduce((sum, phase) => sum + phase[0], 0);
         let cursor = timeSeconds % cycle;
         let state = "allRed";
-        for (const [duration, name] of phases) {
-            if (cursor < duration) { state = name; break; }
+
+        for (const [duration, phaseName] of phases) {
+            if (cursor < duration) {
+                state = phaseName;
+                break;
+            }
             cursor -= duration;
         }
 
         for (const head of controller.nsVehicle) {
-            setVehicleSignal(head, state === "nsGreen" ? "green" : state === "nsYellow" ? "yellow" : "red");
-        }
-        for (const head of controller.ewVehicle) {
-            setVehicleSignal(head, state === "ewGreen" ? "green" : state === "ewYellow" ? "yellow" : "red");
+            setVehicleSignal(
+                head,
+                state === "nsGreen"
+                    ? "green"
+                    : state === "nsYellow"
+                        ? "yellow"
+                        : "red"
+            );
         }
 
-        const allPed = state === "pedAll" || state === "pedBlink";
-        const nsPedGreen = controller.kind !== "scramble" && state === "ewGreen";
-        const ewPedGreen = controller.kind !== "scramble" && state === "nsGreen";
-        for (const head of controller.nsPed) setPedestrianSignal(head, allPed || nsPedGreen ? "green" : "red", state === "pedBlink");
-        for (const head of controller.ewPed) setPedestrianSignal(head, allPed || ewPedGreen ? "green" : "red", state === "pedBlink");
+        for (const head of controller.ewVehicle) {
+            setVehicleSignal(
+                head,
+                state === "ewGreen"
+                    ? "green"
+                    : state === "ewYellow"
+                        ? "yellow"
+                        : "red"
+            );
+        }
+
+        const scramblePedestrian = state === "pedAll" || state === "pedBlink";
+        const nsPedestrian = controller.kind !== "scramble" && state === "ewGreen";
+        const ewPedestrian = controller.kind !== "scramble" && state === "nsGreen";
+
+        for (const head of controller.nsPed) {
+            setPedestrianSignal(
+                head,
+                scramblePedestrian || nsPedestrian ? "green" : "red",
+                state === "pedBlink"
+            );
+        }
+
+        for (const head of controller.ewPed) {
+            setPedestrianSignal(
+                head,
+                scramblePedestrian || ewPedestrian ? "green" : "red",
+                state === "pedBlink"
+            );
+        }
     }
 }
 
