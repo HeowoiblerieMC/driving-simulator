@@ -74,10 +74,10 @@ const MAJOR_ROAD_HALF_WIDTH = MAJOR_ROAD_WIDTH / 2;
 
 // Lane-center positions on the main boulevard.
 // Japanese left-hand traffic in this scene:
-// +Z travel uses the positive-X carriageway.
-// -Z travel uses the negative-X carriageway.
-// +X travel uses the negative-Z carriageway.
-// -X travel uses the positive-Z carriageway.
+// +Z travel uses the negative-X carriageway.
+// -Z travel uses the positive-X carriageway.
+// +X travel uses the positive-Z carriageway.
+// -X travel uses the negative-Z carriageway.
 const NEGATIVE_INNER_LANE_X = -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
 const NEGATIVE_OUTER_LANE_X = -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
 const POSITIVE_INNER_LANE_X = MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
@@ -684,47 +684,47 @@ for (const z of signalIntersections) {
     const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
     createStopLineAcrossX(
-        MAIN_CARRIAGEWAY_CENTER,
+        -MAIN_CARRIAGEWAY_CENTER,
         southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
-        -MAIN_CARRIAGEWAY_CENTER,
+        MAIN_CARRIAGEWAY_CENTER,
         northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
         westStopLineX,
-        z - LANE_WIDTH / 2,
+        z + LANE_WIDTH / 2,
         LANE_WIDTH
     );
     createStopLineAcrossZ(
         eastStopLineX,
-        z + LANE_WIDTH / 2,
+        z - LANE_WIDTH / 2,
         LANE_WIDTH
     );
 
     // Main-boulevard arrows: one per lane.
     createRoadArrow(
-        POSITIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
-        POSITIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
         NEGATIVE_INNER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        NEGATIVE_OUTER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        POSITIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
-        NEGATIVE_OUTER_LANE_X,
+        POSITIVE_OUTER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
@@ -733,13 +733,13 @@ for (const z of signalIntersections) {
     // Crossing-road arrows: one per approach lane.
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
-        z - LANE_WIDTH / 2,
+        z + LANE_WIDTH / 2,
         -Math.PI / 2,
         "straight"
     );
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
-        z + LANE_WIDTH / 2,
+        z - LANE_WIDTH / 2,
         Math.PI / 2,
         "straight"
     );
@@ -852,58 +852,94 @@ for (const z of majorIntersections) {
     const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
     createStopLineAcrossX(
-        MAIN_CARRIAGEWAY_CENTER,
+        -MAIN_CARRIAGEWAY_CENTER,
         southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
-        -MAIN_CARRIAGEWAY_CENTER,
+        MAIN_CARRIAGEWAY_CENTER,
         northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
         westStopLineX,
-        z - MAIN_CARRIAGEWAY_CENTER,
+        z + MAIN_CARRIAGEWAY_CENTER,
         MAJOR_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
         eastStopLineX,
-        z + MAIN_CARRIAGEWAY_CENTER,
+        z - MAIN_CARRIAGEWAY_CENTER,
         MAJOR_CARRIAGEWAY_WIDTH
     );
 
-    // Main-boulevard straight arrows, one per lane.
+    // Main-boulevard approach arrows: left, straight, right.
+    // South approach travels +Z on the negative-X carriageway.
     createRoadArrow(
-        POSITIVE_INNER_LANE_X,
+        NEGATIVE_OUTER_LANE_X,
         southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
         Math.PI,
-        "straight"
-    );
-    createRoadArrow(
-        POSITIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
+        "left"
     );
     createRoadArrow(
         NEGATIVE_INNER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        -MEDIAN_WIDTH / 4,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "right"
+    );
+
+    // North approach travels -Z on the positive-X carriageway.
+    createRoadArrow(
+        POSITIVE_OUTER_LANE_X,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        0,
+        "left"
+    );
+    createRoadArrow(
+        POSITIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
-        NEGATIVE_OUTER_LANE_X,
+        MEDIAN_WIDTH / 4,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
-        "straight"
+        "right"
+    );
+
+    // Solid separators for the added center-side turn lanes.
+    addVerticalMarkingSegment(
+        -MEDIAN_WIDTH / 2,
+        z - MAJOR_ROAD_HALF_WIDTH - TURN_LANE_LENGTH,
+        southStopLineZ - 1.0,
+        0.22
+    );
+    addVerticalMarkingSegment(
+        MEDIAN_WIDTH / 2,
+        northStopLineZ + 1.0,
+        z + MAJOR_ROAD_HALF_WIDTH + TURN_LANE_LENGTH,
+        0.22
     );
 
     // Crossing major-road arrows, one per lane.
-    const westInnerLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
-    const westOuterLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
-    const eastInnerLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
-    const eastOuterLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
+    const westInnerLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
+    const westOuterLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
+    const eastInnerLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
+    const eastOuterLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
 
+    // West approach (+X): left, straight, right.
+    createRoadArrow(
+        westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
+        westOuterLaneZ,
+        -Math.PI / 2,
+        "left"
+    );
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
         westInnerLaneZ,
@@ -912,9 +948,17 @@ for (const z of majorIntersections) {
     );
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
-        westOuterLaneZ,
+        z + MEDIAN_WIDTH / 4,
         -Math.PI / 2,
-        "straight"
+        "right"
+    );
+
+    // East approach (-X): left, straight, right.
+    createRoadArrow(
+        eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
+        eastOuterLaneZ,
+        Math.PI / 2,
+        "left"
     );
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
@@ -924,9 +968,23 @@ for (const z of majorIntersections) {
     );
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
-        eastOuterLaneZ,
+        z - MEDIAN_WIDTH / 4,
         Math.PI / 2,
-        "straight"
+        "right"
+    );
+
+    // Solid separators for horizontal center-side turn lanes.
+    addHorizontalMarkingSegment(
+        -MAJOR_ROAD_LENGTH / 2,
+        westStopLineX - 1.0,
+        z + MEDIAN_WIDTH / 2,
+        0.22
+    );
+    addHorizontalMarkingSegment(
+        eastStopLineX + 1.0,
+        MAJOR_ROAD_LENGTH / 2,
+        z - MEDIAN_WIDTH / 2,
+        0.22
     );
 }
 
@@ -998,56 +1056,56 @@ const scrambleWestStopLineX = scrambleWestX - STOP_LINE_OFFSET;
 const scrambleEastStopLineX = scrambleEastX + STOP_LINE_OFFSET;
 
 createStopLineAcrossX(
-    MAIN_CARRIAGEWAY_CENTER,
+    -MAIN_CARRIAGEWAY_CENTER,
     scrambleSouthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossX(
-    -MAIN_CARRIAGEWAY_CENTER,
+    MAIN_CARRIAGEWAY_CENTER,
     scrambleNorthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossZ(
     scrambleWestStopLineX,
-    -MAIN_CARRIAGEWAY_CENTER,
+    MAIN_CARRIAGEWAY_CENTER,
     MAJOR_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossZ(
     scrambleEastStopLineX,
-    MAIN_CARRIAGEWAY_CENTER,
+    -MAIN_CARRIAGEWAY_CENTER,
     MAJOR_CARRIAGEWAY_WIDTH
 );
 
 // Scramble approach arrows, one per lane.
 createRoadArrow(
-    POSITIVE_INNER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
-    "straight"
-);
-createRoadArrow(
-    POSITIVE_OUTER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
-    "straight"
-);
-createRoadArrow(
     NEGATIVE_INNER_LANE_X,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
+    "straight"
+);
+createRoadArrow(
+    NEGATIVE_OUTER_LANE_X,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
+    "straight"
+);
+createRoadArrow(
+    POSITIVE_INNER_LANE_X,
     scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 createRoadArrow(
-    NEGATIVE_OUTER_LANE_X,
+    POSITIVE_OUTER_LANE_X,
     scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 
-const scrambleWestInnerLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
-const scrambleWestOuterLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
-const scrambleEastInnerLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
-const scrambleEastOuterLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
+const scrambleWestInnerLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
+const scrambleWestOuterLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
+const scrambleEastInnerLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
+const scrambleEastOuterLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
 
 createRoadArrow(
     scrambleWestStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
@@ -1273,6 +1331,239 @@ for (let z = MAP_START; z <= MAP_END; z += 70) {
             z + (Math.random() - 0.5) * 0.5
         );
         scene.add(leaf);
+    }
+}
+
+
+// ======================================
+// TRAFFIC SIGNAL SYSTEM
+// Vehicle signals and pedestrian signals with hoods.
+// ======================================
+
+const trafficSignalControllers = [];
+const signalDarkMaterial = new THREE.MeshStandardMaterial({
+    color: 0x111314,
+    roughness: 0.7,
+    metalness: 0.15
+});
+const signalPoleMaterial = new THREE.MeshStandardMaterial({
+    color: 0x7d8587,
+    roughness: 0.48,
+    metalness: 0.65
+});
+
+function createTextSign(text, width = 4.8, height = 1.25) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 768;
+    canvas.height = 200;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#f7f4e9";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#2375b9";
+    ctx.lineWidth = 18;
+    ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
+    ctx.fillStyle = "#176cad";
+    ctx.font = "bold 86px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 3);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    const material = new THREE.MeshBasicMaterial({ map: texture });
+    return new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+}
+
+function createSignalLamp(radius, color) {
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x171717,
+        emissive: color,
+        emissiveIntensity: 0,
+        roughness: 0.28,
+        metalness: 0.05
+    });
+    const lamp = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius, radius, 0.12, 24),
+        material
+    );
+    lamp.rotation.x = Math.PI / 2;
+    return lamp;
+}
+
+function createLampHood(radius) {
+    const hood = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius * 1.18, radius * 1.18, radius * 1.9, 24, 1, true, 0, Math.PI),
+        signalDarkMaterial
+    );
+    hood.rotation.x = Math.PI / 2;
+    hood.rotation.z = Math.PI / 2;
+    return hood;
+}
+
+function createVehicleSignalHead() {
+    const group = new THREE.Group();
+    addCarBox(group, [3.15, 0.95, 0.45], [0, 0, 0], signalDarkMaterial);
+    const lamps = {};
+    const defs = [
+        ["red", -1.05, 0xff1800],
+        ["yellow", 0, 0xffb000],
+        ["green", 1.05, 0x10d66b]
+    ];
+    for (const [name, x, color] of defs) {
+        const lamp = createSignalLamp(0.34, color);
+        lamp.position.set(x, 0, -0.25);
+        group.add(lamp);
+        const hood = createLampHood(0.38);
+        hood.position.set(x, 0.16, -0.38);
+        group.add(hood);
+        lamps[name] = lamp;
+    }
+    group.userData.lamps = lamps;
+    return group;
+}
+
+function createPedestrianSignalHead() {
+    const group = new THREE.Group();
+    addCarBox(group, [0.9, 1.9, 0.42], [0, 0, 0], signalDarkMaterial);
+    const red = createSignalLamp(0.29, 0xff2818);
+    red.position.set(0, 0.48, -0.24);
+    const green = createSignalLamp(0.29, 0x20df71);
+    green.position.set(0, -0.48, -0.24);
+    group.add(red, green);
+    const hoodRed = createLampHood(0.33);
+    hoodRed.position.set(0, 0.62, -0.37);
+    const hoodGreen = createLampHood(0.33);
+    hoodGreen.position.set(0, -0.34, -0.37);
+    group.add(hoodRed, hoodGreen);
+    group.userData.lamps = { red, green };
+    return group;
+}
+
+function setVehicleSignal(head, state) {
+    const lamps = head.userData.lamps;
+    lamps.red.material.emissiveIntensity = state === "red" ? 3.8 : 0;
+    lamps.yellow.material.emissiveIntensity = state === "yellow" ? 3.8 : 0;
+    lamps.green.material.emissiveIntensity = state === "green" ? 3.8 : 0;
+}
+
+function setPedestrianSignal(head, state, blink = false) {
+    const lamps = head.userData.lamps;
+    const visibleGreen = state === "green" && (!blink || Math.floor(performance.now() / 420) % 2 === 0);
+    lamps.red.material.emissiveIntensity = state === "red" ? 3.4 : 0;
+    lamps.green.material.emissiveIntensity = visibleGreen ? 3.4 : 0;
+}
+
+function createSignalCorner(x, z, faceDirection, scramble = false) {
+    const group = new THREE.Group();
+    const pole = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.13, 0.16, 5.8, 16),
+        signalPoleMaterial
+    );
+    pole.position.y = 2.9;
+    group.add(pole);
+
+    const arm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.11, 0.11, 3.8, 16),
+        signalPoleMaterial
+    );
+    arm.rotation.z = Math.PI / 2;
+    arm.position.set(1.75, 5.3, 0);
+    group.add(arm);
+
+    const vehicleHead = createVehicleSignalHead();
+    vehicleHead.position.set(3.3, 5.3, 0);
+    vehicleHead.rotation.y = faceDirection;
+    group.add(vehicleHead);
+
+    const pedestrianHead = createPedestrianSignalHead();
+    pedestrianHead.position.set(0.25, 3.9, 0);
+    pedestrianHead.rotation.y = faceDirection;
+    group.add(pedestrianHead);
+
+    if (scramble) {
+        const sign = createTextSign("ã¹ã¯ã©ã³ãã«å¼", 4.5, 1.05);
+        sign.position.set(3.3, 6.35, -0.05);
+        sign.rotation.y = faceDirection;
+        group.add(sign);
+    }
+
+    group.position.set(x, 0, z);
+    scene.add(group);
+    return { vehicleHead, pedestrianHead };
+}
+
+function createIntersectionSignals(z, kind) {
+    const halfX = MAIN_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 1.0;
+    const crossingHalf = kind === "signal"
+        ? SIGNAL_ROAD_HALF_WIDTH
+        : MAJOR_ROAD_HALF_WIDTH;
+    const halfZ = crossingHalf + STANDARD_SIDEWALK_WIDTH + 1.0;
+    const scramble = kind === "scramble";
+
+    const north = createSignalCorner(-halfX, z + halfZ, 0, scramble);
+    const south = createSignalCorner(halfX, z - halfZ, Math.PI, scramble);
+    const west = createSignalCorner(-halfX, z - halfZ, -Math.PI / 2, scramble);
+    const east = createSignalCorner(halfX, z + halfZ, Math.PI / 2, scramble);
+
+    const controller = {
+        z,
+        kind,
+        nsVehicle: [north.vehicleHead, south.vehicleHead],
+        ewVehicle: [west.vehicleHead, east.vehicleHead],
+        nsPed: [west.pedestrianHead, east.pedestrianHead],
+        ewPed: [north.pedestrianHead, south.pedestrianHead]
+    };
+    trafficSignalControllers.push(controller);
+}
+
+for (const z of signalIntersections) createIntersectionSignals(z, "signal");
+for (const z of majorIntersections) createIntersectionSignals(z, "major");
+createIntersectionSignals(0, "scramble");
+
+function updateTrafficSignals(timeSeconds) {
+    for (const controller of trafficSignalControllers) {
+        let phases;
+        if (controller.kind === "signal") {
+            // 250m: main boulevard receives the longer green.
+            phases = [
+                [32, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
+                [18, "ewGreen"], [4, "ewYellow"], [3, "allRed"]
+            ];
+        } else if (controller.kind === "major") {
+            // 500m: equal green time in both directions.
+            phases = [
+                [25, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
+                [25, "ewGreen"], [4, "ewYellow"], [3, "allRed"]
+            ];
+        } else {
+            // Scramble: longer all-pedestrian phase.
+            phases = [
+                [18, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
+                [18, "ewGreen"], [4, "ewYellow"], [3, "allRed"],
+                [28, "pedAll"], [5, "pedBlink"], [3, "allRed"]
+            ];
+        }
+
+        const cycle = phases.reduce((sum, phase) => sum + phase[0], 0);
+        let cursor = timeSeconds % cycle;
+        let state = "allRed";
+        for (const [duration, name] of phases) {
+            if (cursor < duration) { state = name; break; }
+            cursor -= duration;
+        }
+
+        for (const head of controller.nsVehicle) {
+            setVehicleSignal(head, state === "nsGreen" ? "green" : state === "nsYellow" ? "yellow" : "red");
+        }
+        for (const head of controller.ewVehicle) {
+            setVehicleSignal(head, state === "ewGreen" ? "green" : state === "ewYellow" ? "yellow" : "red");
+        }
+
+        const allPed = state === "pedAll" || state === "pedBlink";
+        const nsPedGreen = controller.kind !== "scramble" && state === "ewGreen";
+        const ewPedGreen = controller.kind !== "scramble" && state === "nsGreen";
+        for (const head of controller.nsPed) setPedestrianSignal(head, allPed || nsPedGreen ? "green" : "red", state === "pedBlink");
+        for (const head of controller.ewPed) setPedestrianSignal(head, allPed || ewPedGreen ? "green" : "red", state === "pedBlink");
     }
 }
 
@@ -1599,7 +1890,7 @@ function createCar(type = "sedan") {
     car.add(exhaust);
 
     scene.add(car);
-    car.position.set(POSITIVE_OUTER_LANE_X, 0, -90);
+    car.position.set(NEGATIVE_OUTER_LANE_X, 0, -90);
     car.rotation.y = 0;
 }
 
@@ -1781,6 +2072,7 @@ function animate(now = performance.now()) {
 
     updateVehicle(deltaSeconds);
     updateVehicleLights();
+    updateTrafficSignals(now / 1000);
     updateCamera(deltaSeconds);
     updateHud();
     renderer.render(scene, camera);
