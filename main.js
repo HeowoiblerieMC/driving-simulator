@@ -904,17 +904,6 @@ if(keys["d"]){
 
 }
 
-// Wheel Rotation
-
-frontWheels.forEach(
-    wheel => {
-
-        wheel.rotation.x +=
-            speed * 0.01;
-
-    }
-);
-
 // Vehicle Movement
 
 car.position.x -=
