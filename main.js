@@ -2,7 +2,8 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.m
 
 // NOVA DRIVE 2.0 - rebuilt main.js
 // Coordinate convention: car nose is +Z. Japanese left-side traffic:
-// +Z => -X, -Z => +X, +X => +Z, -X => -Z.
+// Screen-verified Japanese left-side traffic convention:
+// +Z => +X, -Z => -X, +X => -Z, -X => +Z.
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
@@ -273,16 +274,16 @@ function build250(z) {
     wS = wC - STOP_OFFSET,
     eS = eC + STOP_OFFSET;
   // Japanese left traffic: +Z uses -X, -Z uses +X, +X uses +Z, -X uses -Z.
-  stopX(-CARRIAGE_C, sS, CARRIAGE);
-  stopX(CARRIAGE_C, nS, CARRIAGE);
-  stopZ(wS, z + LANE / 2, LANE);
-  stopZ(eS, z - LANE / 2, LANE);
-  roadArrow(NX_IN, sS - ARROW_GAP, Math.PI);
-  roadArrow(NX_OUT, sS - ARROW_GAP, Math.PI);
-  roadArrow(PX_IN, nS + ARROW_GAP, 0);
-  roadArrow(PX_OUT, nS + ARROW_GAP, 0);
-  roadArrow(wS - ARROW_GAP, z + LANE / 2, -Math.PI / 2);
-  roadArrow(eS + ARROW_GAP, z - LANE / 2, Math.PI / 2);
+  stopX(CARRIAGE_C, sS, CARRIAGE);
+  stopX(-CARRIAGE_C, nS, CARRIAGE);
+  stopZ(wS, z - LANE / 2, LANE);
+  stopZ(eS, z + LANE / 2, LANE);
+  roadArrow(PX_IN, sS - ARROW_GAP, Math.PI);
+  roadArrow(PX_OUT, sS - ARROW_GAP, Math.PI);
+  roadArrow(NX_IN, nS + ARROW_GAP, 0);
+  roadArrow(NX_OUT, nS + ARROW_GAP, 0);
+  roadArrow(wS - ARROW_GAP, z - LANE / 2, -Math.PI / 2);
+  roadArrow(eS + ARROW_GAP, z + LANE / 2, Math.PI / 2);
 }
 for (const z of signalIntersections) build250(z);
 
@@ -308,34 +309,34 @@ function build500(z) {
     sS = sC - STOP_OFFSET,
     wS = wC - STOP_OFFSET,
     eS = eC + STOP_OFFSET;
-  stopX(-CARRIAGE_C, sS, CARRIAGE);
-  stopX(CARRIAGE_C, nS, CARRIAGE);
-  stopZ(wS, z + CARRIAGE_C, CARRIAGE);
-  stopZ(eS, z - CARRIAGE_C, CARRIAGE);
+  stopX(CARRIAGE_C, sS, CARRIAGE);
+  stopX(-CARRIAGE_C, nS, CARRIAGE);
+  stopZ(wS, z - CARRIAGE_C, CARRIAGE);
+  stopZ(eS, z + CARRIAGE_C, CARRIAGE);
 
   // South approach: left / straight / right.
-  roadArrow(NX_OUT, sS - ARROW_GAP, Math.PI, "left");
-  roadArrow(NX_IN, sS - ARROW_GAP, Math.PI, "straight");
-  roadArrow(-MEDIAN / 4, sS - ARROW_GAP, Math.PI, "right");
-  lineZ(-MEDIAN / 2, z - ROAD_HALF - TURN_LEN, sS - 1, 0.22);
+  roadArrow(PX_OUT, sS - ARROW_GAP, Math.PI, "left");
+  roadArrow(PX_IN, sS - ARROW_GAP, Math.PI, "straight");
+  roadArrow(MEDIAN / 4, sS - ARROW_GAP, Math.PI, "right");
+  lineZ(MEDIAN / 2, z - ROAD_HALF - TURN_LEN, sS - 1, 0.22);
   // North approach.
-  roadArrow(PX_OUT, nS + ARROW_GAP, 0, "left");
-  roadArrow(PX_IN, nS + ARROW_GAP, 0, "straight");
-  roadArrow(MEDIAN / 4, nS + ARROW_GAP, 0, "right");
-  lineZ(MEDIAN / 2, nS + 1, z + ROAD_HALF + TURN_LEN, 0.22);
+  roadArrow(NX_OUT, nS + ARROW_GAP, 0, "left");
+  roadArrow(NX_IN, nS + ARROW_GAP, 0, "straight");
+  roadArrow(-MEDIAN / 4, nS + ARROW_GAP, 0, "right");
+  lineZ(-MEDIAN / 2, nS + 1, z + ROAD_HALF + TURN_LEN, 0.22);
 
-  const wIn = z + MEDIAN / 2 + LANE / 2,
-    wOut = z + MEDIAN / 2 + 1.5 * LANE;
-  const eIn = z - MEDIAN / 2 - LANE / 2,
-    eOut = z - MEDIAN / 2 - 1.5 * LANE;
+  const wIn = z - MEDIAN / 2 - LANE / 2,
+    wOut = z - MEDIAN / 2 - 1.5 * LANE;
+  const eIn = z + MEDIAN / 2 + LANE / 2,
+    eOut = z + MEDIAN / 2 + 1.5 * LANE;
   roadArrow(wS - ARROW_GAP, wOut, -Math.PI / 2, "left");
   roadArrow(wS - ARROW_GAP, wIn, -Math.PI / 2, "straight");
-  roadArrow(wS - ARROW_GAP, z + MEDIAN / 4, -Math.PI / 2, "right");
-  lineX(-110, wS - 1, z + MEDIAN / 2, 0.22);
+  roadArrow(wS - ARROW_GAP, z - MEDIAN / 4, -Math.PI / 2, "right");
+  lineX(-110, wS - 1, z - MEDIAN / 2, 0.22);
   roadArrow(eS + ARROW_GAP, eOut, Math.PI / 2, "left");
   roadArrow(eS + ARROW_GAP, eIn, Math.PI / 2, "straight");
-  roadArrow(eS + ARROW_GAP, z - MEDIAN / 4, Math.PI / 2, "right");
-  lineX(eS + 1, 110, z - MEDIAN / 2, 0.22);
+  roadArrow(eS + ARROW_GAP, z + MEDIAN / 4, Math.PI / 2, "right");
+  lineX(eS + 1, 110, z + MEDIAN / 2, 0.22);
 }
 for (const z of majorIntersections) build500(z);
 
@@ -364,18 +365,18 @@ const scNS = scN + STOP_OFFSET,
   scSS = scS - STOP_OFFSET,
   scWS = scW - STOP_OFFSET,
   scES = scE + STOP_OFFSET;
-stopX(-CARRIAGE_C, scSS, CARRIAGE);
-stopX(CARRIAGE_C, scNS, CARRIAGE);
-stopZ(scWS, CARRIAGE_C, CARRIAGE);
-stopZ(scES, -CARRIAGE_C, CARRIAGE);
-roadArrow(NX_IN, scSS - ARROW_GAP, Math.PI);
-roadArrow(NX_OUT, scSS - ARROW_GAP, Math.PI);
-roadArrow(PX_IN, scNS + ARROW_GAP, 0);
-roadArrow(PX_OUT, scNS + ARROW_GAP, 0);
-roadArrow(scWS - ARROW_GAP, MEDIAN / 2 + LANE / 2, -Math.PI / 2);
-roadArrow(scWS - ARROW_GAP, MEDIAN / 2 + 1.5 * LANE, -Math.PI / 2);
-roadArrow(scES + ARROW_GAP, -MEDIAN / 2 - LANE / 2, Math.PI / 2);
-roadArrow(scES + ARROW_GAP, -MEDIAN / 2 - 1.5 * LANE, Math.PI / 2);
+stopX(CARRIAGE_C, scSS, CARRIAGE);
+stopX(-CARRIAGE_C, scNS, CARRIAGE);
+stopZ(scWS, -CARRIAGE_C, CARRIAGE);
+stopZ(scES, CARRIAGE_C, CARRIAGE);
+roadArrow(PX_IN, scSS - ARROW_GAP, Math.PI);
+roadArrow(PX_OUT, scSS - ARROW_GAP, Math.PI);
+roadArrow(NX_IN, scNS + ARROW_GAP, 0);
+roadArrow(NX_OUT, scNS + ARROW_GAP, 0);
+roadArrow(scWS - ARROW_GAP, -MEDIAN / 2 - LANE / 2, -Math.PI / 2);
+roadArrow(scWS - ARROW_GAP, -MEDIAN / 2 - 1.5 * LANE, -Math.PI / 2);
+roadArrow(scES + ARROW_GAP, MEDIAN / 2 + LANE / 2, Math.PI / 2);
+roadArrow(scES + ARROW_GAP, MEDIAN / 2 + 1.5 * LANE, Math.PI / 2);
 
 // Median and lane dashes. 125m junctions do not remove dashes.
 function medianExcluded(z) {
@@ -473,9 +474,9 @@ function vehicleHead() {
   const lamps = {};
   // Japanese order when viewed from approach: green, yellow, red.
   for (const [name, x, color] of [
-    ["green", -1.08, 0x18db79],
+    ["red", -1.08, 0xff1d0d],
     ["yellow", 0, 0xffb300],
-    ["red", 1.08, 0xff1d0d],
+    ["green", 1.08, 0x18db79],
   ]) {
     const ring = new THREE.Mesh(
       new THREE.TorusGeometry(0.4, 0.075, 12, 28),
@@ -547,16 +548,20 @@ function pedestrianHead() {
   ]) {
     box(1.02, 0.96, 0.06, mat.hood, 0, y, -0.28, g);
     const tex = pedestrianTexture(name === "red" ? "#ff301f" : "#27e37c", walk);
-    const pm = new THREE.MeshStandardMaterial({
-      color: 0x161616,
+    // MeshBasicMaterial keeps the pedestrian pictogram clearly visible
+    // regardless of sunlight, mast rotation, or scene lighting.
+    const pm = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
       map: tex,
-      emissiveMap: tex,
-      emissive: color,
-      emissiveIntensity: 0,
       transparent: true,
+      opacity: 0.12,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
     });
     const p = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 0.74), pm);
-    p.position.set(0, y, -0.32);
+    p.position.set(0, y, -0.335);
+    p.renderOrder = 20;
     g.add(p);
     panels[name] = p;
     const h = hood(0.5, 0.62);
@@ -613,7 +618,9 @@ function mast(x, z, yaw, armLen, scramble) {
   ph.position.set(0.86, pedH, 0);
   g.add(ph);
   if (scramble) {
-    const sign = signMesh("ã¹ã¯ã©ã³ãã«äº¤å·®ç¹");
+    const sign = signMesh(
+      "\u30b9\u30af\u30e9\u30f3\u30d6\u30eb\u4ea4\u5dee\u70b9",
+    );
     sign.position.set(a - 1.68, vehH + 1.22, -0.28);
     g.add(sign);
   }
@@ -649,12 +656,14 @@ function setVeh(h, state) {
     h.userData.lamps[k].material.emissiveIntensity = k === state ? 4.2 : 0;
 }
 function setPed(h, state, blink) {
-  h.userData.lamps.red.material.emissiveIntensity = state === "red" ? 3.8 : 0;
-  h.userData.lamps.green.material.emissiveIntensity =
+  const greenVisible =
     state === "green" &&
-    (!blink || Math.floor(performance.now() / 420) % 2 === 0)
-      ? 3.8
-      : 0;
+    (!blink || Math.floor(performance.now() / 420) % 2 === 0);
+
+  // The unlit pictogram remains faintly visible, while the active one
+  // becomes fully bright. This directly controls the rendered panel.
+  h.userData.lamps.red.material.opacity = state === "red" ? 1 : 0.1;
+  h.userData.lamps.green.material.opacity = greenVisible ? 1 : 0.1;
 }
 function updateSignals(t) {
   for (const c of signalControllers) {
@@ -816,7 +825,7 @@ function makeCar() {
       wheels.push(w);
     }
   scene.add(car);
-  car.position.set(NX_OUT, 0, -90);
+  car.position.set(PX_OUT, 0, -90);
   car.rotation.y = 0;
 }
 makeCar();
