@@ -680,12 +680,12 @@ for (const z of signalIntersections) {
 
     createStopLineAcrossX(
         -MAIN_CARRIAGEWAY_CENTER,
-        northStopLineZ,
+        southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
         MAIN_CARRIAGEWAY_CENTER,
-        southStopLineZ,
+        northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
@@ -702,26 +702,26 @@ for (const z of signalIntersections) {
     // Main-boulevard arrows: one per lane.
     createRoadArrow(
         NEGATIVE_INNER_LANE_X,
-        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
-        0,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
         "straight"
     );
     createRoadArrow(
         NEGATIVE_OUTER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        POSITIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
-        POSITIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
         POSITIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        0,
         "straight"
     );
 
@@ -848,12 +848,12 @@ for (const z of majorIntersections) {
 
     createStopLineAcrossX(
         -MAIN_CARRIAGEWAY_CENTER,
-        northStopLineZ,
+        southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossX(
         MAIN_CARRIAGEWAY_CENTER,
-        southStopLineZ,
+        northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
     createStopLineAcrossZ(
@@ -870,26 +870,26 @@ for (const z of majorIntersections) {
     // Main-boulevard straight arrows, one per lane.
     createRoadArrow(
         NEGATIVE_INNER_LANE_X,
-        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
-        0,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
         "straight"
     );
     createRoadArrow(
         NEGATIVE_OUTER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+    createRoadArrow(
+        POSITIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
     createRoadArrow(
-        POSITIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
         POSITIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        0,
         "straight"
     );
 
@@ -994,12 +994,12 @@ const scrambleEastStopLineX = scrambleEastX + STOP_LINE_OFFSET;
 
 createStopLineAcrossX(
     -MAIN_CARRIAGEWAY_CENTER,
-    scrambleNorthStopLineZ,
+    scrambleSouthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossX(
     MAIN_CARRIAGEWAY_CENTER,
-    scrambleSouthStopLineZ,
+    scrambleNorthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
 createStopLineAcrossZ(
@@ -1016,26 +1016,26 @@ createStopLineAcrossZ(
 // Scramble approach arrows, one per lane.
 createRoadArrow(
     NEGATIVE_INNER_LANE_X,
-    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
-    0,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
     "straight"
 );
 createRoadArrow(
     NEGATIVE_OUTER_LANE_X,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
+    "straight"
+);
+createRoadArrow(
+    POSITIVE_INNER_LANE_X,
     scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 createRoadArrow(
-    POSITIVE_INNER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
-    "straight"
-);
-createRoadArrow(
     POSITIVE_OUTER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
+    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+    0,
     "straight"
 );
 
@@ -1155,7 +1155,7 @@ function createRightTurnApproach(z, showArrows = true) {
     createRoadArrow(
         0,
         z + MAJOR_ROAD_HALF_WIDTH + TURN_ARROW_DISTANCE_FROM_INTERSECTION,
-        Math.PI,
+        0,
         "right"
     );
 
@@ -1163,7 +1163,7 @@ function createRightTurnApproach(z, showArrows = true) {
     createRoadArrow(
         0,
         z - MAJOR_ROAD_HALF_WIDTH - TURN_ARROW_DISTANCE_FROM_INTERSECTION,
-        0,
+        Math.PI,
         "right"
     );
 }
@@ -1507,16 +1507,16 @@ function createCar(type = "sedan") {
     });
 
     // Main three-box sedan body.
-    addCarBox(car, [4.0, 0.72, 10.7], [0, 0.92, 0], bodyMaterial);
-    addCarBox(car, [3.9, 0.4, 10.45], [0, 0.55, 0], lowerBodyMaterial);
-    addCarBox(car, [3.82, 0.42, 3.25], [0, 1.34, 3.72], bodyMaterial, [-0.035, 0, 0]);
-    addCarBox(car, [3.82, 0.5, 2.45], [0, 1.24, -4.0], bodyMaterial, [0.025, 0, 0]);
+    addCarBox(car, [4.0, 0.64, 10.9], [0, 0.88, 0], bodyMaterial);
+    addCarBox(car, [3.92, 0.36, 10.55], [0, 0.52, 0], lowerBodyMaterial);
+    addCarBox(car, [3.84, 0.34, 3.5], [0, 1.28, 3.62], bodyMaterial, [-0.025, 0, 0]);
+    addCarBox(car, [3.84, 0.42, 2.6], [0, 1.19, -4.02], bodyMaterial, [0.018, 0, 0]);
     car.add(createCabinShell(bodyMaterial));
 
     // Roof and glazing.
-    addCarBox(car, [3.08, 0.16, 3.35], [0, 2.69, -0.28], bodyMaterial);
-    addCarBox(car, [2.98, 0.8, 0.08], [0, 2.05, 1.53], glassMaterial, [-0.64, 0, 0]);
-    addCarBox(car, [2.98, 0.78, 0.08], [0, 2.0, -2.05], glassMaterial, [0.58, 0, 0]);
+    addCarBox(car, [3.18, 0.14, 3.65], [0, 2.52, -0.3], bodyMaterial);
+    addCarBox(car, [3.02, 0.78, 0.08], [0, 1.98, 1.56], glassMaterial, [-0.58, 0, 0]);
+    addCarBox(car, [3.02, 0.74, 0.08], [0, 1.95, -2.15], glassMaterial, [0.52, 0, 0]);
 
     // Side windows and pillars.
     for (const side of [-1, 1]) {
@@ -1594,7 +1594,7 @@ function createCar(type = "sedan") {
     car.add(exhaust);
 
     scene.add(car);
-    car.position.set(NEGATIVE_OUTER_LANE_X, 0, 90);
+    car.position.set(NEGATIVE_OUTER_LANE_X, 0, -90);
     car.rotation.y = 0;
 }
 
@@ -1675,21 +1675,31 @@ function updateVehicle(deltaSeconds) {
     const steerLeft = keys["a"] || keys["arrowleft"];
     const steerRight = keys["d"] || keys["arrowright"];
 
+    // speed is displayed as km/h. Acceleration is time based.
     if (accelerating) {
-        if (speed < 70) speed += 20 * deltaSeconds;
-        else if (speed < 100) speed += 10 * deltaSeconds;
-        else speed += 7 * deltaSeconds;
+        if (speed < -1) {
+            speed += 42 * deltaSeconds;
+        } else if (speed < 70) {
+            speed += 18 * deltaSeconds;
+        } else if (speed < 100) {
+            speed += 9 * deltaSeconds;
+        } else {
+            speed += 7.2 * deltaSeconds;
+        }
     }
 
     if (brakingOrReverse) {
-        if (speed > 1) speed -= 34 * deltaSeconds;
-        else speed -= 14 * deltaSeconds;
+        if (speed > 1) {
+            speed -= 30 * deltaSeconds;
+        } else {
+            speed -= 15 * deltaSeconds;
+        }
     }
 
     if (!accelerating && !brakingOrReverse) {
-        const drag = 5.2 * deltaSeconds;
-        if (Math.abs(speed) <= drag) speed = 0;
-        else speed -= Math.sign(speed) * drag;
+        const rollingResistance = 3.6 * deltaSeconds;
+        if (Math.abs(speed) <= rollingResistance) speed = 0;
+        else speed -= Math.sign(speed) * rollingResistance;
     }
 
     speed = THREE.MathUtils.clamp(speed, -35, 160);
@@ -1698,38 +1708,54 @@ function updateVehicle(deltaSeconds) {
     steeringVisual = THREE.MathUtils.lerp(
         steeringVisual,
         steerInput,
-        Math.min(1, deltaSeconds * 8)
+        1 - Math.exp(-10 * deltaSeconds)
     );
 
-    if (Math.abs(speed) > 0.2) {
+    if (Math.abs(speed) > 0.4) {
         const reverseSteer = speed >= 0 ? 1 : -1;
+        const speedSteerScale = THREE.MathUtils.lerp(
+            0.75,
+            0.3,
+            Math.min(Math.abs(speed) / 160, 1)
+        );
         car.rotation.y +=
-            steeringVisual * reverseSteer * deltaSeconds *
-            (0.55 + Math.min(Math.abs(speed), 80) / 220);
+            steeringVisual * reverseSteer * speedSteerScale * deltaSeconds;
     }
 
-    const movement = speed * deltaSeconds * 0.11;
-    car.position.x -= Math.sin(car.rotation.y) * movement;
-    car.position.z -= Math.cos(car.rotation.y) * movement;
+    // The modeled vehicle nose is +Z. rotation.y = 0 therefore moves +Z.
+    // 0.42 reproduces the original project's apparent road speed at 60 fps.
+    const movement = speed * deltaSeconds * 0.42;
+    car.position.x += Math.sin(car.rotation.y) * movement;
+    car.position.z += Math.cos(car.rotation.y) * movement;
 
     for (const wheel of wheelMeshes) {
-        wheel.rotation.x -= movement / 0.82;
+        wheel.rotation.x += movement / 0.82;
     }
 }
 
+const cameraTarget = new THREE.Vector3();
+const cameraDesired = new THREE.Vector3();
+
 function updateCamera(deltaSeconds) {
-    const desiredPosition = new THREE.Vector3(
-        car.position.x + Math.sin(car.rotation.y) * 15,
-        car.position.y + 6,
-        car.position.z + Math.cos(car.rotation.y) * 15
+    const forwardX = Math.sin(car.rotation.y);
+    const forwardZ = Math.cos(car.rotation.y);
+
+    // Camera stays behind the +Z-facing nose and looks ahead of the car.
+    cameraDesired.set(
+        car.position.x - forwardX * 16,
+        car.position.y + 6.2,
+        car.position.z - forwardZ * 16
     );
 
-    const smoothing = 1 - Math.pow(0.001, deltaSeconds);
-    camera.position.lerp(desiredPosition, smoothing);
+    const followAmount = 1 - Math.exp(-7.5 * deltaSeconds);
+    camera.position.lerp(cameraDesired, followAmount);
 
-    const lookTarget = car.position.clone();
-    lookTarget.y += 1.1;
-    camera.lookAt(lookTarget);
+    cameraTarget.set(
+        car.position.x + forwardX * 4.5,
+        car.position.y + 1.15,
+        car.position.z + forwardZ * 4.5
+    );
+    camera.lookAt(cameraTarget);
 }
 
 function updateHud() {
