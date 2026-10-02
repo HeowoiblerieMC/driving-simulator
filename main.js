@@ -609,14 +609,24 @@ for (const z of minorRoads) {
 }
 
 // ======================================
+// LEFT-HAND TRAFFIC RULES
+// ======================================
+// +Z direction uses the positive-X side.
+// -Z direction uses the negative-X side.
+// +X direction uses the negative-Z side.
+// -X direction uses the positive-Z side.
+
+// ======================================
 // 250m SIGNAL INTERSECTIONS
-// One lane each direction, no median.
+// One lane in each direction, no median
 // ======================================
 
 const signalSidewalkOffsetZ =
     SIGNAL_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH / 2;
+
 const signalSidewalkSegmentLength =
     (SIGNAL_ROAD_LENGTH - MAIN_ROAD_TOTAL_WIDTH) / 2;
+
 const signalSidewalkCenterX =
     MAIN_ROAD_HALF_WIDTH + signalSidewalkSegmentLength / 2;
 
@@ -658,6 +668,7 @@ for (const z of signalIntersections) {
         -MAIN_ROAD_HALF_WIDTH,
         z
     );
+
     addHorizontalMarkingSegment(
         MAIN_ROAD_HALF_WIDTH,
         SIGNAL_ROAD_LENGTH / 2,
@@ -666,10 +677,13 @@ for (const z of signalIntersections) {
 
     const northCrosswalkZ =
         z + SIGNAL_ROAD_HALF_WIDTH + CROSSWALK_DISTANCE_FROM_EDGE;
+
     const southCrosswalkZ =
         z - SIGNAL_ROAD_HALF_WIDTH - CROSSWALK_DISTANCE_FROM_EDGE;
+
     const westCrosswalkX =
         -MAIN_ROAD_HALF_WIDTH - CROSSWALK_DISTANCE_FROM_EDGE;
+
     const eastCrosswalkX =
         MAIN_ROAD_HALF_WIDTH + CROSSWALK_DISTANCE_FROM_EDGE;
 
@@ -683,63 +697,72 @@ for (const z of signalIntersections) {
     const westStopLineX = westCrosswalkX - STOP_LINE_OFFSET;
     const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
+    // South approach, travelling toward +Z.
     createStopLineAcrossX(
-        -MAIN_CARRIAGEWAY_CENTER,
+        MAIN_CARRIAGEWAY_CENTER,
         southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
+
+    // North approach, travelling toward -Z.
     createStopLineAcrossX(
-        MAIN_CARRIAGEWAY_CENTER,
+        -MAIN_CARRIAGEWAY_CENTER,
         northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
+
+    // West approach, travelling toward +X.
     createStopLineAcrossZ(
         westStopLineX,
-        z + LANE_WIDTH / 2,
-        LANE_WIDTH
-    );
-    createStopLineAcrossZ(
-        eastStopLineX,
         z - LANE_WIDTH / 2,
         LANE_WIDTH
     );
 
-    // Main-boulevard arrows: one per lane.
-    createRoadArrow(
-        NEGATIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
+    // East approach, travelling toward -X.
+    createStopLineAcrossZ(
+        eastStopLineX,
+        z + LANE_WIDTH / 2,
+        LANE_WIDTH
     );
-    createRoadArrow(
-        NEGATIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
+
     createRoadArrow(
         POSITIVE_INNER_LANE_X,
-        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
-        0,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
         "straight"
     );
+
     createRoadArrow(
         POSITIVE_OUTER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+
+    createRoadArrow(
+        NEGATIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
 
-    // Crossing-road arrows: one per approach lane.
+    createRoadArrow(
+        NEGATIVE_OUTER_LANE_X,
+        northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+        0,
+        "straight"
+    );
+
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
-        z + LANE_WIDTH / 2,
+        z - LANE_WIDTH / 2,
         -Math.PI / 2,
         "straight"
     );
+
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
-        z - LANE_WIDTH / 2,
+        z + LANE_WIDTH / 2,
         Math.PI / 2,
         "straight"
     );
@@ -747,13 +770,15 @@ for (const z of signalIntersections) {
 
 // ======================================
 // 500m MAJOR INTERSECTIONS
-// Two lanes each direction and median.
+// Left | Straight | Right on every approach
 // ======================================
 
 const majorSidewalkOffsetZ =
     MAJOR_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH / 2;
+
 const majorSidewalkSegmentLength =
     (MAJOR_ROAD_LENGTH - MAIN_ROAD_TOTAL_WIDTH) / 2;
+
 const majorSidewalkCenterX =
     MAIN_ROAD_HALF_WIDTH + majorSidewalkSegmentLength / 2;
 
@@ -792,6 +817,7 @@ for (const z of majorIntersections) {
 
     const horizontalMedianLength =
         (MAJOR_ROAD_LENGTH - MAIN_ROAD_TOTAL_WIDTH) / 2;
+
     const horizontalMedianCenterX =
         MAIN_ROAD_HALF_WIDTH + horizontalMedianLength / 2;
 
@@ -804,6 +830,7 @@ for (const z of majorIntersections) {
         MEDIAN_Y,
         z
     );
+
     createBox(
         horizontalMedianLength,
         0.3,
@@ -814,7 +841,8 @@ for (const z of majorIntersections) {
         z
     );
 
-    const horizontalLaneLineOffset = MEDIAN_WIDTH / 2 + LANE_WIDTH;
+    const horizontalLaneLineOffset =
+        MEDIAN_WIDTH / 2 + LANE_WIDTH;
 
     for (const lineZ of [
         z - horizontalLaneLineOffset,
@@ -825,6 +853,7 @@ for (const z of majorIntersections) {
             -MAIN_ROAD_HALF_WIDTH,
             lineZ
         );
+
         addHorizontalMarkingSegment(
             MAIN_ROAD_HALF_WIDTH,
             MAJOR_ROAD_LENGTH / 2,
@@ -834,10 +863,13 @@ for (const z of majorIntersections) {
 
     const northCrosswalkZ =
         z + MAJOR_ROAD_HALF_WIDTH + CROSSWALK_DISTANCE_FROM_EDGE;
+
     const southCrosswalkZ =
         z - MAJOR_ROAD_HALF_WIDTH - CROSSWALK_DISTANCE_FROM_EDGE;
+
     const westCrosswalkX =
         -MAIN_ROAD_HALF_WIDTH - CROSSWALK_DISTANCE_FROM_EDGE;
+
     const eastCrosswalkX =
         MAIN_ROAD_HALF_WIDTH + CROSSWALK_DISTANCE_FROM_EDGE;
 
@@ -851,146 +883,189 @@ for (const z of majorIntersections) {
     const westStopLineX = westCrosswalkX - STOP_LINE_OFFSET;
     const eastStopLineX = eastCrosswalkX + STOP_LINE_OFFSET;
 
+    // South approach, +Z, positive-X side.
     createStopLineAcrossX(
-        -MAIN_CARRIAGEWAY_CENTER,
+        MAIN_CARRIAGEWAY_CENTER,
         southStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
+
     createStopLineAcrossX(
-        MAIN_CARRIAGEWAY_CENTER,
+        MEDIAN_WIDTH / 4,
+        southStopLineZ,
+        MEDIAN_WIDTH / 2
+    );
+
+    // North approach, -Z, negative-X side.
+    createStopLineAcrossX(
+        -MAIN_CARRIAGEWAY_CENTER,
         northStopLineZ,
         MAIN_CARRIAGEWAY_WIDTH
     );
+
+    createStopLineAcrossX(
+        -MEDIAN_WIDTH / 4,
+        northStopLineZ,
+        MEDIAN_WIDTH / 2
+    );
+
+    // West approach, +X, negative-Z side.
     createStopLineAcrossZ(
         westStopLineX,
-        z + MAIN_CARRIAGEWAY_CENTER,
-        MAJOR_CARRIAGEWAY_WIDTH
-    );
-    createStopLineAcrossZ(
-        eastStopLineX,
         z - MAIN_CARRIAGEWAY_CENTER,
         MAJOR_CARRIAGEWAY_WIDTH
     );
 
-    // Main-boulevard approach arrows: left, straight, right.
-    // South approach travels +Z on the negative-X carriageway.
-    createRoadArrow(
-        NEGATIVE_OUTER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "left"
-    );
-    createRoadArrow(
-        NEGATIVE_INNER_LANE_X,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "straight"
-    );
-    createRoadArrow(
-        -MEDIAN_WIDTH / 4,
-        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-        Math.PI,
-        "right"
+    createStopLineAcrossZ(
+        westStopLineX,
+        z - MEDIAN_WIDTH / 4,
+        MEDIAN_WIDTH / 2
     );
 
-    // North approach travels -Z on the positive-X carriageway.
+    // East approach, -X, positive-Z side.
+    createStopLineAcrossZ(
+        eastStopLineX,
+        z + MAIN_CARRIAGEWAY_CENTER,
+        MAJOR_CARRIAGEWAY_WIDTH
+    );
+
+    createStopLineAcrossZ(
+        eastStopLineX,
+        z + MEDIAN_WIDTH / 4,
+        MEDIAN_WIDTH / 2
+    );
+
+    // South: left | straight | right.
     createRoadArrow(
         POSITIVE_OUTER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "left"
+    );
+
+    createRoadArrow(
+        POSITIVE_INNER_LANE_X,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "straight"
+    );
+
+    createRoadArrow(
+        MEDIAN_WIDTH / 4,
+        southStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+        Math.PI,
+        "right"
+    );
+
+    addVerticalMarkingSegment(
+        MEDIAN_WIDTH / 2,
+        z - MAJOR_ROAD_HALF_WIDTH - TURN_LANE_LENGTH,
+        southStopLineZ - 1,
+        0.22
+    );
+
+    // North: left | straight | right.
+    createRoadArrow(
+        NEGATIVE_OUTER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "left"
     );
+
     createRoadArrow(
-        POSITIVE_INNER_LANE_X,
+        NEGATIVE_INNER_LANE_X,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "straight"
     );
+
     createRoadArrow(
-        MEDIAN_WIDTH / 4,
+        -MEDIAN_WIDTH / 4,
         northStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
         0,
         "right"
     );
 
-    // Solid separators for the added center-side turn lanes.
     addVerticalMarkingSegment(
         -MEDIAN_WIDTH / 2,
-        z - MAJOR_ROAD_HALF_WIDTH - TURN_LANE_LENGTH,
-        southStopLineZ - 1.0,
-        0.22
-    );
-    addVerticalMarkingSegment(
-        MEDIAN_WIDTH / 2,
-        northStopLineZ + 1.0,
+        northStopLineZ + 1,
         z + MAJOR_ROAD_HALF_WIDTH + TURN_LANE_LENGTH,
         0.22
     );
 
-    // Crossing major-road arrows, one per lane.
-    const westInnerLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
-    const westOuterLaneZ = z + MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
-    const eastInnerLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
-    const eastOuterLaneZ = z - MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+    const westInnerLaneZ =
+        z - MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
 
-    // West approach (+X): left, straight, right.
+    const westOuterLaneZ =
+        z - MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+
+    const eastInnerLaneZ =
+        z + MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
+
+    const eastOuterLaneZ =
+        z + MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
+
+    // West: left | straight | right.
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
         westOuterLaneZ,
         -Math.PI / 2,
         "left"
     );
+
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
         westInnerLaneZ,
         -Math.PI / 2,
         "straight"
     );
+
     createRoadArrow(
         westStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
-        z + MEDIAN_WIDTH / 4,
+        z - MEDIAN_WIDTH / 4,
         -Math.PI / 2,
         "right"
     );
 
-    // East approach (-X): left, straight, right.
+    addHorizontalMarkingSegment(
+        -MAJOR_ROAD_LENGTH / 2,
+        westStopLineX - 1,
+        z - MEDIAN_WIDTH / 2,
+        0.22
+    );
+
+    // East: left | straight | right.
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
         eastOuterLaneZ,
         Math.PI / 2,
         "left"
     );
+
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
         eastInnerLaneZ,
         Math.PI / 2,
         "straight"
     );
+
     createRoadArrow(
         eastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
-        z - MEDIAN_WIDTH / 4,
+        z + MEDIAN_WIDTH / 4,
         Math.PI / 2,
         "right"
     );
 
-    // Solid separators for horizontal center-side turn lanes.
     addHorizontalMarkingSegment(
-        -MAJOR_ROAD_LENGTH / 2,
-        westStopLineX - 1.0,
-        z + MEDIAN_WIDTH / 2,
-        0.22
-    );
-    addHorizontalMarkingSegment(
-        eastStopLineX + 1.0,
+        eastStopLineX + 1,
         MAJOR_ROAD_LENGTH / 2,
-        z - MEDIAN_WIDTH / 2,
+        z + MEDIAN_WIDTH / 2,
         0.22
     );
 }
 
 // ======================================
 // SCRAMBLE INTERSECTION
-// Center: z = 0
 // ======================================
 
 createBox(
@@ -1005,10 +1080,13 @@ createBox(
 
 const scrambleNorthZ =
     MAJOR_ROAD_HALF_WIDTH + CROSSWALK_DISTANCE_FROM_EDGE;
+
 const scrambleSouthZ =
     -MAJOR_ROAD_HALF_WIDTH - CROSSWALK_DISTANCE_FROM_EDGE;
+
 const scrambleWestX =
     -MAIN_ROAD_HALF_WIDTH - CROSSWALK_DISTANCE_FROM_EDGE;
+
 const scrambleEastX =
     MAIN_ROAD_HALF_WIDTH + CROSSWALK_DISTANCE_FROM_EDGE;
 
@@ -1017,10 +1095,6 @@ createCrosswalkAcrossX(scrambleSouthZ, MAIN_ROAD_TOTAL_WIDTH);
 createCrosswalkAcrossZ(scrambleWestX, MAJOR_ROAD_WIDTH, 0);
 createCrosswalkAcrossZ(scrambleEastX, MAJOR_ROAD_WIDTH, 0);
 
-// ======================================
-// SCRAMBLE DIAGONAL CROSSWALKS
-// ======================================
-
 function createDiagonalCrosswalk(rotation) {
     const stripeCount = 15;
     const crossingLength = 32;
@@ -1028,6 +1102,7 @@ function createDiagonalCrosswalk(rotation) {
 
     for (let i = 0; i < stripeCount; i++) {
         const progress = i / (stripeCount - 1) - 0.5;
+
         const stripe = createBox(
             0.7,
             0.035,
@@ -1049,63 +1124,81 @@ function createDiagonalCrosswalk(rotation) {
 createDiagonalCrosswalk(Math.PI / 4);
 createDiagonalCrosswalk(-Math.PI / 4);
 
-// Scramble stop lines.
-const scrambleSouthStopLineZ = scrambleSouthZ - STOP_LINE_OFFSET;
-const scrambleNorthStopLineZ = scrambleNorthZ + STOP_LINE_OFFSET;
-const scrambleWestStopLineX = scrambleWestX - STOP_LINE_OFFSET;
-const scrambleEastStopLineX = scrambleEastX + STOP_LINE_OFFSET;
+const scrambleSouthStopLineZ =
+    scrambleSouthZ - STOP_LINE_OFFSET;
+
+const scrambleNorthStopLineZ =
+    scrambleNorthZ + STOP_LINE_OFFSET;
+
+const scrambleWestStopLineX =
+    scrambleWestX - STOP_LINE_OFFSET;
+
+const scrambleEastStopLineX =
+    scrambleEastX + STOP_LINE_OFFSET;
 
 createStopLineAcrossX(
-    -MAIN_CARRIAGEWAY_CENTER,
+    MAIN_CARRIAGEWAY_CENTER,
     scrambleSouthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
+
 createStopLineAcrossX(
-    MAIN_CARRIAGEWAY_CENTER,
+    -MAIN_CARRIAGEWAY_CENTER,
     scrambleNorthStopLineZ,
     MAIN_CARRIAGEWAY_WIDTH
 );
+
 createStopLineAcrossZ(
     scrambleWestStopLineX,
-    MAIN_CARRIAGEWAY_CENTER,
-    MAJOR_CARRIAGEWAY_WIDTH
-);
-createStopLineAcrossZ(
-    scrambleEastStopLineX,
     -MAIN_CARRIAGEWAY_CENTER,
     MAJOR_CARRIAGEWAY_WIDTH
 );
 
-// Scramble approach arrows, one per lane.
-createRoadArrow(
-    NEGATIVE_INNER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
-    "straight"
+createStopLineAcrossZ(
+    scrambleEastStopLineX,
+    MAIN_CARRIAGEWAY_CENTER,
+    MAJOR_CARRIAGEWAY_WIDTH
 );
-createRoadArrow(
-    NEGATIVE_OUTER_LANE_X,
-    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
-    Math.PI,
-    "straight"
-);
+
 createRoadArrow(
     POSITIVE_INNER_LANE_X,
-    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
-    0,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
     "straight"
 );
+
 createRoadArrow(
     POSITIVE_OUTER_LANE_X,
+    scrambleSouthStopLineZ - ARROW_DISTANCE_FROM_STOP_LINE,
+    Math.PI,
+    "straight"
+);
+
+createRoadArrow(
+    NEGATIVE_INNER_LANE_X,
     scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
     0,
     "straight"
 );
 
-const scrambleWestInnerLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
-const scrambleWestOuterLaneZ = MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
-const scrambleEastInnerLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
-const scrambleEastOuterLaneZ = -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+createRoadArrow(
+    NEGATIVE_OUTER_LANE_X,
+    scrambleNorthStopLineZ + ARROW_DISTANCE_FROM_STOP_LINE,
+    0,
+    "straight"
+);
+
+const scrambleWestInnerLaneZ =
+    -MEDIAN_WIDTH / 2 - LANE_WIDTH / 2;
+
+const scrambleWestOuterLaneZ =
+    -MEDIAN_WIDTH / 2 - LANE_WIDTH * 1.5;
+
+const scrambleEastInnerLaneZ =
+    MEDIAN_WIDTH / 2 + LANE_WIDTH / 2;
+
+const scrambleEastOuterLaneZ =
+    MEDIAN_WIDTH / 2 + LANE_WIDTH * 1.5;
 
 createRoadArrow(
     scrambleWestStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
@@ -1113,18 +1206,21 @@ createRoadArrow(
     -Math.PI / 2,
     "straight"
 );
+
 createRoadArrow(
     scrambleWestStopLineX - ARROW_DISTANCE_FROM_STOP_LINE,
     scrambleWestOuterLaneZ,
     -Math.PI / 2,
     "straight"
 );
+
 createRoadArrow(
     scrambleEastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
     scrambleEastInnerLaneZ,
     Math.PI / 2,
     "straight"
 );
+
 createRoadArrow(
     scrambleEastStopLineX + ARROW_DISTANCE_FROM_STOP_LINE,
     scrambleEastOuterLaneZ,
@@ -1133,8 +1229,7 @@ createRoadArrow(
 );
 
 // ======================================
-// MAIN MEDIAN
-// Removed near intersections.
+// MEDIAN EXCLUSION AREAS
 // ======================================
 
 const medianZones = [];
@@ -1159,8 +1254,8 @@ medianZones.push({
 });
 
 function isInsideMedianZone(z) {
-    return medianZones.some((zone) =>
-        Math.abs(z - zone.z) < zone.halfWidth
+    return medianZones.some(
+        (zone) => Math.abs(z - zone.z) < zone.halfWidth
     );
 }
 
@@ -1171,7 +1266,9 @@ for (
     z < MAP_END;
     z += medianSectionLength
 ) {
-    if (isInsideMedianZone(z)) continue;
+    if (isInsideMedianZone(z)) {
+        continue;
+    }
 
     createBox(
         MEDIAN_WIDTH,
@@ -1185,13 +1282,11 @@ for (
 }
 
 // ======================================
-// RIGHT-TURN APPROACH AREAS
-// 500m intersections only.
-// The removed median is already asphalt.
+// RIGHT-TURN LANE ASPHALT
+// No duplicate arrows are created here.
 // ======================================
 
-function createRightTurnApproach(z, showArrows = true) {
-    // Slightly raised asphalt prevents z-fighting with the asphalt base.
+function createRightTurnApproach(z) {
     createBox(
         MEDIAN_WIDTH,
         0.205,
@@ -1211,58 +1306,46 @@ function createRightTurnApproach(z, showArrows = true) {
         ROAD_Y + 0.004,
         z - MAJOR_ROAD_HALF_WIDTH - TURN_LANE_LENGTH / 2
     );
-
-    if (!showArrows) return;
-
-    // North approach travels toward negative Z.
-    createRoadArrow(
-        0,
-        z + MAJOR_ROAD_HALF_WIDTH + TURN_ARROW_DISTANCE_FROM_INTERSECTION,
-        0,
-        "right"
-    );
-
-    // South approach travels toward positive Z.
-    createRoadArrow(
-        0,
-        z - MAJOR_ROAD_HALF_WIDTH - TURN_ARROW_DISTANCE_FROM_INTERSECTION,
-        Math.PI,
-        "right"
-    );
 }
 
 for (const z of majorIntersections) {
-    createRightTurnApproach(z, true);
+    createRightTurnApproach(z);
 }
 
-// At z = 0, fill the opening but do not add special right-turn arrows.
-createRightTurnApproach(0, false);
+createRightTurnApproach(0);
 
 // ======================================
 // MAIN BOULEVARD LANE MARKINGS
 // ======================================
 
-const MAIN_LANE_LINE_X = MEDIAN_WIDTH / 2 + LANE_WIDTH;
+const MAIN_LANE_LINE_X =
+    MEDIAN_WIDTH / 2 + LANE_WIDTH;
+
 const laneDashLength = 8;
 const laneDashCycle = 20;
 
 function isInsideRoadIntersection(z) {
-    if (Math.abs(z) < 60) return true;
+    if (Math.abs(z) < 60) {
+        return true;
+    }
 
-    // Keep the dashed lane divider through 125m residential junctions.
+    // Do not remove dashes at 125m residential roads.
 
     if (
-        signalIntersections.some((intersectionZ) =>
-            Math.abs(z - intersectionZ) < SIGNAL_ROAD_HALF_WIDTH + 4
+        signalIntersections.some(
+            (intersectionZ) =>
+                Math.abs(z - intersectionZ) <
+                SIGNAL_ROAD_HALF_WIDTH + 4
         )
     ) {
         return true;
     }
 
     if (
-        majorIntersections.some((intersectionZ) =>
-            Math.abs(z - intersectionZ) <
-            MAJOR_ROAD_HALF_WIDTH + TURN_LANE_LENGTH
+        majorIntersections.some(
+            (intersectionZ) =>
+                Math.abs(z - intersectionZ) <
+                MAJOR_ROAD_HALF_WIDTH + TURN_LANE_LENGTH
         )
     ) {
         return true;
@@ -1271,8 +1354,14 @@ function isInsideRoadIntersection(z) {
     return false;
 }
 
-for (let z = MAP_START; z <= MAP_END; z += laneDashCycle) {
-    if (isInsideRoadIntersection(z)) continue;
+for (
+    let z = MAP_START;
+    z <= MAP_END;
+    z += laneDashCycle
+) {
+    if (isInsideRoadIntersection(z)) {
+        continue;
+    }
 
     createBox(
         0.18,
@@ -1297,43 +1386,70 @@ for (let z = MAP_START; z <= MAP_END; z += laneDashCycle) {
 
 // ======================================
 // STREET TREES
-// Trees remain inside intact medians.
 // ======================================
 
-for (let z = MAP_START; z <= MAP_END; z += 70) {
-    if (isInsideMedianZone(z)) continue;
+for (
+    let z = MAP_START;
+    z <= MAP_END;
+    z += 70
+) {
+    if (isInsideMedianZone(z)) {
+        continue;
+    }
 
     const trunkHeight = 4 + Math.random() * 2;
     const crownSize = 1.5 + Math.random() * 0.5;
-    const leafColor = [0x2e7d32, 0x388e3c, 0x228b22][
-        Math.floor(Math.random() * 3)
-    ];
+
+    const leafColor = [
+        0x2e7d32,
+        0x388e3c,
+        0x228b22
+    ][Math.floor(Math.random() * 3)];
 
     const trunk = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.25, 0.35, trunkHeight, 12),
-        new THREE.MeshLambertMaterial({ color: 0x6b4423 })
+        new THREE.CylinderGeometry(
+            0.25,
+            0.35,
+            trunkHeight,
+            12
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x6b4423
+        })
     );
-    trunk.position.set(0, trunkHeight / 2, z);
+
+    trunk.position.set(
+        0,
+        trunkHeight / 2,
+        z
+    );
+
     scene.add(trunk);
 
-    const leafMaterial = new THREE.MeshLambertMaterial({
-        color: leafColor
-    });
+    const leafMaterial =
+        new THREE.MeshLambertMaterial({
+            color: leafColor
+        });
 
     for (let i = 0; i < 4; i++) {
         const leaf = new THREE.Mesh(
-            new THREE.SphereGeometry(crownSize, 16, 16),
+            new THREE.SphereGeometry(
+                crownSize,
+                16,
+                16
+            ),
             leafMaterial
         );
+
         leaf.position.set(
             (Math.random() - 0.5) * 1.5,
             trunkHeight + 0.5 + Math.random() * 1.5,
             z + (Math.random() - 0.5) * 0.5
         );
+
         scene.add(leaf);
     }
 }
-
 
 // ======================================
 // TRAFFIC SIGNAL SYSTEM
