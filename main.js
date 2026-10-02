@@ -126,7 +126,7 @@ function isReservedArea(z){
 
 // ROAD SYSTEM
 
-/// Residential Roads (125m)
+// Residential Roads (125m)
 
 for(const z of minorRoads){
 
@@ -270,7 +270,7 @@ for(const z of signalIntersections){
             color: 0xd0d0d0
         });
 
-    // Main Intersection Road
+    // Main Road
 
     const road = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -289,56 +289,55 @@ for(const z of signalIntersections){
 
     scene.add(road);
 
-    // Top Left Corner
+    // Upper Sidewalk
 
-    const corner1 = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            50,
-            0.3,
-            20
-        ),
-        sidewalkMaterial
-    );
+    const upperSidewalk =
+        new THREE.Mesh(
 
-    corner1.position.set(
-        -65,
+            new THREE.BoxGeometry(
+                181,
+                0.3,
+                4
+            ),
+
+            sidewalkMaterial
+
+        );
+
+    upperSidewalk.position.set(
+        0,
         0.17,
         z + 12
     );
 
-    scene.add(corner1);
+    scene.add(
+        upperSidewalk
+    );
 
-    // Top Right Corner
+    // Lower Sidewalk
 
-    const corner2 = corner1.clone();
+    const lowerSidewalk =
+        new THREE.Mesh(
 
-    corner2.position.x = 65;
+            new THREE.BoxGeometry(
+                181,
+                0.3,
+                4
+            ),
 
-    scene.add(corner2);
+            sidewalkMaterial
 
-    // Bottom Left Corner
+        );
 
-    const corner3 = corner1.clone();
-
-    corner3.position.set(
-        -65,
+    lowerSidewalk.position.set(
+        0,
         0.17,
         z - 12
     );
 
-    scene.add(corner3);
-
-    // Bottom Right Corner
-
-    const corner4 = corner1.clone();
-
-    corner4.position.set(
-        65,
-        0.17,
-        z - 12
+    scene.add(
+        lowerSidewalk
     );
-
-    scene.add(corner4);
 
 }
 
@@ -346,15 +345,25 @@ for(const z of signalIntersections){
 
 for(const z of majorIntersections){
 
+    const roadMaterial =
+        new THREE.MeshLambertMaterial({
+            color: 0x2a2a2a
+        });
+
+    const sidewalkMaterial =
+        new THREE.MeshLambertMaterial({
+            color: 0xd0d0d0
+        });
+
+    // Main Road
+
     const road = new THREE.Mesh(
         new THREE.BoxGeometry(
             220,
             0.2,
             30
         ),
-        new THREE.MeshLambertMaterial({
-            color: 0x2a2a2a
-        })
+        roadMaterial
     );
 
     road.position.set(
@@ -364,6 +373,56 @@ for(const z of majorIntersections){
     );
 
     scene.add(road);
+
+    // Upper Sidewalk
+
+    const upperSidewalk =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                221,
+                0.3,
+                4
+            ),
+
+            sidewalkMaterial
+
+        );
+
+    upperSidewalk.position.set(
+        0,
+        0.17,
+        z + 17
+    );
+
+    scene.add(
+        upperSidewalk
+    );
+
+    // Lower Sidewalk
+
+    const lowerSidewalk =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                221,
+                0.3,
+                4
+            ),
+
+            sidewalkMaterial
+
+        );
+
+    lowerSidewalk.position.set(
+        0,
+        0.17,
+        z - 17
+    );
+
+    scene.add(
+        lowerSidewalk
+    );
 
 }
 
