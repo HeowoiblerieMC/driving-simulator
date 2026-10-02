@@ -894,27 +894,13 @@ function animate(){
 
 if(keys["a"]){
 
-    frontWheels.forEach(
-        wheel => wheel.rotation.y = 0.5
-    );
-
     car.rotation.y += 0.03;
 
 }
-else if(keys["d"]){
 
-    frontWheels.forEach(
-        wheel => wheel.rotation.y = -0.5
-    );
+if(keys["d"]){
 
     car.rotation.y -= 0.03;
-
-}
-else{
-
-    frontWheels.forEach(
-        wheel => wheel.rotation.y = 0
-    );
 
 }
 
