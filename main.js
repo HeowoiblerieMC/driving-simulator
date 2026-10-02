@@ -256,9 +256,68 @@ for(const z of minorRoads){
 
 }
 
-/// Signal Roads (250m)
+// Signal Roads (250m)
 
 for(const z of signalIntersections){
+
+    // Corner Fills
+
+const cornerSize = 14;
+
+// Top Left
+
+const c1 = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        cornerSize,
+        0.3,
+        cornerSize
+    ),
+    sidewalkMaterial
+);
+
+c1.position.set(
+    -83,
+    0.17,
+    z + 16
+);
+
+scene.add(c1);
+
+// Top Right
+
+const c2 = c1.clone();
+
+c2.position.set(
+    83,
+    0.17,
+    z + 16
+);
+
+scene.add(c2);
+
+// Bottom Left
+
+const c3 = c1.clone();
+
+c3.position.set(
+    -83,
+    0.17,
+    z - 16
+);
+
+scene.add(c3);
+
+// Bottom Right
+
+const c4 = c1.clone();
+
+c4.position.set(
+    83,
+    0.17,
+    z - 16
+);
+
+scene.add(c4);
 
     const roadMaterial =
         new THREE.MeshLambertMaterial({
@@ -345,6 +404,65 @@ for(const z of signalIntersections){
 /// Major Roads (500m)
 
 for(const z of majorIntersections){
+
+    // Corner Fills
+
+const cornerSize = 18;
+
+// Top Left
+
+const c1 = new THREE.Mesh(
+    new THREE.BoxGeometry(
+        cornerSize,
+        0.3,
+        cornerSize
+    ),
+    sidewalkMaterial
+);
+
+c1.position.set(
+    -102,
+    0.17,
+    z + 21
+);
+
+scene.add(c1);
+
+// Top Right
+
+const c2 = c1.clone();
+
+c2.position.set(
+    102,
+    0.17,
+    z + 21
+);
+
+scene.add(c2);
+
+// Bottom Left
+
+const c3 = c1.clone();
+
+c3.position.set(
+    -102,
+    0.17,
+    z - 21
+);
+
+scene.add(c3);
+
+// Bottom Right
+
+const c4 = c1.clone();
+
+c4.position.set(
+    102,
+    0.17,
+    z - 21
+);
+
+scene.add(c4);
 
     const roadMaterial =
         new THREE.MeshLambertMaterial({
