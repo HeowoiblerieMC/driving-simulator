@@ -182,7 +182,7 @@ for(const z of minorRoads){
 
     const s1 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            120,
+            124,
             0.3,
             4
         ),
@@ -192,7 +192,7 @@ for(const z of minorRoads){
     s1.position.set(
         74,
         0.17,
-        z + 5
+        z + 8
     );
 
     scene.add(s1);
@@ -201,7 +201,7 @@ for(const z of minorRoads){
 
     const s2 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            120,
+            124,
             0.3,
             4
         ),
@@ -211,7 +211,7 @@ for(const z of minorRoads){
     s2.position.set(
         74,
         0.17,
-        z - 5
+        z - 8
     );
 
     scene.add(s2);
@@ -220,7 +220,7 @@ for(const z of minorRoads){
 
     const s3 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            120,
+            124,
             0.3,
             4
         ),
@@ -230,7 +230,7 @@ for(const z of minorRoads){
     s3.position.set(
         -74,
         0.17,
-        z + 5
+        z + 8
     );
 
     scene.add(s3);
@@ -239,7 +239,7 @@ for(const z of minorRoads){
 
     const s4 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            120,
+            124,
             0.3,
             4
         ),
@@ -249,7 +249,7 @@ for(const z of minorRoads){
     s4.position.set(
         -74,
         0.17,
-        z - 5
+        z - 8
     );
 
     scene.add(s4);
