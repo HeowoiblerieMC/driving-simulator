@@ -633,80 +633,139 @@ for(let z = -5000; z <= 5000; z += 70){
 
 // Vehicle
 
-const car = new THREE.Group();
+let car;
+let frontWheels = [];
 
-// Body
+function createCar(type){
 
-const body = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        4,
-        1.5,
-        8
-    ),
-    new THREE.MeshLambertMaterial({
-        color: 0x555555
-    })
-);
+    frontWheels = [];
 
-body.position.y = 1;
+    if(car){
+        scene.remove(car);
+    }
 
-car.add(body);
+    car = new THREE.Group();
 
-// Cabin
+    let bodyLength = 8;
+    let bodyHeight = 1.5;
+    let bodyColor = 0x555555;
 
-const cabin = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        3,
-        1.2,
-        4
-    ),
-    new THREE.MeshLambertMaterial({
-        color: 0x888888
-    })
-);
+    // COMPACT
 
-cabin.position.y = 2;
+    if(type === "compact"){
 
-car.add(cabin);
+        bodyLength = 6;
+        bodyHeight = 1.3;
+        bodyColor = 0x44aa44;
 
-// Wheels
+    }
 
-const frontWheels = [];
+    // SUV
 
-for(const x of [-1.8, 1.8]){
+    if(type === "suv"){
 
-    for(const z of [-2.5, 2.5]){
+        bodyLength = 9;
+        bodyHeight = 2;
+        bodyColor = 0x4444aa;
 
-        const wheel = new THREE.Mesh(
-            new THREE.CylinderGeometry(
+    }
+
+    // SPORTS
+
+    if(type === "sports"){
+
+        bodyLength = 8;
+        bodyHeight = 1.0;
+        bodyColor = 0xaa2222;
+
+    }
+
+    // Body
+
+    const body = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            4,
+            bodyHeight,
+            bodyLength
+        ),
+        new THREE.MeshLambertMaterial({
+            color: bodyColor
+        })
+    );
+
+    body.position.y = 1;
+
+    car.add(body);
+
+    // Cabin
+
+    const cabin = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            3,
+            1.2,
+            bodyLength * 0.5
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x888888
+        })
+    );
+
+    cabin.position.y = 2;
+
+    car.add(cabin);
+
+    // Wheels
+
+    for(const x of [-1.8, 1.8]){
+
+        for(const z of [-2.5, 2.5]){
+
+            const wheel = new THREE.Mesh(
+                new THREE.CylinderGeometry(
+                    0.8,
+                    0.8,
+                    0.6,
+                    16
+                ),
+                new THREE.MeshLambertMaterial({
+                    color: 0x111111
+                })
+            );
+
+            wheel.rotation.z =
+                Math.PI / 2;
+
+            wheel.position.set(
+                x,
                 0.8,
-                0.8,
-                0.6,
-                16
-            ),
-            new THREE.MeshLambertMaterial({
-                color: 0x111111
-            })
-        );
+                z
+            );
 
-        wheel.rotation.z =
-            Math.PI / 2;
+            car.add(wheel);
 
-        wheel.position.set(
-            x,
-            0.8,
-            z
-        );
+            if(z > 0){
 
-        car.add(wheel);
+                frontWheels.push(
+                    wheel
+                );
 
-        if(z > 0){
-            frontWheels.push(wheel);
+            }
+
         }
 
     }
 
+    scene.add(car);
+
+    car.position.set(
+        -7,
+        0,
+        0
+    );
+
 }
+
+createCar("sedan");
 
 // HUD
 
@@ -767,6 +826,34 @@ document
     renderer
     .domElement
     .style.display = "block";
+
+});
+
+document
+.getElementById("carBtn")
+.addEventListener(
+"click",
+() => {
+
+    const choice = prompt(
+`SELECT CAR
+
+compact
+sedan
+suv
+sports`
+    );
+
+    if(
+        choice === "compact" ||
+        choice === "sedan" ||
+        choice === "suv" ||
+        choice === "sports"
+    ){
+
+        createCar(choice);
+
+    }
 
 });
 
