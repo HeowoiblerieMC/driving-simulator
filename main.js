@@ -671,6 +671,8 @@ car.add(cabin);
 
 // Wheels
 
+const frontWheels = [];
+
 for(const x of [-1.8, 1.8]){
 
     for(const z of [-2.5, 2.5]){
@@ -698,13 +700,13 @@ for(const x of [-1.8, 1.8]){
 
         car.add(wheel);
 
+        if(z > 0){
+            frontWheels.push(wheel);
+        }
+
     }
 
 }
-
-scene.add(car);
-
-car.position.x = -7;
 
 // HUD
 
@@ -840,17 +842,42 @@ function animate(){
 
     // Steering
 
-    if(keys["a"]){
+if(keys["a"]){
 
-        car.rotation.y += 0.03;
+    frontWheels.forEach(
+        wheel => wheel.rotation.y = 0.5
+    );
+
+    car.rotation.y += 0.03;
+
+}
+else if(keys["d"]){
+
+    frontWheels.forEach(
+        wheel => wheel.rotation.y = -0.5
+    );
+
+    car.rotation.y -= 0.03;
+
+}
+else{
+
+    frontWheels.forEach(
+        wheel => wheel.rotation.y = 0
+    );
+
+}
+
+// Wheel Rotation
+
+frontWheels.forEach(
+    wheel => {
+
+        wheel.rotation.x +=
+            speed * 0.01;
 
     }
-
-    if(keys["d"]){
-
-        car.rotation.y -= 0.03;
-
-    }
+);
 
 // Vehicle Movement
 
