@@ -256,6 +256,56 @@ for(const z of minorRoads){
 
 }
 
+// Signal Roads (250m)
+
+for(const z of signalIntersections){
+
+    const road = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            180,
+            0.2,
+            20
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x2f2f2f
+        })
+    );
+
+    road.position.set(
+        0,
+        0.1,
+        z
+    );
+
+    scene.add(road);
+
+}
+
+// Major Roads (500m)
+
+for(const z of majorIntersections){
+
+    const road = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            220,
+            0.2,
+            30
+        ),
+        new THREE.MeshLambertMaterial({
+            color: 0x2a2a2a
+        })
+    );
+
+    road.position.set(
+        0,
+        0.1,
+        z
+    );
+
+    scene.add(road);
+
+}
+
 // Left Road
 
 const leftRoad = new THREE.Mesh(
