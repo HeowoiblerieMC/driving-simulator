@@ -260,65 +260,6 @@ for(const z of minorRoads){
 
 for(const z of signalIntersections){
 
-    // Corner Fills
-
-const cornerSize = 14;
-
-// Top Left
-
-const c1 = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        cornerSize,
-        0.3,
-        cornerSize
-    ),
-    sidewalkMaterial
-);
-
-c1.position.set(
-    -83,
-    0.17,
-    z + 16
-);
-
-scene.add(c1);
-
-// Top Right
-
-const c2 = c1.clone();
-
-c2.position.set(
-    83,
-    0.17,
-    z + 16
-);
-
-scene.add(c2);
-
-// Bottom Left
-
-const c3 = c1.clone();
-
-c3.position.set(
-    -83,
-    0.17,
-    z - 16
-);
-
-scene.add(c3);
-
-// Bottom Right
-
-const c4 = c1.clone();
-
-c4.position.set(
-    83,
-    0.17,
-    z - 16
-);
-
-scene.add(c4);
-
     const roadMaterial =
         new THREE.MeshLambertMaterial({
             color: 0x2f2f2f
@@ -399,70 +340,66 @@ scene.add(c4);
 
     scene.add(s4);
 
+    // Corner Fill TL
+
+    const c1 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            14,
+            0.3,
+            14
+        ),
+        sidewalkMaterial
+    );
+
+    c1.position.set(
+        -83,
+        0.17,
+        z + 16
+    );
+
+    scene.add(c1);
+
+    // Corner Fill TR
+
+    const c2 = c1.clone();
+
+    c2.position.set(
+        83,
+        0.17,
+        z + 16
+    );
+
+    scene.add(c2);
+
+    // Corner Fill BL
+
+    const c3 = c1.clone();
+
+    c3.position.set(
+        -83,
+        0.17,
+        z - 16
+    );
+
+    scene.add(c3);
+
+    // Corner Fill BR
+
+    const c4 = c1.clone();
+
+    c4.position.set(
+        83,
+        0.17,
+        z - 16
+    );
+
+    scene.add(c4);
+
 }
 
-/// Major Roads (500m)
+// Major Roads (500m)
 
 for(const z of majorIntersections){
-
-    // Corner Fills
-
-const cornerSize = 18;
-
-// Top Left
-
-const c1 = new THREE.Mesh(
-    new THREE.BoxGeometry(
-        cornerSize,
-        0.3,
-        cornerSize
-    ),
-    sidewalkMaterial
-);
-
-c1.position.set(
-    -102,
-    0.17,
-    z + 21
-);
-
-scene.add(c1);
-
-// Top Right
-
-const c2 = c1.clone();
-
-c2.position.set(
-    102,
-    0.17,
-    z + 21
-);
-
-scene.add(c2);
-
-// Bottom Left
-
-const c3 = c1.clone();
-
-c3.position.set(
-    -102,
-    0.17,
-    z - 21
-);
-
-scene.add(c3);
-
-// Bottom Right
-
-const c4 = c1.clone();
-
-c4.position.set(
-    102,
-    0.17,
-    z - 21
-);
-
-scene.add(c4);
 
     const roadMaterial =
         new THREE.MeshLambertMaterial({
@@ -473,6 +410,8 @@ scene.add(c4);
         new THREE.MeshLambertMaterial({
             color: 0xd0d0d0
         });
+
+    // Main Road
 
     const road = new THREE.Mesh(
         new THREE.BoxGeometry(
@@ -491,6 +430,8 @@ scene.add(c4);
 
     scene.add(road);
 
+    // Upper Left Sidewalk
+
     const s1 = new THREE.Mesh(
         new THREE.BoxGeometry(
             90,
@@ -508,11 +449,15 @@ scene.add(c4);
 
     scene.add(s1);
 
+    // Upper Right Sidewalk
+
     const s2 = s1.clone();
 
     s2.position.x = 65;
 
     scene.add(s2);
+
+    // Lower Left Sidewalk
 
     const s3 = s1.clone();
 
@@ -524,6 +469,8 @@ scene.add(c4);
 
     scene.add(s3);
 
+    // Lower Right Sidewalk
+
     const s4 = s1.clone();
 
     s4.position.set(
@@ -533,6 +480,61 @@ scene.add(c4);
     );
 
     scene.add(s4);
+
+    // Corner Fill TL
+
+    const c1 = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            18,
+            0.3,
+            18
+        ),
+        sidewalkMaterial
+    );
+
+    c1.position.set(
+        -102,
+        0.17,
+        z + 21
+    );
+
+    scene.add(c1);
+
+    // Corner Fill TR
+
+    const c2 = c1.clone();
+
+    c2.position.set(
+        102,
+        0.17,
+        z + 21
+    );
+
+    scene.add(c2);
+
+    // Corner Fill BL
+
+    const c3 = c1.clone();
+
+    c3.position.set(
+        -102,
+        0.17,
+        z - 21
+    );
+
+    scene.add(c3);
+
+    // Corner Fill BR
+
+    const c4 = c1.clone();
+
+    c4.position.set(
+        102,
+        0.17,
+        z - 21
+    );
+
+    scene.add(c4);
 
 }
 
