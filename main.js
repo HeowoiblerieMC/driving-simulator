@@ -182,7 +182,7 @@ for(const z of minorRoads){
 
     const s1 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            122,
+            121,
             0.3,
             4
         ),
@@ -201,7 +201,7 @@ for(const z of minorRoads){
 
     const s2 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            122,
+            121,
             0.3,
             4
         ),
@@ -220,7 +220,7 @@ for(const z of minorRoads){
 
     const s3 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            122,
+            121,
             0.3,
             4
         ),
@@ -239,7 +239,7 @@ for(const z of minorRoads){
 
     const s4 = new THREE.Mesh(
         new THREE.BoxGeometry(
-            122,
+            121,
             0.3,
             4
         ),
