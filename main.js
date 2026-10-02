@@ -598,7 +598,13 @@ for(let z = -5000; z <= 5000; z += 70){
 
 let car;
 
+let taillights = [];
+let reverseLights = [];
+
 function createCar(type){
+
+    taillights = [];
+    reverseLights = [];
 
     if(car){
         scene.remove(car);
@@ -606,7 +612,7 @@ function createCar(type){
 
     car = new THREE.Group();
 
-    let bodyColor = 0x555555;
+    let bodyColor = 0x888888;
 
     if(type === "compact"){
         bodyColor = 0x44aa44;
@@ -625,15 +631,15 @@ function createCar(type){
     const body = new THREE.Mesh(
         new THREE.BoxGeometry(
             4,
-            0.8,
-            10
+            0.7,
+            11
         ),
         new THREE.MeshLambertMaterial({
             color: bodyColor
         })
     );
 
-    body.position.y = 0.8;
+    body.position.y = 0.7;
 
     car.add(body);
 
@@ -641,30 +647,30 @@ function createCar(type){
 
     const cabin = new THREE.Mesh(
         new THREE.BoxGeometry(
-            2.8,
-            1.0,
-            3.2
+            2.7,
+            0.7,
+            4.2
         ),
         new THREE.MeshLambertMaterial({
-            color: 0x777777
+            color: 0x222222
         })
     );
 
     cabin.position.set(
         0,
-        1.5,
-        -0.8
+        1.15,
+        -0.4
     );
 
     car.add(cabin);
 
-    // Long Hood
+    // Hood
 
     const hood = new THREE.Mesh(
         new THREE.BoxGeometry(
-            3.6,
-            0.6,
-            3.2
+            3.8,
+            0.55,
+            4
         ),
         new THREE.MeshLambertMaterial({
             color: bodyColor
@@ -673,8 +679,8 @@ function createCar(type){
 
     hood.position.set(
         0,
-        0.9,
-        3
+        0.85,
+        3.2
     );
 
     car.add(hood);
@@ -683,9 +689,9 @@ function createCar(type){
 
     const trunk = new THREE.Mesh(
         new THREE.BoxGeometry(
-            3.6,
-            0.6,
-            2
+            3.8,
+            0.55,
+            2.8
         ),
         new THREE.MeshLambertMaterial({
             color: bodyColor
@@ -694,8 +700,8 @@ function createCar(type){
 
     trunk.position.set(
         0,
-        0.9,
-        -4
+        0.85,
+        -4.2
     );
 
     car.add(trunk);
@@ -705,8 +711,8 @@ function createCar(type){
     const frontWindow = new THREE.Mesh(
         new THREE.BoxGeometry(
             2.5,
-            0.8,
-            0.1
+            0.7,
+            0.08
         ),
         new THREE.MeshLambertMaterial({
             color: 0x88bbff,
@@ -715,12 +721,12 @@ function createCar(type){
         })
     );
 
-    frontWindow.rotation.x = -0.6;
+    frontWindow.rotation.x = -0.65;
 
     frontWindow.position.set(
         0,
-        1.7,
-        1
+        1.35,
+        1.5
     );
 
     car.add(frontWindow);
@@ -730,8 +736,8 @@ function createCar(type){
     const rearWindow = new THREE.Mesh(
         new THREE.BoxGeometry(
             2.5,
-            0.8,
-            0.1
+            0.7,
+            0.08
         ),
         new THREE.MeshLambertMaterial({
             color: 0x88bbff,
@@ -740,23 +746,23 @@ function createCar(type){
         })
     );
 
-    rearWindow.rotation.x = 0.6;
+    rearWindow.rotation.x = 0.45;
 
     rearWindow.position.set(
         0,
-        1.7,
-        -2.3
+        1.3,
+        -2.4
     );
 
     car.add(rearWindow);
 
-    // Left Side Window
+    // Side Windows
 
     const leftWindow = new THREE.Mesh(
         new THREE.BoxGeometry(
-            0.1,
-            0.7,
-            2.2
+            0.08,
+            0.6,
+            3.8
         ),
         new THREE.MeshLambertMaterial({
             color: 0x88bbff,
@@ -766,38 +772,36 @@ function createCar(type){
     );
 
     leftWindow.position.set(
-        -1.4,
-        1.7,
-        -0.8
+        -1.36,
+        1.3,
+        -0.4
     );
 
     car.add(leftWindow);
 
-    // Right Side Window
-
     const rightWindow = leftWindow.clone();
 
-    rightWindow.position.x = 1.4;
+    rightWindow.position.x = 1.36;
 
     car.add(rightWindow);
 
-    // Front Grille
+    // Grille
 
     const grille = new THREE.Mesh(
         new THREE.BoxGeometry(
-            2,
-            0.5,
-            0.1
+            2.3,
+            0.45,
+            0.08
         ),
         new THREE.MeshLambertMaterial({
-            color: 0xcccccc
+            color: 0xc0c0c0
         })
     );
 
     grille.position.set(
         0,
-        0.9,
-        5.05
+        0.8,
+        5.55
     );
 
     car.add(grille);
@@ -806,19 +810,19 @@ function createCar(type){
 
     const leftHeadlight = new THREE.Mesh(
         new THREE.BoxGeometry(
-            0.6,
-            0.25,
-            0.1
+            0.9,
+            0.2,
+            0.08
         ),
         new THREE.MeshBasicMaterial({
-            color: 0xffffcc
+            color: 0xffffdd
         })
     );
 
     leftHeadlight.position.set(
-        -1.2,
-        0.9,
-        5.05
+        -1.3,
+        0.8,
+        5.55
     );
 
     car.add(leftHeadlight);
@@ -826,50 +830,96 @@ function createCar(type){
     const rightHeadlight =
         leftHeadlight.clone();
 
-    rightHeadlight.position.x = 1.2;
+    rightHeadlight.position.x = 1.3;
 
     car.add(rightHeadlight);
 
-    // Taillights
+    // Left Taillight
 
     const leftTaillight = new THREE.Mesh(
         new THREE.BoxGeometry(
-            0.8,
+            1.8,
             0.25,
-            0.1
+            0.08
         ),
         new THREE.MeshBasicMaterial({
-            color: 0xff2222
+            color: 0x660000
         })
     );
 
     leftTaillight.position.set(
-        -1.2,
-        0.9,
-        -5.05
+        -0.9,
+        0.8,
+        -5.55
     );
 
     car.add(leftTaillight);
 
+    // Right Taillight
+
     const rightTaillight =
         leftTaillight.clone();
 
-    rightTaillight.position.x = 1.2;
+    rightTaillight.position.x = 0.9;
 
     car.add(rightTaillight);
+
+    taillights.push(
+        leftTaillight,
+        rightTaillight
+    );
+
+    // Reverse Lights
+
+    const leftReverseLight = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            0.5,
+            0.2,
+            0.08
+        ),
+        new THREE.MeshBasicMaterial({
+            color: 0xffffff
+        })
+    );
+
+    leftReverseLight.position.set(
+        -0.2,
+        0.8,
+        -5.55
+    );
+
+    car.add(leftReverseLight);
+
+    const rightReverseLight =
+        leftReverseLight.clone();
+
+    rightReverseLight.position.x = 0.2;
+
+    car.add(rightReverseLight);
+
+    reverseLights.push(
+        leftReverseLight,
+        rightReverseLight
+    );
+
+    reverseLights.forEach(
+        light => {
+            light.visible = false;
+        }
+    );
 
     // Wheels
 
     for(const x of [-1.8, 1.8]){
 
-        for(const z of [-3, 3]){
+        for(const z of [-3.2, 3.2]){
 
             const wheel = new THREE.Mesh(
                 new THREE.CylinderGeometry(
-                    0.8,
-                    0.8,
-                    0.6,
-                    20
+                    1,
+                    1,
+                    0.7,
+                    32
                 ),
                 new THREE.MeshLambertMaterial({
                     color: 0x111111
@@ -884,6 +934,23 @@ function createCar(type){
                 0.6,
                 z
             );
+
+            const hubcap = new THREE.Mesh(
+                new THREE.CylinderGeometry(
+                    0.55,
+                    0.55,
+                    0.72,
+                    24
+                ),
+                new THREE.MeshLambertMaterial({
+                    color: 0xc0c0c0
+                })
+            );
+
+            hubcap.rotation.z =
+                Math.PI / 2;
+
+            wheel.add(hubcap);
 
             car.add(wheel);
 
@@ -1058,7 +1125,7 @@ function animate(){
     // Speed Limit
 
     speed =
-    Math.max(0, speed);
+    Math.max(-40, speed);
 
     speed =
     Math.min(160, speed);
@@ -1093,6 +1160,47 @@ car.position.z -=
     speed *
     0.007;
 
+    // Rear Lights
+
+taillights.forEach(
+    light => {
+
+        if(keys["s"]){
+
+            light.material.color.set(
+                0xff0000
+            );
+
+        }
+        else if(speed <= 1){
+
+            light.material.color.set(
+                0xff4444
+            );
+
+        }
+        else{
+
+            light.material.color.set(
+                0x660000
+            );
+
+        }
+
+    }
+);
+
+// Reverse Lights
+
+reverseLights.forEach(
+    light => {
+
+        light.visible =
+            speed < 0;
+
+    }
+);
+
     // HUD Update
 
     speedometer.textContent =
@@ -1113,14 +1221,14 @@ car.position.z -=
         Math.sin(
             car.rotation.y
         ) *
-        20;
+        15;
 
     camera.position.z =
         car.position.z +
         Math.cos(
             car.rotation.y
         ) *
-        20;
+        15;
 
     camera.position.y = 6;
 
