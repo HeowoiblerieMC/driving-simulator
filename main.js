@@ -1456,7 +1456,7 @@ for (
 // 125m: no signals
 // 250m: roadside signals on both sides
 // 500m: roadside signals on both sides only
-// Scramble: roadside signals on both sides plus scramble signs
+// Scramble: roadside signals on both sides, no sign
 // ======================================
 
 const trafficSignalControllers = [];
@@ -1479,9 +1479,6 @@ const signalDarkMaterial = new THREE.MeshStandardMaterial({
     metalness: 0.08,
     side: THREE.DoubleSide
 });
-
-const SCRAMBLE_SIGN_TEXT =
-    "\u30b9\u30af\u30e9\u30f3\u30d6\u30eb\u4ea4\u5dee\u70b9";
 
 function createSignalBox(
     parent,
@@ -1817,54 +1814,13 @@ function setPedestrianSignalState(head, state, blink = false) {
         greenVisible ? 1 : 0.08;
 }
 
-function createScrambleSignMesh() {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1400;
-    canvas.height = 260;
-
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#faf8ef";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.strokeStyle = "#2475b6";
-    ctx.lineWidth = 22;
-    ctx.strokeRect(11, 11, canvas.width - 22, canvas.height - 22);
-
-    ctx.fillStyle = "#176eac";
-    ctx.font =
-        'bold 118px "Noto Sans JP", "Yu Gothic", sans-serif';
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(
-        SCRAMBLE_SIGN_TEXT,
-        canvas.width / 2,
-        canvas.height / 2 + 4
-    );
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-
-    const sign = new THREE.Mesh(
-        new THREE.PlaneGeometry(7.0, 1.3),
-        new THREE.MeshBasicMaterial({
-            map: texture,
-            side: THREE.FrontSide
-        })
-    );
-
-    // The local signal front is -Z, while PlaneGeometry faces +Z.
-    sign.rotation.y = Math.PI;
-    return sign;
-}
-
 function createRoadsideVehicleSignal({
     x,
     z,
     yaw,
     poleHeight,
     armLength,
-    headLocalYaw = 0,
-    scrambleSign = false
+    headLocalYaw = 0
 }) {
     const group = new THREE.Group();
 
@@ -1933,16 +1889,7 @@ function createRoadsideVehicleSignal({
     vehicleHead.rotation.y = headLocalYaw;
     group.add(vehicleHead);
 
-    if (scrambleSign) {
-        const sign = createScrambleSignMesh();
-        sign.position.set(
-            practicalArmLength - 1.68,
-            vehicleHeadHeight + 1.05,
-            -0.29
-        );
-        sign.rotation.y += headLocalYaw;
-        group.add(sign);
-    }
+
 
     group.position.set(x, 0, z);
     group.rotation.y = yaw;
@@ -1986,7 +1933,8 @@ function createLowAuxiliaryVehicleSignal({
 function createPedestrianSignalPost({
     x,
     z,
-    yaw,
+    poleYaw,
+    facingYaw,
     height = 3.55
 }) {
     const group = new THREE.Group();
@@ -2021,10 +1969,15 @@ function createPedestrianSignalPost({
 
     const pedestrianHead = createPedestrianSignalHead();
     pedestrianHead.position.set(0.86, height, 0);
+
+    // The post may rotate to place its bracket toward the curb, but the
+    // signal face is set independently so it always faces pedestrians
+    // waiting on the opposite side of the crosswalk.
+    pedestrianHead.rotation.y = facingYaw - poleYaw;
     group.add(pedestrianHead);
 
     group.position.set(x, 0, z);
-    group.rotation.y = yaw;
+    group.rotation.y = poleYaw;
     scene.add(group);
 
     return pedestrianHead;
@@ -2047,12 +2000,14 @@ function registerPedestrianCrosswalkSignals({
         createPedestrianSignalPost({
             x: -outerX,
             z: centerZ + outerZ,
-            yaw: Math.PI / 2
+            poleYaw: Math.PI / 2,
+            facingYaw: Math.PI / 2
         }),
         createPedestrianSignalPost({
             x: outerX,
             z: centerZ + outerZ,
-            yaw: -Math.PI / 2
+            poleYaw: -Math.PI / 2,
+            facingYaw: -Math.PI / 2
         })
     );
 
@@ -2061,12 +2016,14 @@ function registerPedestrianCrosswalkSignals({
         createPedestrianSignalPost({
             x: -outerX,
             z: centerZ - outerZ,
-            yaw: Math.PI / 2
+            poleYaw: Math.PI / 2,
+            facingYaw: Math.PI / 2
         }),
         createPedestrianSignalPost({
             x: outerX,
             z: centerZ - outerZ,
-            yaw: -Math.PI / 2
+            poleYaw: -Math.PI / 2,
+            facingYaw: -Math.PI / 2
         })
     );
 
@@ -2075,12 +2032,14 @@ function registerPedestrianCrosswalkSignals({
         createPedestrianSignalPost({
             x: -outerX,
             z: centerZ - outerZ,
-            yaw: 0
+            poleYaw: 0,
+            facingYaw: 0
         }),
         createPedestrianSignalPost({
             x: -outerX,
             z: centerZ + outerZ,
-            yaw: Math.PI
+            poleYaw: Math.PI,
+            facingYaw: Math.PI
         })
     );
 
@@ -2089,12 +2048,14 @@ function registerPedestrianCrosswalkSignals({
         createPedestrianSignalPost({
             x: outerX,
             z: centerZ - outerZ,
-            yaw: 0
+            poleYaw: 0,
+            facingYaw: 0
         }),
         createPedestrianSignalPost({
             x: outerX,
             z: centerZ + outerZ,
-            yaw: Math.PI
+            poleYaw: Math.PI,
+            facingYaw: Math.PI
         })
     );
 }
@@ -2117,18 +2078,23 @@ function createMediumIntersectionSignals(z) {
     const northSouthArmLength = 6.2;
     const eastWestArmLength = 5.2;
 
-    // South approach, two roadside signals.
+    // Vehicle signals are installed on the FAR side of the intersection.
+    // This keeps the signal heads visible above the road while approaching.
+
+    // South approach, travelling +Z:
+    // both signal heads stand beyond the intersection on the north side
+    // and face south toward the approaching vehicle.
     controller.northSouthVehicle.push(
         createRoadsideVehicleSignal({
             x: -poleX,
-            z: z - poleZ,
+            z: z + poleZ,
             yaw: 0,
             poleHeight: 7.2,
             armLength: northSouthArmLength
         }),
         createRoadsideVehicleSignal({
             x: poleX,
-            z: z - poleZ,
+            z: z + poleZ,
             yaw: Math.PI,
             poleHeight: 7.2,
             armLength: northSouthArmLength,
@@ -2136,18 +2102,20 @@ function createMediumIntersectionSignals(z) {
         })
     );
 
-    // North approach, two roadside signals.
+    // North approach, travelling -Z:
+    // both signal heads stand beyond the intersection on the south side
+    // and face north toward the approaching vehicle.
     controller.northSouthVehicle.push(
         createRoadsideVehicleSignal({
             x: poleX,
-            z: z + poleZ,
+            z: z - poleZ,
             yaw: Math.PI,
             poleHeight: 7.2,
             armLength: northSouthArmLength
         }),
         createRoadsideVehicleSignal({
             x: -poleX,
-            z: z + poleZ,
+            z: z - poleZ,
             yaw: 0,
             poleHeight: 7.2,
             armLength: northSouthArmLength,
@@ -2155,17 +2123,18 @@ function createMediumIntersectionSignals(z) {
         })
     );
 
-    // West approach, two roadside signals.
+    // West approach, travelling +X:
+    // both signal heads stand on the east side and face west.
     controller.eastWestVehicle.push(
         createRoadsideVehicleSignal({
-            x: -poleX,
+            x: poleX,
             z: z + poleZ,
             yaw: Math.PI / 2,
             poleHeight: 6.8,
             armLength: eastWestArmLength
         }),
         createRoadsideVehicleSignal({
-            x: -poleX,
+            x: poleX,
             z: z - poleZ,
             yaw: -Math.PI / 2,
             poleHeight: 6.8,
@@ -2174,17 +2143,18 @@ function createMediumIntersectionSignals(z) {
         })
     );
 
-    // East approach, two roadside signals.
+    // East approach, travelling -X:
+    // both signal heads stand on the west side and face east.
     controller.eastWestVehicle.push(
         createRoadsideVehicleSignal({
-            x: poleX,
+            x: -poleX,
             z: z - poleZ,
             yaw: -Math.PI / 2,
             poleHeight: 6.8,
             armLength: eastWestArmLength
         }),
         createRoadsideVehicleSignal({
-            x: poleX,
+            x: -poleX,
             z: z + poleZ,
             yaw: Math.PI / 2,
             poleHeight: 6.8,
@@ -2220,87 +2190,81 @@ function createLargeIntersectionSignals(z, scramble = false) {
 
     const armLength = 7.2;
 
-    // South approach, roadside signals on both sides.
+    // Large and scramble intersections also use FAR-SIDE vehicle signals.
+
+    // South approach, travelling +Z. Far side is north of the intersection.
     controller.northSouthVehicle.push(
         createRoadsideVehicleSignal({
             x: -poleX,
-            z: z - poleZ,
+            z: z + poleZ,
             yaw: 0,
             poleHeight: 7.5,
-            armLength,
-            scrambleSign: scramble
+            armLength
         }),
-        createRoadsideVehicleSignal({
-            x: poleX,
-            z: z - poleZ,
-            yaw: Math.PI,
-            poleHeight: 7.5,
-            armLength,
-            headLocalYaw: Math.PI,
-            scrambleSign: false
-        })
-    );
-
-    // North approach, roadside signals on both sides.
-    controller.northSouthVehicle.push(
         createRoadsideVehicleSignal({
             x: poleX,
             z: z + poleZ,
             yaw: Math.PI,
             poleHeight: 7.5,
             armLength,
-            scrambleSign: scramble
+            headLocalYaw: Math.PI
+        })
+    );
+
+    // North approach, travelling -Z. Far side is south of the intersection.
+    controller.northSouthVehicle.push(
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z - poleZ,
+            yaw: Math.PI,
+            poleHeight: 7.5,
+            armLength
         }),
         createRoadsideVehicleSignal({
             x: -poleX,
-            z: z + poleZ,
+            z: z - poleZ,
             yaw: 0,
             poleHeight: 7.5,
             armLength,
-            headLocalYaw: Math.PI,
-            scrambleSign: false
+            headLocalYaw: Math.PI
         })
     );
 
-    // West approach, roadside signals on both sides.
+    // West approach, travelling +X. Far side is east of the intersection.
     controller.eastWestVehicle.push(
         createRoadsideVehicleSignal({
-            x: -poleX,
+            x: poleX,
             z: z + poleZ,
             yaw: Math.PI / 2,
             poleHeight: 7.5,
-            armLength,
-            scrambleSign: scramble
+            armLength
         }),
-        createRoadsideVehicleSignal({
-            x: -poleX,
-            z: z - poleZ,
-            yaw: -Math.PI / 2,
-            poleHeight: 7.5,
-            armLength,
-            headLocalYaw: Math.PI,
-            scrambleSign: false
-        })
-    );
-
-    // East approach, roadside signals on both sides.
-    controller.eastWestVehicle.push(
         createRoadsideVehicleSignal({
             x: poleX,
             z: z - poleZ,
             yaw: -Math.PI / 2,
             poleHeight: 7.5,
             armLength,
-            scrambleSign: scramble
+            headLocalYaw: Math.PI
+        })
+    );
+
+    // East approach, travelling -X. Far side is west of the intersection.
+    controller.eastWestVehicle.push(
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z - poleZ,
+            yaw: -Math.PI / 2,
+            poleHeight: 7.5,
+            armLength
         }),
         createRoadsideVehicleSignal({
-            x: poleX,
+            x: -poleX,
             z: z + poleZ,
             yaw: Math.PI / 2,
             poleHeight: 7.5,
             armLength,
-            headLocalYaw: Math.PI,
-            scrambleSign: false
+            headLocalYaw: Math.PI
         })
     );
 
