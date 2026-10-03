@@ -1973,7 +1973,8 @@ function createPedestrianSignalPost({
     // The post may rotate to place its bracket toward the curb, but the
     // signal face is set independently so it always faces pedestrians
     // waiting on the opposite side of the crosswalk.
-    pedestrianHead.rotation.y = facingYaw - poleYaw;
+    pedestrianHead.rotation.y =
+        facingYaw - poleYaw + Math.PI;
     group.add(pedestrianHead);
 
     group.position.set(x, 0, z);
