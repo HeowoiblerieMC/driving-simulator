@@ -1622,6 +1622,12 @@ function createVehicleSignalHead() {
     return head;
 }
 
+// ============================================================
+// PEDESTRIAN SIGNAL DISPLAY AND SIGNAL STATE CONTROL
+// Replace from this comment through the line immediately before:
+// function createRoadsideVehicleSignal({
+// ============================================================
+
 function createPedestrianIconTexture(color, walking) {
     const canvas = document.createElement("canvas");
     canvas.width = 256;
@@ -1629,8 +1635,8 @@ function createPedestrianIconTexture(color, walking) {
 
     const ctx = canvas.getContext("2d");
 
-    // Fully opaque black display panel. No transparency is used.
-    ctx.fillStyle = "#050505";
+    // Fully opaque display. Nothing behind the signal can show through.
+    ctx.fillStyle = "#030303";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = color;
@@ -1686,7 +1692,6 @@ function createPedestrianIconTexture(color, walking) {
 function createPedestrianSignalHead() {
     const head = new THREE.Group();
 
-    // The visible front of this head is local +Z.
     createSignalBox(
         head,
         1.2,
@@ -1700,23 +1705,22 @@ function createPedestrianSignalHead() {
 
     const panels = {};
 
-    const panelDefinitions = [
+    const definitions = [
         ["red", 0.53, "#ff3424", false],
         ["green", -0.53, "#27e37c", true]
     ];
 
-    for (const [name, y, color, walking] of panelDefinitions) {
+    for (const [name, y, color, walking] of definitions) {
         const texture = createPedestrianIconTexture(color, walking);
 
-        // Opaque material. The signal can no longer be seen through.
         const material = new THREE.MeshBasicMaterial({
-            color: 0x151515,
+            color: 0x080808,
             map: texture,
             transparent: false,
             opacity: 1,
             depthTest: true,
             depthWrite: true,
-            side: THREE.FrontSide,
+            side: THREE.DoubleSide,
             toneMapped: false
         });
 
@@ -1725,13 +1729,13 @@ function createPedestrianSignalHead() {
             material
         );
 
-        panel.position.set(0, y, 0.281);
-        panel.renderOrder = 5;
+        // Plane is drawn on both sides, so mirrored posts cannot hide it.
+        panel.position.set(0, y, 0.285);
+        panel.renderOrder = 10;
         head.add(panel);
-
         panels[name] = panel;
 
-        // Rectangular hood projecting toward local +Z.
+        // Top hood.
         const topHood = createSignalBox(
             head,
             1.04,
@@ -1742,9 +1746,9 @@ function createPedestrianSignalHead() {
             y + 0.48,
             0.5
         );
-
         topHood.rotation.x = 0.1;
 
+        // Side hoods.
         createSignalBox(
             head,
             0.1,
@@ -1768,7 +1772,6 @@ function createPedestrianSignalHead() {
         );
     }
 
-    // Solid back cover.
     createSignalBox(
         head,
         1.02,
@@ -1800,27 +1803,31 @@ function setVehicleSignalState(head, state) {
 function setPedestrianSignalState(head, state, blink = false) {
     const lamps = head.userData.lamps;
 
-    const greenVisible =
-        state === "green" &&
-        (!blink || Math.floor(performance.now() / 420) % 2 === 0);
+    if (!lamps?.red || !lamps?.green) {
+        console.warn("Pedestrian signal panel is missing.", head);
+        return;
+    }
 
-    const redVisible = state === "red";
+    const blinkOn =
+        !blink || Math.floor(performance.now() / 420) % 2 === 0;
 
-    // MeshBasicMaterial is controlled through color multiplication.
-    // White shows the full colored texture. Dark gray leaves an unlit lens.
+    const redOn = state === "red";
+    const greenOn = state === "green" && blinkOn;
+
+    // White preserves the bright color in the texture.
+    // Near-black makes the unlit pictogram almost invisible.
     lamps.red.material.color.setHex(
-        redVisible ? 0xffffff : 0x101010
+        redOn ? 0xffffff : 0x080808
     );
 
     lamps.green.material.color.setHex(
-        greenVisible ? 0xffffff : 0x101010
+        greenOn ? 0xffffff : 0x080808
     );
 
+    // Do not hide the meshes. This avoids signals remaining invisible
+    // after a phase change.
     lamps.red.visible = true;
     lamps.green.visible = true;
-
-    lamps.red.material.needsUpdate = true;
-    lamps.green.material.needsUpdate = true;
 }
 
 function createRoadsideVehicleSignal({
