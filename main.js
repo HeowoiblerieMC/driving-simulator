@@ -1455,8 +1455,8 @@ for (
 // TRAFFIC SIGNAL SYSTEM
 // 125m: no signals
 // 250m: roadside signals on both sides
-// 500m: roadside signals on both sides plus median auxiliaries
-// Scramble: 500m-style placement plus scramble signs
+// 500m: roadside signals on both sides only
+// Scramble: roadside signals on both sides plus scramble signs
 // ======================================
 
 const trafficSignalControllers = [];
@@ -1863,6 +1863,7 @@ function createRoadsideVehicleSignal({
     yaw,
     poleHeight,
     armLength,
+    headLocalYaw = 0,
     scrambleSign = false
 }) {
     const group = new THREE.Group();
@@ -1929,6 +1930,7 @@ function createRoadsideVehicleSignal({
         vehicleHeadHeight - 0.35,
         0
     );
+    vehicleHead.rotation.y = headLocalYaw;
     group.add(vehicleHead);
 
     if (scrambleSign) {
@@ -1938,6 +1940,7 @@ function createRoadsideVehicleSignal({
             vehicleHeadHeight + 1.05,
             -0.29
         );
+        sign.rotation.y += headLocalYaw;
         group.add(sign);
     }
 
@@ -2128,7 +2131,8 @@ function createMediumIntersectionSignals(z) {
             z: z - poleZ,
             yaw: Math.PI,
             poleHeight: 7.2,
-            armLength: northSouthArmLength
+            armLength: northSouthArmLength,
+            headLocalYaw: Math.PI
         })
     );
 
@@ -2146,7 +2150,8 @@ function createMediumIntersectionSignals(z) {
             z: z + poleZ,
             yaw: 0,
             poleHeight: 7.2,
-            armLength: northSouthArmLength
+            armLength: northSouthArmLength,
+            headLocalYaw: Math.PI
         })
     );
 
@@ -2164,7 +2169,8 @@ function createMediumIntersectionSignals(z) {
             z: z - poleZ,
             yaw: -Math.PI / 2,
             poleHeight: 6.8,
-            armLength: eastWestArmLength
+            armLength: eastWestArmLength,
+            headLocalYaw: Math.PI
         })
     );
 
@@ -2182,7 +2188,8 @@ function createMediumIntersectionSignals(z) {
             z: z + poleZ,
             yaw: Math.PI / 2,
             poleHeight: 6.8,
-            armLength: eastWestArmLength
+            armLength: eastWestArmLength,
+            headLocalYaw: Math.PI
         })
     );
 
@@ -2229,6 +2236,7 @@ function createLargeIntersectionSignals(z, scramble = false) {
             yaw: Math.PI,
             poleHeight: 7.5,
             armLength,
+            headLocalYaw: Math.PI,
             scrambleSign: false
         })
     );
@@ -2249,6 +2257,7 @@ function createLargeIntersectionSignals(z, scramble = false) {
             yaw: 0,
             poleHeight: 7.5,
             armLength,
+            headLocalYaw: Math.PI,
             scrambleSign: false
         })
     );
@@ -2269,6 +2278,7 @@ function createLargeIntersectionSignals(z, scramble = false) {
             yaw: -Math.PI / 2,
             poleHeight: 7.5,
             armLength,
+            headLocalYaw: Math.PI,
             scrambleSign: false
         })
     );
@@ -2289,36 +2299,12 @@ function createLargeIntersectionSignals(z, scramble = false) {
             yaw: Math.PI / 2,
             poleHeight: 7.5,
             armLength,
+            headLocalYaw: Math.PI,
             scrambleSign: false
         })
     );
 
-    // Median-side auxiliary signals.
-    controller.northSouthVehicle.push(
-        createLowAuxiliaryVehicleSignal({
-            x: MEDIAN_WIDTH / 2 + 0.45,
-            z: z - MAJOR_ROAD_HALF_WIDTH - 1.0,
-            yaw: 0
-        }),
-        createLowAuxiliaryVehicleSignal({
-            x: -MEDIAN_WIDTH / 2 - 0.45,
-            z: z + MAJOR_ROAD_HALF_WIDTH + 1.0,
-            yaw: Math.PI
-        })
-    );
-
-    controller.eastWestVehicle.push(
-        createLowAuxiliaryVehicleSignal({
-            x: -MAIN_ROAD_HALF_WIDTH - 1.0,
-            z: z - MEDIAN_WIDTH / 2 - 0.45,
-            yaw: Math.PI / 2
-        }),
-        createLowAuxiliaryVehicleSignal({
-            x: MAIN_ROAD_HALF_WIDTH + 1.0,
-            z: z + MEDIAN_WIDTH / 2 + 0.45,
-            yaw: -Math.PI / 2
-        })
-    );
+    // No vehicle signals are installed on the central median.
 
     registerPedestrianCrosswalkSignals({
         centerZ: z,
@@ -2347,21 +2333,28 @@ function getSignalPhase(controller, timeSeconds) {
 
     if (controller.kind === "medium") {
         // 250m: the wider north-south road receives more green time.
+        // The last 5 seconds of each vehicle-green phase are used
+        // for pedestrian green flashing in the parallel crossing phase.
         phases = [
-            [32, "northSouthGreen"],
+            [27, "northSouthGreen"],
+            [5, "northSouthGreenPedestrianBlink"],
             [4, "northSouthYellow"],
             [3, "allRed"],
-            [18, "eastWestGreen"],
+            [13, "eastWestGreen"],
+            [5, "eastWestGreenPedestrianBlink"],
             [4, "eastWestYellow"],
             [3, "allRed"]
         ];
     } else if (controller.kind === "large") {
         // 500m: equal timing for both road directions.
+        // Both pedestrian phases flash for 5 seconds before red.
         phases = [
-            [25, "northSouthGreen"],
+            [20, "northSouthGreen"],
+            [5, "northSouthGreenPedestrianBlink"],
             [4, "northSouthYellow"],
             [3, "allRed"],
-            [25, "eastWestGreen"],
+            [20, "eastWestGreen"],
+            [5, "eastWestGreenPedestrianBlink"],
             [4, "eastWestYellow"],
             [3, "allRed"]
         ];
@@ -2402,15 +2395,23 @@ function updateTrafficSignals(timeSeconds) {
     for (const controller of trafficSignalControllers) {
         const phase = getSignalPhase(controller, timeSeconds);
 
+        const northSouthVehicleGreen =
+            phase === "northSouthGreen" ||
+            phase === "northSouthGreenPedestrianBlink";
+
+        const eastWestVehicleGreen =
+            phase === "eastWestGreen" ||
+            phase === "eastWestGreenPedestrianBlink";
+
         const northSouthVehicleState =
-            phase === "northSouthGreen"
+            northSouthVehicleGreen
                 ? "green"
                 : phase === "northSouthYellow"
                     ? "yellow"
                     : "red";
 
         const eastWestVehicleState =
-            phase === "eastWestGreen"
+            eastWestVehicleGreen
                 ? "green"
                 : phase === "eastWestYellow"
                     ? "yellow"
@@ -2428,32 +2429,37 @@ function updateTrafficSignals(timeSeconds) {
             phase === "allPedestrianGreen" ||
             phase === "allPedestrianBlink";
 
-        const pedestrianBlink =
-            phase === "allPedestrianBlink";
-
-        // These pedestrians cross the north-south main road,
-        // so they may walk when east-west vehicles have green.
+        // Pedestrians crossing the main north-south road move while
+        // east-west vehicles have green. The last 5 seconds flash.
         const acrossMainGreen =
             scramblePedestrianGreen ||
             (
                 controller.kind !== "scramble" &&
-                phase === "eastWestGreen"
+                eastWestVehicleGreen
             );
 
-        // These pedestrians cross the east-west road,
-        // so they may walk when north-south vehicles have green.
+        const acrossMainBlink =
+            phase === "allPedestrianBlink" ||
+            phase === "eastWestGreenPedestrianBlink";
+
+        // Pedestrians crossing the east-west road move while
+        // north-south vehicles have green. The last 5 seconds flash.
         const acrossCrossRoadGreen =
             scramblePedestrianGreen ||
             (
                 controller.kind !== "scramble" &&
-                phase === "northSouthGreen"
+                northSouthVehicleGreen
             );
+
+        const acrossCrossRoadBlink =
+            phase === "allPedestrianBlink" ||
+            phase === "northSouthGreenPedestrianBlink";
 
         for (const head of controller.pedestrianAcrossMain) {
             setPedestrianSignalState(
                 head,
                 acrossMainGreen ? "green" : "red",
-                pedestrianBlink
+                acrossMainBlink
             );
         }
 
@@ -2461,7 +2467,7 @@ function updateTrafficSignals(timeSeconds) {
             setPedestrianSignalState(
                 head,
                 acrossCrossRoadGreen ? "green" : "red",
-                pedestrianBlink
+                acrossCrossRoadBlink
             );
         }
     }
