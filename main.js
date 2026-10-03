@@ -1628,15 +1628,19 @@ function createPedestrianIconTexture(color, walking) {
     canvas.height = 256;
 
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, 256, 256);
+
+    // Fully opaque black display panel. No transparency is used.
+    ctx.fillStyle = "#050505";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
-    ctx.lineWidth = 22;
+    ctx.lineWidth = 24;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
     ctx.beginPath();
-    ctx.arc(128, 49, 22, 0, Math.PI * 2);
+    ctx.arc(128, 49, 23, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
@@ -1675,13 +1679,14 @@ function createPedestrianIconTexture(color, walking) {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
     return texture;
 }
 
 function createPedestrianSignalHead() {
     const head = new THREE.Group();
 
-    // The pedestrian signal's visible front is local +Z.
+    // The visible front of this head is local +Z.
     createSignalBox(
         head,
         1.2,
@@ -1701,80 +1706,69 @@ function createPedestrianSignalHead() {
     ];
 
     for (const [name, y, color, walking] of panelDefinitions) {
-        // Black recessed display window on the visible +Z face.
-        createSignalBox(
-            head,
-            1.02,
-            0.96,
-            0.07,
-            signalDarkMaterial,
-            0,
-            y,
-            0.295
-        );
-
         const texture = createPedestrianIconTexture(color, walking);
 
+        // Opaque material. The signal can no longer be seen through.
         const material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
+            color: 0x151515,
             map: texture,
-            transparent: true,
-            opacity: 0.08,
-            alphaTest: 0.02,
-            depthTest: false,
-            depthWrite: false,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending
+            transparent: false,
+            opacity: 1,
+            depthTest: true,
+            depthWrite: true,
+            side: THREE.FrontSide,
+            toneMapped: false
         });
 
         const panel = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.8, 0.8),
+            new THREE.PlaneGeometry(0.82, 0.82),
             material
         );
 
-        // Put the luminous pictogram clearly in front of the housing.
-        panel.position.set(0, y, 0.355);
-        panel.renderOrder = 100;
+        panel.position.set(0, y, 0.281);
+        panel.renderOrder = 5;
         head.add(panel);
+
         panels[name] = panel;
 
-        // Top and side hoods project toward local +Z.
+        // Rectangular hood projecting toward local +Z.
         const topHood = createSignalBox(
             head,
             1.04,
             0.12,
-            0.62,
+            0.58,
             signalDarkMaterial,
             0,
             y + 0.48,
-            0.51
+            0.5
         );
-        topHood.rotation.x = 0.12;
+
+        topHood.rotation.x = 0.1;
 
         createSignalBox(
             head,
             0.1,
-            0.86,
-            0.54,
+            0.88,
+            0.5,
             signalDarkMaterial,
             -0.52,
             y,
-            0.48
+            0.47
         );
 
         createSignalBox(
             head,
             0.1,
-            0.86,
-            0.54,
+            0.88,
+            0.5,
             signalDarkMaterial,
             0.52,
             y,
-            0.48
+            0.47
         );
     }
 
-    // Rear cover on local -Z.
+    // Solid back cover.
     createSignalBox(
         head,
         1.02,
@@ -1810,11 +1804,23 @@ function setPedestrianSignalState(head, state, blink = false) {
         state === "green" &&
         (!blink || Math.floor(performance.now() / 420) % 2 === 0);
 
-    lamps.red.material.opacity =
-        state === "red" ? 1 : 0.025;
+    const redVisible = state === "red";
 
-    lamps.green.material.opacity =
-        greenVisible ? 1 : 0.025;
+    // MeshBasicMaterial is controlled through color multiplication.
+    // White shows the full colored texture. Dark gray leaves an unlit lens.
+    lamps.red.material.color.setHex(
+        redVisible ? 0xffffff : 0x101010
+    );
+
+    lamps.green.material.color.setHex(
+        greenVisible ? 0xffffff : 0x101010
+    );
+
+    lamps.red.visible = true;
+    lamps.green.visible = true;
+
+    lamps.red.material.needsUpdate = true;
+    lamps.green.material.needsUpdate = true;
 }
 
 function createRoadsideVehicleSignal({
