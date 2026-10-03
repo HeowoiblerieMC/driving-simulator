@@ -1681,6 +1681,7 @@ function createPedestrianIconTexture(color, walking) {
 function createPedestrianSignalHead() {
     const head = new THREE.Group();
 
+    // The pedestrian signal's visible front is local +Z.
     createSignalBox(
         head,
         1.2,
@@ -1700,78 +1701,80 @@ function createPedestrianSignalHead() {
     ];
 
     for (const [name, y, color, walking] of panelDefinitions) {
+        // Black recessed display window on the visible +Z face.
         createSignalBox(
             head,
             1.02,
             0.96,
-            0.06,
+            0.07,
             signalDarkMaterial,
             0,
             y,
-            -0.29
+            0.295
         );
 
         const texture = createPedestrianIconTexture(color, walking);
 
-        // MeshBasicMaterial is intentionally used so that the pictogram
-        // remains clearly visible even in bright daytime lighting.
         const material = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             map: texture,
             transparent: true,
-            opacity: 0.1,
+            opacity: 0.08,
+            alphaTest: 0.02,
+            depthTest: false,
             depthWrite: false,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
         });
 
         const panel = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.75, 0.75),
+            new THREE.PlaneGeometry(0.8, 0.8),
             material
         );
 
-        panel.position.set(0, y, -0.335);
-        panel.renderOrder = 20;
+        // Put the luminous pictogram clearly in front of the housing.
+        panel.position.set(0, y, 0.355);
+        panel.renderOrder = 100;
         head.add(panel);
+        panels[name] = panel;
 
-        // Rectangular sun hood above each pictogram window.
+        // Top and side hoods project toward local +Z.
         const topHood = createSignalBox(
             head,
-            1.02,
+            1.04,
             0.12,
             0.62,
             signalDarkMaterial,
             0,
-            y + 0.47,
-            -0.51
+            y + 0.48,
+            0.51
         );
-
-        topHood.rotation.x = -0.12;
+        topHood.rotation.x = 0.12;
 
         createSignalBox(
             head,
             0.1,
-            0.85,
-            0.55,
+            0.86,
+            0.54,
             signalDarkMaterial,
-            -0.51,
+            -0.52,
             y,
-            -0.48
+            0.48
         );
 
         createSignalBox(
             head,
             0.1,
-            0.85,
-            0.55,
+            0.86,
+            0.54,
             signalDarkMaterial,
-            0.51,
+            0.52,
             y,
-            -0.48
+            0.48
         );
-
-        panels[name] = panel;
     }
 
+    // Rear cover on local -Z.
     createSignalBox(
         head,
         1.02,
@@ -1780,7 +1783,7 @@ function createPedestrianSignalHead() {
         signalHousingMaterial,
         0,
         0,
-        0.32
+        -0.32
     );
 
     head.userData.lamps = panels;
@@ -1808,10 +1811,10 @@ function setPedestrianSignalState(head, state, blink = false) {
         (!blink || Math.floor(performance.now() / 420) % 2 === 0);
 
     lamps.red.material.opacity =
-        state === "red" ? 1 : 0.08;
+        state === "red" ? 1 : 0.025;
 
     lamps.green.material.opacity =
-        greenVisible ? 1 : 0.08;
+        greenVisible ? 1 : 0.025;
 }
 
 function createRoadsideVehicleSignal({
@@ -1974,7 +1977,7 @@ function createPedestrianSignalPost({
     // signal face is set independently so it always faces pedestrians
     // waiting on the opposite side of the crosswalk.
     pedestrianHead.rotation.y =
-        facingYaw - poleYaw + Math.PI;
+        facingYaw - poleYaw;
     group.add(pedestrianHead);
 
     group.position.set(x, 0, z);
