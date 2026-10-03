@@ -1453,233 +1453,1017 @@ for (
 
 // ======================================
 // TRAFFIC SIGNAL SYSTEM
-// Vehicle signals and pedestrian signals with hoods.
+// 125m: no signals
+// 250m: roadside signals on both sides
+// 500m: roadside signals on both sides plus median auxiliaries
+// Scramble: 500m-style placement plus scramble signs
 // ======================================
 
 const trafficSignalControllers = [];
-const signalDarkMaterial = new THREE.MeshStandardMaterial({
-    color: 0x111314,
-    roughness: 0.7,
-    metalness: 0.15
-});
+
 const signalPoleMaterial = new THREE.MeshStandardMaterial({
-    color: 0x7d8587,
-    roughness: 0.48,
-    metalness: 0.65
+    color: 0x8b9294,
+    roughness: 0.42,
+    metalness: 0.68
 });
 
-function createTextSign(text, width = 4.8, height = 1.25) {
-    const canvas = document.createElement("canvas");
-    canvas.width = 768;
-    canvas.height = 200;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#f7f4e9";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "#2375b9";
-    ctx.lineWidth = 18;
-    ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
-    ctx.fillStyle = "#176cad";
-    ctx.font = "bold 86px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 3);
+const signalHousingMaterial = new THREE.MeshStandardMaterial({
+    color: 0xd8dcdb,
+    roughness: 0.55,
+    metalness: 0.18
+});
 
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    const material = new THREE.MeshBasicMaterial({ map: texture });
-    return new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
-}
+const signalDarkMaterial = new THREE.MeshStandardMaterial({
+    color: 0x17191a,
+    roughness: 0.78,
+    metalness: 0.08,
+    side: THREE.DoubleSide
+});
 
-function createSignalLamp(radius, color) {
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x171717,
-        emissive: color,
-        emissiveIntensity: 0,
-        roughness: 0.28,
-        metalness: 0.05
-    });
-    const lamp = new THREE.Mesh(
-        new THREE.CylinderGeometry(radius, radius, 0.12, 24),
+const SCRAMBLE_SIGN_TEXT =
+    "\u30b9\u30af\u30e9\u30f3\u30d6\u30eb\u4ea4\u5dee\u70b9";
+
+function createSignalBox(
+    parent,
+    width,
+    height,
+    depth,
+    material,
+    x,
+    y,
+    z
+) {
+    const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(width, height, depth),
         material
     );
-    lamp.rotation.x = Math.PI / 2;
-    return lamp;
+
+    mesh.position.set(x, y, z);
+    parent.add(mesh);
+    return mesh;
 }
 
-function createLampHood(radius) {
+function createSignalCylinder(
+    parent,
+    radiusTop,
+    radiusBottom,
+    height,
+    material,
+    x,
+    y,
+    z,
+    segments = 18
+) {
+    const mesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            radiusTop,
+            radiusBottom,
+            height,
+            segments
+        ),
+        material
+    );
+
+    mesh.position.set(x, y, z);
+    parent.add(mesh);
+    return mesh;
+}
+
+function createVehicleLampMaterial(color) {
+    return new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        emissive: color,
+        emissiveIntensity: 0,
+        roughness: 0.25,
+        metalness: 0.04
+    });
+}
+
+function createRoundSignalHood(radius, depth) {
     const hood = new THREE.Mesh(
-        new THREE.CylinderGeometry(radius * 1.18, radius * 1.18, radius * 1.9, 24, 1, true, 0, Math.PI),
+        new THREE.CylinderGeometry(
+            radius,
+            radius * 1.08,
+            depth,
+            30,
+            1,
+            true,
+            0,
+            Math.PI
+        ),
         signalDarkMaterial
     );
+
     hood.rotation.x = Math.PI / 2;
     hood.rotation.z = Math.PI / 2;
     return hood;
 }
 
 function createVehicleSignalHead() {
-    const group = new THREE.Group();
-    addCarBox(group, [3.15, 0.95, 0.45], [0, 0, 0], signalDarkMaterial);
+    const head = new THREE.Group();
+
+    createSignalBox(
+        head,
+        3.35,
+        1.1,
+        0.5,
+        signalHousingMaterial,
+        0,
+        0,
+        0
+    );
+
     const lamps = {};
-    const defs = [
-        ["red", -1.05, 0xff1800],
-        ["yellow", 0, 0xffb000],
-        ["green", 1.05, 0x10d66b]
+
+    // Local front is -Z.
+    // From the approaching driver's view:
+    // green is on the left, yellow is centered, red is on the right.
+    const lampDefinitions = [
+        ["red", -1.08, 0xff1d0d],
+        ["yellow", 0, 0xffb300],
+        ["green", 1.08, 0x18db79]
     ];
-    for (const [name, x, color] of defs) {
-        const lamp = createSignalLamp(0.34, color);
-        lamp.position.set(x, 0, -0.25);
-        group.add(lamp);
-        const hood = createLampHood(0.38);
-        hood.position.set(x, 0.16, -0.38);
-        group.add(hood);
+
+    for (const [name, x, color] of lampDefinitions) {
+        const bezel = new THREE.Mesh(
+            new THREE.TorusGeometry(0.4, 0.075, 12, 28),
+            signalDarkMaterial
+        );
+
+        bezel.position.set(x, 0, -0.27);
+        head.add(bezel);
+
+        const lamp = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.31, 0.31, 0.13, 30),
+            createVehicleLampMaterial(color)
+        );
+
+        lamp.rotation.x = Math.PI / 2;
+        lamp.position.set(x, 0, -0.31);
+        head.add(lamp);
+
+        const hood = createRoundSignalHood(0.42, 0.8);
+        hood.position.set(x, 0.2, -0.51);
+        head.add(hood);
+
         lamps[name] = lamp;
     }
-    group.userData.lamps = lamps;
-    return group;
+
+    // Rear cover so that the signal is not a thin plate.
+    createSignalBox(
+        head,
+        3.12,
+        0.88,
+        0.12,
+        signalHousingMaterial,
+        0,
+        0,
+        0.3
+    );
+
+    head.userData.lamps = lamps;
+    return head;
+}
+
+function createPedestrianIconTexture(color, walking) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, 256, 256);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 22;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.beginPath();
+    ctx.arc(128, 49, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+
+    if (walking) {
+        ctx.moveTo(124, 83);
+        ctx.lineTo(111, 147);
+        ctx.lineTo(72, 210);
+
+        ctx.moveTo(112, 147);
+        ctx.lineTo(168, 201);
+
+        ctx.moveTo(119, 104);
+        ctx.lineTo(76, 137);
+
+        ctx.moveTo(119, 104);
+        ctx.lineTo(169, 129);
+    } else {
+        ctx.moveTo(128, 83);
+        ctx.lineTo(128, 159);
+
+        ctx.moveTo(128, 109);
+        ctx.lineTo(86, 144);
+
+        ctx.moveTo(128, 109);
+        ctx.lineTo(170, 144);
+
+        ctx.moveTo(128, 159);
+        ctx.lineTo(96, 216);
+
+        ctx.moveTo(128, 159);
+        ctx.lineTo(160, 216);
+    }
+
+    ctx.stroke();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
 }
 
 function createPedestrianSignalHead() {
-    const group = new THREE.Group();
-    addCarBox(group, [0.9, 1.9, 0.42], [0, 0, 0], signalDarkMaterial);
-    const red = createSignalLamp(0.29, 0xff2818);
-    red.position.set(0, 0.48, -0.24);
-    const green = createSignalLamp(0.29, 0x20df71);
-    green.position.set(0, -0.48, -0.24);
-    group.add(red, green);
-    const hoodRed = createLampHood(0.33);
-    hoodRed.position.set(0, 0.62, -0.37);
-    const hoodGreen = createLampHood(0.33);
-    hoodGreen.position.set(0, -0.34, -0.37);
-    group.add(hoodRed, hoodGreen);
-    group.userData.lamps = { red, green };
-    return group;
-}
+    const head = new THREE.Group();
 
-function setVehicleSignal(head, state) {
-    const lamps = head.userData.lamps;
-    lamps.red.material.emissiveIntensity = state === "red" ? 3.8 : 0;
-    lamps.yellow.material.emissiveIntensity = state === "yellow" ? 3.8 : 0;
-    lamps.green.material.emissiveIntensity = state === "green" ? 3.8 : 0;
-}
-
-function setPedestrianSignal(head, state, blink = false) {
-    const lamps = head.userData.lamps;
-    const visibleGreen = state === "green" && (!blink || Math.floor(performance.now() / 420) % 2 === 0);
-    lamps.red.material.emissiveIntensity = state === "red" ? 3.4 : 0;
-    lamps.green.material.emissiveIntensity = visibleGreen ? 3.4 : 0;
-}
-
-function createSignalCorner(x, z, faceDirection, scramble = false) {
-    const group = new THREE.Group();
-    const pole = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.13, 0.16, 5.8, 16),
-        signalPoleMaterial
+    createSignalBox(
+        head,
+        1.2,
+        2.2,
+        0.52,
+        signalHousingMaterial,
+        0,
+        0,
+        0
     );
-    pole.position.y = 2.9;
-    group.add(pole);
 
-    const arm = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.11, 0.11, 3.8, 16),
-        signalPoleMaterial
+    const panels = {};
+
+    const panelDefinitions = [
+        ["red", 0.53, "#ff3424", false],
+        ["green", -0.53, "#27e37c", true]
+    ];
+
+    for (const [name, y, color, walking] of panelDefinitions) {
+        createSignalBox(
+            head,
+            1.02,
+            0.96,
+            0.06,
+            signalDarkMaterial,
+            0,
+            y,
+            -0.29
+        );
+
+        const texture = createPedestrianIconTexture(color, walking);
+
+        // MeshBasicMaterial is intentionally used so that the pictogram
+        // remains clearly visible even in bright daytime lighting.
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            map: texture,
+            transparent: true,
+            opacity: 0.1,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        });
+
+        const panel = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.75, 0.75),
+            material
+        );
+
+        panel.position.set(0, y, -0.335);
+        panel.renderOrder = 20;
+        head.add(panel);
+
+        // Rectangular sun hood above each pictogram window.
+        const topHood = createSignalBox(
+            head,
+            1.02,
+            0.12,
+            0.62,
+            signalDarkMaterial,
+            0,
+            y + 0.47,
+            -0.51
+        );
+
+        topHood.rotation.x = -0.12;
+
+        createSignalBox(
+            head,
+            0.1,
+            0.85,
+            0.55,
+            signalDarkMaterial,
+            -0.51,
+            y,
+            -0.48
+        );
+
+        createSignalBox(
+            head,
+            0.1,
+            0.85,
+            0.55,
+            signalDarkMaterial,
+            0.51,
+            y,
+            -0.48
+        );
+
+        panels[name] = panel;
+    }
+
+    createSignalBox(
+        head,
+        1.02,
+        2.0,
+        0.12,
+        signalHousingMaterial,
+        0,
+        0,
+        0.32
     );
+
+    head.userData.lamps = panels;
+    return head;
+}
+
+function setVehicleSignalState(head, state) {
+    const lamps = head.userData.lamps;
+
+    lamps.red.material.emissiveIntensity =
+        state === "red" ? 4.2 : 0;
+
+    lamps.yellow.material.emissiveIntensity =
+        state === "yellow" ? 4.2 : 0;
+
+    lamps.green.material.emissiveIntensity =
+        state === "green" ? 4.2 : 0;
+}
+
+function setPedestrianSignalState(head, state, blink = false) {
+    const lamps = head.userData.lamps;
+
+    const greenVisible =
+        state === "green" &&
+        (!blink || Math.floor(performance.now() / 420) % 2 === 0);
+
+    lamps.red.material.opacity =
+        state === "red" ? 1 : 0.08;
+
+    lamps.green.material.opacity =
+        greenVisible ? 1 : 0.08;
+}
+
+function createScrambleSignMesh() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1400;
+    canvas.height = 260;
+
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#faf8ef";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "#2475b6";
+    ctx.lineWidth = 22;
+    ctx.strokeRect(11, 11, canvas.width - 22, canvas.height - 22);
+
+    ctx.fillStyle = "#176eac";
+    ctx.font =
+        'bold 118px "Noto Sans JP", "Yu Gothic", sans-serif';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+        SCRAMBLE_SIGN_TEXT,
+        canvas.width / 2,
+        canvas.height / 2 + 4
+    );
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    const sign = new THREE.Mesh(
+        new THREE.PlaneGeometry(7.0, 1.3),
+        new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.FrontSide
+        })
+    );
+
+    // The local signal front is -Z, while PlaneGeometry faces +Z.
+    sign.rotation.y = Math.PI;
+    return sign;
+}
+
+function createRoadsideVehicleSignal({
+    x,
+    z,
+    yaw,
+    poleHeight,
+    armLength,
+    scrambleSign = false
+}) {
+    const group = new THREE.Group();
+
+    const vehicleHeadHeight = poleHeight - 0.72;
+    const practicalArmLength = Math.max(3.6, armLength);
+
+    const pole = createSignalCylinder(
+        group,
+        0.16,
+        0.22,
+        poleHeight,
+        signalPoleMaterial,
+        0,
+        poleHeight / 2,
+        0,
+        20
+    );
+
+    pole.name = "vehicleSignalPole";
+
+    createSignalCylinder(
+        group,
+        0.25,
+        0.25,
+        0.38,
+        signalHousingMaterial,
+        0,
+        vehicleHeadHeight + 0.28,
+        0,
+        20
+    );
+
+    const arm = createSignalCylinder(
+        group,
+        0.12,
+        0.12,
+        practicalArmLength,
+        signalPoleMaterial,
+        practicalArmLength / 2,
+        vehicleHeadHeight + 0.28,
+        0,
+        18
+    );
+
     arm.rotation.z = Math.PI / 2;
-    arm.position.set(1.75, 5.3, 0);
-    group.add(arm);
+
+    const mount = createSignalBox(
+        group,
+        0.24,
+        0.62,
+        0.24,
+        signalPoleMaterial,
+        practicalArmLength - 1.68,
+        vehicleHeadHeight + 0.02,
+        0
+    );
+
+    mount.rotation.z = 0.04;
 
     const vehicleHead = createVehicleSignalHead();
-    vehicleHead.position.set(3.3, 5.3, 0);
-    vehicleHead.rotation.y = faceDirection;
+    vehicleHead.position.set(
+        practicalArmLength - 1.68,
+        vehicleHeadHeight - 0.35,
+        0
+    );
     group.add(vehicleHead);
 
-    const pedestrianHead = createPedestrianSignalHead();
-    pedestrianHead.position.set(0.25, 3.9, 0);
-    pedestrianHead.rotation.y = faceDirection;
-    group.add(pedestrianHead);
-
-    if (scramble) {
-        const sign = createTextSign("ã¹ã¯ã©ã³ãã«å¼", 4.5, 1.05);
-        sign.position.set(3.3, 6.35, -0.05);
-        sign.rotation.y = faceDirection;
+    if (scrambleSign) {
+        const sign = createScrambleSignMesh();
+        sign.position.set(
+            practicalArmLength - 1.68,
+            vehicleHeadHeight + 1.05,
+            -0.29
+        );
         group.add(sign);
     }
 
     group.position.set(x, 0, z);
+    group.rotation.y = yaw;
     scene.add(group);
-    return { vehicleHead, pedestrianHead };
+
+    return vehicleHead;
 }
 
-function createIntersectionSignals(z, kind) {
-    const halfX = MAIN_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 1.0;
-    const crossingHalf = kind === "signal"
-        ? SIGNAL_ROAD_HALF_WIDTH
-        : MAJOR_ROAD_HALF_WIDTH;
-    const halfZ = crossingHalf + STANDARD_SIDEWALK_WIDTH + 1.0;
-    const scramble = kind === "scramble";
+function createLowAuxiliaryVehicleSignal({
+    x,
+    z,
+    yaw,
+    height = 4.8
+}) {
+    const group = new THREE.Group();
 
-    const north = createSignalCorner(-halfX, z + halfZ, 0, scramble);
-    const south = createSignalCorner(halfX, z - halfZ, Math.PI, scramble);
-    const west = createSignalCorner(-halfX, z - halfZ, -Math.PI / 2, scramble);
-    const east = createSignalCorner(halfX, z + halfZ, Math.PI / 2, scramble);
+    createSignalCylinder(
+        group,
+        0.11,
+        0.15,
+        height,
+        signalPoleMaterial,
+        0,
+        height / 2,
+        0,
+        16
+    );
 
+    const vehicleHead = createVehicleSignalHead();
+    vehicleHead.scale.setScalar(0.82);
+    vehicleHead.position.set(0, height - 0.55, 0);
+    group.add(vehicleHead);
+
+    group.position.set(x, 0, z);
+    group.rotation.y = yaw;
+    scene.add(group);
+
+    return vehicleHead;
+}
+
+function createPedestrianSignalPost({
+    x,
+    z,
+    yaw,
+    height = 3.55
+}) {
+    const group = new THREE.Group();
+
+    createSignalCylinder(
+        group,
+        0.11,
+        0.15,
+        height + 1.15,
+        signalPoleMaterial,
+        0,
+        (height + 1.15) / 2,
+        0,
+        16
+    );
+
+    for (const yOffset of [-0.72, 0.72]) {
+        const bracket = createSignalCylinder(
+            group,
+            0.065,
+            0.065,
+            0.82,
+            signalPoleMaterial,
+            0.41,
+            height + yOffset,
+            0,
+            12
+        );
+
+        bracket.rotation.z = Math.PI / 2;
+    }
+
+    const pedestrianHead = createPedestrianSignalHead();
+    pedestrianHead.position.set(0.86, height, 0);
+    group.add(pedestrianHead);
+
+    group.position.set(x, 0, z);
+    group.rotation.y = yaw;
+    scene.add(group);
+
+    return pedestrianHead;
+}
+
+function registerPedestrianCrosswalkSignals({
+    centerZ,
+    roadHalfWidth,
+    crossRoadHalfWidth,
+    controller
+}) {
+    const outerX =
+        roadHalfWidth + STANDARD_SIDEWALK_WIDTH * 0.72;
+
+    const outerZ =
+        crossRoadHalfWidth + STANDARD_SIDEWALK_WIDTH * 0.72;
+
+    // North crosswalk, pedestrians cross along X.
+    controller.pedestrianAcrossMain.push(
+        createPedestrianSignalPost({
+            x: -outerX,
+            z: centerZ + outerZ,
+            yaw: Math.PI / 2
+        }),
+        createPedestrianSignalPost({
+            x: outerX,
+            z: centerZ + outerZ,
+            yaw: -Math.PI / 2
+        })
+    );
+
+    // South crosswalk, pedestrians cross along X.
+    controller.pedestrianAcrossMain.push(
+        createPedestrianSignalPost({
+            x: -outerX,
+            z: centerZ - outerZ,
+            yaw: Math.PI / 2
+        }),
+        createPedestrianSignalPost({
+            x: outerX,
+            z: centerZ - outerZ,
+            yaw: -Math.PI / 2
+        })
+    );
+
+    // West crosswalk, pedestrians cross along Z.
+    controller.pedestrianAcrossCrossRoad.push(
+        createPedestrianSignalPost({
+            x: -outerX,
+            z: centerZ - outerZ,
+            yaw: 0
+        }),
+        createPedestrianSignalPost({
+            x: -outerX,
+            z: centerZ + outerZ,
+            yaw: Math.PI
+        })
+    );
+
+    // East crosswalk, pedestrians cross along Z.
+    controller.pedestrianAcrossCrossRoad.push(
+        createPedestrianSignalPost({
+            x: outerX,
+            z: centerZ - outerZ,
+            yaw: 0
+        }),
+        createPedestrianSignalPost({
+            x: outerX,
+            z: centerZ + outerZ,
+            yaw: Math.PI
+        })
+    );
+}
+
+function createMediumIntersectionSignals(z) {
     const controller = {
-        z,
-        kind,
-        nsVehicle: [north.vehicleHead, south.vehicleHead],
-        ewVehicle: [west.vehicleHead, east.vehicleHead],
-        nsPed: [west.pedestrianHead, east.pedestrianHead],
-        ewPed: [north.pedestrianHead, south.pedestrianHead]
+        kind: "medium",
+        northSouthVehicle: [],
+        eastWestVehicle: [],
+        pedestrianAcrossMain: [],
+        pedestrianAcrossCrossRoad: []
     };
+
+    const poleX =
+        MAIN_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 0.8;
+
+    const poleZ =
+        SIGNAL_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 0.8;
+
+    const northSouthArmLength = 6.2;
+    const eastWestArmLength = 5.2;
+
+    // South approach, two roadside signals.
+    controller.northSouthVehicle.push(
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z - poleZ,
+            yaw: 0,
+            poleHeight: 7.2,
+            armLength: northSouthArmLength
+        }),
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z - poleZ,
+            yaw: Math.PI,
+            poleHeight: 7.2,
+            armLength: northSouthArmLength
+        })
+    );
+
+    // North approach, two roadside signals.
+    controller.northSouthVehicle.push(
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z + poleZ,
+            yaw: Math.PI,
+            poleHeight: 7.2,
+            armLength: northSouthArmLength
+        }),
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z + poleZ,
+            yaw: 0,
+            poleHeight: 7.2,
+            armLength: northSouthArmLength
+        })
+    );
+
+    // West approach, two roadside signals.
+    controller.eastWestVehicle.push(
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z + poleZ,
+            yaw: Math.PI / 2,
+            poleHeight: 6.8,
+            armLength: eastWestArmLength
+        }),
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z - poleZ,
+            yaw: -Math.PI / 2,
+            poleHeight: 6.8,
+            armLength: eastWestArmLength
+        })
+    );
+
+    // East approach, two roadside signals.
+    controller.eastWestVehicle.push(
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z - poleZ,
+            yaw: -Math.PI / 2,
+            poleHeight: 6.8,
+            armLength: eastWestArmLength
+        }),
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z + poleZ,
+            yaw: Math.PI / 2,
+            poleHeight: 6.8,
+            armLength: eastWestArmLength
+        })
+    );
+
+    registerPedestrianCrosswalkSignals({
+        centerZ: z,
+        roadHalfWidth: MAIN_ROAD_HALF_WIDTH,
+        crossRoadHalfWidth: SIGNAL_ROAD_HALF_WIDTH,
+        controller
+    });
+
     trafficSignalControllers.push(controller);
 }
 
-for (const z of signalIntersections) createIntersectionSignals(z, "signal");
-for (const z of majorIntersections) createIntersectionSignals(z, "major");
-createIntersectionSignals(0, "scramble");
+function createLargeIntersectionSignals(z, scramble = false) {
+    const controller = {
+        kind: scramble ? "scramble" : "large",
+        northSouthVehicle: [],
+        eastWestVehicle: [],
+        pedestrianAcrossMain: [],
+        pedestrianAcrossCrossRoad: []
+    };
+
+    const poleX =
+        MAIN_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 0.9;
+
+    const poleZ =
+        MAJOR_ROAD_HALF_WIDTH + STANDARD_SIDEWALK_WIDTH + 0.9;
+
+    const armLength = 7.2;
+
+    // South approach, roadside signals on both sides.
+    controller.northSouthVehicle.push(
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z - poleZ,
+            yaw: 0,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: scramble
+        }),
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z - poleZ,
+            yaw: Math.PI,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: false
+        })
+    );
+
+    // North approach, roadside signals on both sides.
+    controller.northSouthVehicle.push(
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z + poleZ,
+            yaw: Math.PI,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: scramble
+        }),
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z + poleZ,
+            yaw: 0,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: false
+        })
+    );
+
+    // West approach, roadside signals on both sides.
+    controller.eastWestVehicle.push(
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z + poleZ,
+            yaw: Math.PI / 2,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: scramble
+        }),
+        createRoadsideVehicleSignal({
+            x: -poleX,
+            z: z - poleZ,
+            yaw: -Math.PI / 2,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: false
+        })
+    );
+
+    // East approach, roadside signals on both sides.
+    controller.eastWestVehicle.push(
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z - poleZ,
+            yaw: -Math.PI / 2,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: scramble
+        }),
+        createRoadsideVehicleSignal({
+            x: poleX,
+            z: z + poleZ,
+            yaw: Math.PI / 2,
+            poleHeight: 7.5,
+            armLength,
+            scrambleSign: false
+        })
+    );
+
+    // Median-side auxiliary signals.
+    controller.northSouthVehicle.push(
+        createLowAuxiliaryVehicleSignal({
+            x: MEDIAN_WIDTH / 2 + 0.45,
+            z: z - MAJOR_ROAD_HALF_WIDTH - 1.0,
+            yaw: 0
+        }),
+        createLowAuxiliaryVehicleSignal({
+            x: -MEDIAN_WIDTH / 2 - 0.45,
+            z: z + MAJOR_ROAD_HALF_WIDTH + 1.0,
+            yaw: Math.PI
+        })
+    );
+
+    controller.eastWestVehicle.push(
+        createLowAuxiliaryVehicleSignal({
+            x: -MAIN_ROAD_HALF_WIDTH - 1.0,
+            z: z - MEDIAN_WIDTH / 2 - 0.45,
+            yaw: Math.PI / 2
+        }),
+        createLowAuxiliaryVehicleSignal({
+            x: MAIN_ROAD_HALF_WIDTH + 1.0,
+            z: z + MEDIAN_WIDTH / 2 + 0.45,
+            yaw: -Math.PI / 2
+        })
+    );
+
+    registerPedestrianCrosswalkSignals({
+        centerZ: z,
+        roadHalfWidth: MAIN_ROAD_HALF_WIDTH,
+        crossRoadHalfWidth: MAJOR_ROAD_HALF_WIDTH,
+        controller
+    });
+
+    trafficSignalControllers.push(controller);
+}
+
+// 125m intersections intentionally receive no signals.
+
+for (const z of signalIntersections) {
+    createMediumIntersectionSignals(z);
+}
+
+for (const z of majorIntersections) {
+    createLargeIntersectionSignals(z, false);
+}
+
+createLargeIntersectionSignals(0, true);
+
+function getSignalPhase(controller, timeSeconds) {
+    let phases;
+
+    if (controller.kind === "medium") {
+        // 250m: the wider north-south road receives more green time.
+        phases = [
+            [32, "northSouthGreen"],
+            [4, "northSouthYellow"],
+            [3, "allRed"],
+            [18, "eastWestGreen"],
+            [4, "eastWestYellow"],
+            [3, "allRed"]
+        ];
+    } else if (controller.kind === "large") {
+        // 500m: equal timing for both road directions.
+        phases = [
+            [25, "northSouthGreen"],
+            [4, "northSouthYellow"],
+            [3, "allRed"],
+            [25, "eastWestGreen"],
+            [4, "eastWestYellow"],
+            [3, "allRed"]
+        ];
+    } else {
+        // Scramble: a longer exclusive pedestrian phase.
+        phases = [
+            [18, "northSouthGreen"],
+            [4, "northSouthYellow"],
+            [3, "allRed"],
+            [18, "eastWestGreen"],
+            [4, "eastWestYellow"],
+            [3, "allRed"],
+            [28, "allPedestrianGreen"],
+            [5, "allPedestrianBlink"],
+            [3, "allRed"]
+        ];
+    }
+
+    const cycleLength = phases.reduce(
+        (sum, phase) => sum + phase[0],
+        0
+    );
+
+    let cursor = timeSeconds % cycleLength;
+
+    for (const [duration, phaseName] of phases) {
+        if (cursor < duration) {
+            return phaseName;
+        }
+
+        cursor -= duration;
+    }
+
+    return "allRed";
+}
 
 function updateTrafficSignals(timeSeconds) {
     for (const controller of trafficSignalControllers) {
-        let phases;
-        if (controller.kind === "signal") {
-            // 250m: main boulevard receives the longer green.
-            phases = [
-                [32, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
-                [18, "ewGreen"], [4, "ewYellow"], [3, "allRed"]
-            ];
-        } else if (controller.kind === "major") {
-            // 500m: equal green time in both directions.
-            phases = [
-                [25, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
-                [25, "ewGreen"], [4, "ewYellow"], [3, "allRed"]
-            ];
-        } else {
-            // Scramble: longer all-pedestrian phase.
-            phases = [
-                [18, "nsGreen"], [4, "nsYellow"], [3, "allRed"],
-                [18, "ewGreen"], [4, "ewYellow"], [3, "allRed"],
-                [28, "pedAll"], [5, "pedBlink"], [3, "allRed"]
-            ];
+        const phase = getSignalPhase(controller, timeSeconds);
+
+        const northSouthVehicleState =
+            phase === "northSouthGreen"
+                ? "green"
+                : phase === "northSouthYellow"
+                    ? "yellow"
+                    : "red";
+
+        const eastWestVehicleState =
+            phase === "eastWestGreen"
+                ? "green"
+                : phase === "eastWestYellow"
+                    ? "yellow"
+                    : "red";
+
+        for (const head of controller.northSouthVehicle) {
+            setVehicleSignalState(head, northSouthVehicleState);
         }
 
-        const cycle = phases.reduce((sum, phase) => sum + phase[0], 0);
-        let cursor = timeSeconds % cycle;
-        let state = "allRed";
-        for (const [duration, name] of phases) {
-            if (cursor < duration) { state = name; break; }
-            cursor -= duration;
+        for (const head of controller.eastWestVehicle) {
+            setVehicleSignalState(head, eastWestVehicleState);
         }
 
-        for (const head of controller.nsVehicle) {
-            setVehicleSignal(head, state === "nsGreen" ? "green" : state === "nsYellow" ? "yellow" : "red");
-        }
-        for (const head of controller.ewVehicle) {
-            setVehicleSignal(head, state === "ewGreen" ? "green" : state === "ewYellow" ? "yellow" : "red");
+        const scramblePedestrianGreen =
+            phase === "allPedestrianGreen" ||
+            phase === "allPedestrianBlink";
+
+        const pedestrianBlink =
+            phase === "allPedestrianBlink";
+
+        // These pedestrians cross the north-south main road,
+        // so they may walk when east-west vehicles have green.
+        const acrossMainGreen =
+            scramblePedestrianGreen ||
+            (
+                controller.kind !== "scramble" &&
+                phase === "eastWestGreen"
+            );
+
+        // These pedestrians cross the east-west road,
+        // so they may walk when north-south vehicles have green.
+        const acrossCrossRoadGreen =
+            scramblePedestrianGreen ||
+            (
+                controller.kind !== "scramble" &&
+                phase === "northSouthGreen"
+            );
+
+        for (const head of controller.pedestrianAcrossMain) {
+            setPedestrianSignalState(
+                head,
+                acrossMainGreen ? "green" : "red",
+                pedestrianBlink
+            );
         }
 
-        const allPed = state === "pedAll" || state === "pedBlink";
-        const nsPedGreen = controller.kind !== "scramble" && state === "ewGreen";
-        const ewPedGreen = controller.kind !== "scramble" && state === "nsGreen";
-        for (const head of controller.nsPed) setPedestrianSignal(head, allPed || nsPedGreen ? "green" : "red", state === "pedBlink");
-        for (const head of controller.ewPed) setPedestrianSignal(head, allPed || ewPedGreen ? "green" : "red", state === "pedBlink");
+        for (const head of controller.pedestrianAcrossCrossRoad) {
+            setPedestrianSignalState(
+                head,
+                acrossCrossRoadGreen ? "green" : "red",
+                pedestrianBlink
+            );
+        }
     }
 }
 
