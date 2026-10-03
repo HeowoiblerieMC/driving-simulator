@@ -273,98 +273,112 @@ function createCrosswalkAcrossZ(centerX, roadWidth, centerZ) {
 
 // ======================================
 // JAPANESE-STYLE ROAD ARROWS
-// Long, narrow arrows, one per lane.
-// Local +Y is the forward direction before rotation.
+// Replace this entire block through the line immediately before:
+// // INTERSECTION LISTS
 // ======================================
 
 function createStraightArrowShape() {
-    const halfLength = 3.8;
-    const shaftHalfWidth = 0.17;
-    const headBaseY = 1.65;
-    const headHalfWidth = 0.72;
-
     const shape = new THREE.Shape();
-    shape.moveTo(-shaftHalfWidth, -halfLength);
-    shape.lineTo(shaftHalfWidth, -halfLength);
+
+    const shaftHalfWidth = 0.18;
+    const rearY = -3.8;
+    const headBaseY = 1.55;
+    const headHalfWidth = 0.75;
+    const tipY = 3.8;
+
+    shape.moveTo(-shaftHalfWidth, rearY);
+    shape.lineTo(shaftHalfWidth, rearY);
     shape.lineTo(shaftHalfWidth, headBaseY);
     shape.lineTo(headHalfWidth, headBaseY);
-    shape.lineTo(0, halfLength);
+    shape.lineTo(0, tipY);
     shape.lineTo(-headHalfWidth, headBaseY);
     shape.lineTo(-shaftHalfWidth, headBaseY);
     shape.closePath();
+
     return shape;
 }
 
-function createTurnArrowShape(turnDirection) {
-    const mirror = turnDirection === "right" ? -1 : 1;
-    const shaftHalfWidth = 0.17;
-    const rearY = -3.8;
-    const curveStartY = 0.25;
-    const branchY = 1.15;
-    const branchInnerX = 0.55 * mirror;
-    const branchBaseX = 1.65 * mirror;
-    const tipX = 2.85 * mirror;
-    const headHalfHeight = 0.72;
-
+function createRightTurnArrowShape() {
     const shape = new THREE.Shape();
+
+    const shaftHalfWidth = 0.18;
+    const rearY = -3.8;
+    const curveStartY = 0.1;
+    const turnCenterY = 1.15;
+    const innerTurnX = -0.55;
+    const arrowBaseX = -1.65;
+    const arrowTipX = -2.95;
+    const arrowHalfHeight = 0.72;
+
+    // The base arrow points toward local +Y.
+    // After the road mesh is laid flat, local -X is the driver's right.
     shape.moveTo(-shaftHalfWidth, rearY);
     shape.lineTo(shaftHalfWidth, rearY);
     shape.lineTo(shaftHalfWidth, curveStartY);
 
-    if (mirror < 0) {
-        shape.bezierCurveTo(
-            shaftHalfWidth,
-            0.7,
-            0.05,
-            branchY,
-            branchInnerX,
-            branchY
-        );
-        shape.lineTo(branchBaseX, branchY);
-        shape.lineTo(branchBaseX, branchY - headHalfHeight);
-        shape.lineTo(tipX, branchY);
-        shape.lineTo(branchBaseX, branchY + headHalfHeight);
-        shape.lineTo(branchBaseX, branchY + 0.34);
-        shape.lineTo(branchInnerX, branchY + 0.34);
-        shape.bezierCurveTo(
-            -0.62,
-            1.49,
-            -shaftHalfWidth,
-            0.85,
-            -shaftHalfWidth,
-            curveStartY
-        );
-    } else {
-        shape.bezierCurveTo(
-            shaftHalfWidth,
-            0.85,
-            0.62,
-            1.49,
-            branchInnerX,
-            branchY + 0.34
-        );
-        shape.lineTo(branchBaseX, branchY + 0.34);
-        shape.lineTo(branchBaseX, branchY + headHalfHeight);
-        shape.lineTo(tipX, branchY);
-        shape.lineTo(branchBaseX, branchY - headHalfHeight);
-        shape.lineTo(branchBaseX, branchY);
-        shape.lineTo(branchInnerX, branchY);
-        shape.bezierCurveTo(
-            -0.05,
-            branchY,
-            -shaftHalfWidth,
-            0.7,
-            -shaftHalfWidth,
-            curveStartY
-        );
-    }
+    shape.bezierCurveTo(
+        shaftHalfWidth,
+        0.75,
+        -0.05,
+        turnCenterY,
+        innerTurnX,
+        turnCenterY
+    );
+
+    shape.lineTo(arrowBaseX, turnCenterY);
+    shape.lineTo(arrowBaseX, turnCenterY - arrowHalfHeight);
+    shape.lineTo(arrowTipX, turnCenterY);
+    shape.lineTo(arrowBaseX, turnCenterY + arrowHalfHeight);
+    shape.lineTo(arrowBaseX, turnCenterY + 0.34);
+    shape.lineTo(innerTurnX, turnCenterY + 0.34);
+
+    shape.bezierCurveTo(
+        -0.62,
+        turnCenterY + 0.34,
+        -shaftHalfWidth,
+        0.82,
+        -shaftHalfWidth,
+        curveStartY
+    );
 
     shape.lineTo(-shaftHalfWidth, rearY);
     shape.closePath();
+
     return shape;
 }
 
-function createRoadArrow(x, z, direction = 0, type = "straight") {
+function createTurnArrowShape(turnDirection) {
+    const rightShape = createRightTurnArrowShape();
+
+    if (turnDirection === "right") {
+        return rightShape;
+    }
+
+    // Build the left arrow by mirroring the completed right-arrow geometry.
+    // This prevents the two BÃ©zier branches from having different shapes.
+    const points = rightShape.extractPoints(24).shape;
+    const leftShape = new THREE.Shape();
+
+    if (points.length === 0) {
+        return leftShape;
+    }
+
+    leftShape.moveTo(-points[0].x, points[0].y);
+
+    for (let i = 1; i < points.length; i++) {
+        leftShape.lineTo(-points[i].x, points[i].y);
+    }
+
+    leftShape.closePath();
+    return leftShape;
+}
+
+function createRoadArrow(
+    x,
+    z,
+    direction = 0,
+    type = "straight"
+) {
     let shape;
 
     if (type === "right") {
@@ -379,12 +393,19 @@ function createRoadArrow(x, z, direction = 0, type = "straight") {
         new THREE.ShapeGeometry(shape),
         whiteMarkingMaterial
     );
+
+    // Shape +Y becomes world -Z before the Y-axis direction rotation.
     arrowMesh.rotation.x = -Math.PI / 2;
 
     const arrowGroup = new THREE.Group();
     arrowGroup.add(arrowMesh);
-    arrowGroup.position.set(x, MARKING_Y + 0.015, z);
+    arrowGroup.position.set(
+        x,
+        MARKING_Y + 0.015,
+        z
+    );
     arrowGroup.rotation.y = direction;
+
     scene.add(arrowGroup);
     return arrowGroup;
 }
