@@ -1473,6 +1473,350 @@ for (
 }
 
 // ======================================
+// OUTER RING ROAD
+// Rounded rectangular road around the map
+// Four lanes total: two lanes in each direction
+// No median; yellow solid center line
+// ======================================
+
+const OUTER_RING_ENABLED = true;
+
+// Current ground is 10000 x 10000 Three.js units.
+const LAND_HALF_SIZE = 5000;
+
+// Center line of each straight section.
+const OUTER_RING_OFFSET = 4500;
+
+// Radius of the four rounded corners.
+const OUTER_RING_CORNER_RADIUS = 520;
+
+// Two lanes in each direction, four lanes total.
+const OUTER_RING_LANES_PER_DIRECTION = 2;
+const OUTER_RING_ROAD_WIDTH =
+    LANE_WIDTH * OUTER_RING_LANES_PER_DIRECTION * 2;
+const OUTER_RING_ROAD_HALF_WIDTH =
+    OUTER_RING_ROAD_WIDTH / 2;
+
+// Sidewalks on both sides of the ring road.
+const OUTER_RING_SIDEWALK_WIDTH = STANDARD_SIDEWALK_WIDTH;
+
+// Line settings.
+const OUTER_RING_CENTER_LINE_WIDTH = 0.24;
+const OUTER_RING_LANE_LINE_WIDTH = 0.18;
+const OUTER_RING_DASH_LENGTH = 8;
+const OUTER_RING_DASH_GAP = 12;
+
+// More segments make the four corners smoother.
+const OUTER_RING_CORNER_SEGMENTS = 48;
+
+function createRoundedRectanglePath(
+    halfExtent,
+    cornerRadius,
+    cornerSegments
+) {
+    const points = [];
+    const straightLimit = halfExtent - cornerRadius;
+
+    function addCorner(centerX, centerZ, startAngle) {
+        for (let i = 0; i < cornerSegments; i++) {
+            const progress = i / cornerSegments;
+            const angle = startAngle - progress * Math.PI / 2;
+
+            points.push(
+                new THREE.Vector2(
+                    centerX + Math.cos(angle) * cornerRadius,
+                    centerZ + Math.sin(angle) * cornerRadius
+                )
+            );
+        }
+    }
+
+    // Clockwise path: north-east, south-east,
+    // south-west and north-west corners.
+    addCorner(straightLimit, straightLimit, Math.PI / 2);
+    addCorner(straightLimit, -straightLimit, 0);
+    addCorner(-straightLimit, -straightLimit, -Math.PI / 2);
+    addCorner(-straightLimit, straightLimit, -Math.PI);
+
+    return points;
+}
+
+function getClosedPathFrame(points, index) {
+    const pointCount = points.length;
+    const previous = points[(index - 1 + pointCount) % pointCount];
+    const current = points[index];
+    const next = points[(index + 1) % pointCount];
+
+    const tangent = next.clone().sub(previous).normalize();
+    const normal = new THREE.Vector2(-tangent.y, tangent.x);
+
+    return {
+        current,
+        tangent,
+        normal
+    };
+}
+
+function createClosedRibbonGeometry(
+    points,
+    centerOffset,
+    ribbonWidth,
+    y
+) {
+    const vertices = [];
+    const indices = [];
+    const halfWidth = ribbonWidth / 2;
+    const pointCount = points.length;
+
+    for (let i = 0; i < pointCount; i++) {
+        const frame = getClosedPathFrame(points, i);
+
+        const ribbonCenter = frame.current.clone().add(
+            frame.normal.clone().multiplyScalar(centerOffset)
+        );
+
+        const left = ribbonCenter.clone().add(
+            frame.normal.clone().multiplyScalar(halfWidth)
+        );
+
+        const right = ribbonCenter.clone().add(
+            frame.normal.clone().multiplyScalar(-halfWidth)
+        );
+
+        vertices.push(
+            left.x,
+            y,
+            left.y,
+            right.x,
+            y,
+            right.y
+        );
+    }
+
+    for (let i = 0; i < pointCount; i++) {
+        const nextIndex = (i + 1) % pointCount;
+
+        const leftA = i * 2;
+        const rightA = leftA + 1;
+        const leftB = nextIndex * 2;
+        const rightB = leftB + 1;
+
+        indices.push(
+            leftA,
+            rightA,
+            leftB,
+            rightA,
+            rightB,
+            leftB
+        );
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(vertices, 3)
+    );
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+
+    return geometry;
+}
+
+function createClosedRibbon(
+    points,
+    centerOffset,
+    ribbonWidth,
+    y,
+    material
+) {
+    const mesh = new THREE.Mesh(
+        createClosedRibbonGeometry(
+            points,
+            centerOffset,
+            ribbonWidth,
+            y
+        ),
+        material
+    );
+
+    scene.add(mesh);
+    return mesh;
+}
+
+function buildClosedPathDistanceTable(points) {
+    const distances = [0];
+    let totalLength = 0;
+
+    for (let i = 0; i < points.length; i++) {
+        const nextIndex = (i + 1) % points.length;
+        totalLength += points[i].distanceTo(points[nextIndex]);
+        distances.push(totalLength);
+    }
+
+    return {
+        distances,
+        totalLength
+    };
+}
+
+function sampleClosedPath(points, distanceTable, distance) {
+    const totalLength = distanceTable.totalLength;
+    const wrappedDistance =
+        ((distance % totalLength) + totalLength) % totalLength;
+
+    let segmentIndex = 0;
+
+    while (
+        segmentIndex < points.length - 1 &&
+        distanceTable.distances[segmentIndex + 1] < wrappedDistance
+    ) {
+        segmentIndex++;
+    }
+
+    const nextIndex = (segmentIndex + 1) % points.length;
+    const segmentStart = distanceTable.distances[segmentIndex];
+    const segmentEnd = distanceTable.distances[segmentIndex + 1];
+    const segmentLength = Math.max(segmentEnd - segmentStart, 0.0001);
+    const progress = (wrappedDistance - segmentStart) / segmentLength;
+
+    const point = points[segmentIndex]
+        .clone()
+        .lerp(points[nextIndex], progress);
+
+    const tangent = points[nextIndex]
+        .clone()
+        .sub(points[segmentIndex])
+        .normalize();
+
+    const normal = new THREE.Vector2(-tangent.y, tangent.x);
+
+    return {
+        point,
+        tangent,
+        normal
+    };
+}
+
+function createDashedRingLine(
+    points,
+    centerOffset,
+    lineWidth,
+    dashLength,
+    dashGap,
+    y,
+    material
+) {
+    const distanceTable = buildClosedPathDistanceTable(points);
+    const cycleLength = dashLength + dashGap;
+
+    for (
+        let distance = 0;
+        distance < distanceTable.totalLength;
+        distance += cycleLength
+    ) {
+        const sample = sampleClosedPath(
+            points,
+            distanceTable,
+            distance + dashLength / 2
+        );
+
+        const center = sample.point.clone().add(
+            sample.normal.clone().multiplyScalar(centerOffset)
+        );
+
+        const dash = new THREE.Mesh(
+            new THREE.BoxGeometry(
+                lineWidth,
+                0.035,
+                dashLength
+            ),
+            material
+        );
+
+        dash.position.set(center.x, y, center.y);
+        dash.rotation.y = Math.atan2(
+            sample.tangent.x,
+            sample.tangent.y
+        );
+
+        scene.add(dash);
+    }
+}
+
+function createOuterRingRoad() {
+    if (!OUTER_RING_ENABLED) {
+        return;
+    }
+
+    const ringPath = createRoundedRectanglePath(
+        OUTER_RING_OFFSET,
+        OUTER_RING_CORNER_RADIUS,
+        OUTER_RING_CORNER_SEGMENTS
+    );
+
+    // Four-lane asphalt road.
+    createClosedRibbon(
+        ringPath,
+        0,
+        OUTER_RING_ROAD_WIDTH,
+        ROAD_Y + 0.006,
+        majorRoadMaterial
+    );
+
+    // Solid yellow center line. No central median is created.
+    createClosedRibbon(
+        ringPath,
+        0,
+        OUTER_RING_CENTER_LINE_WIDTH,
+        MARKING_Y + 0.02,
+        yellowMarkingMaterial
+    );
+
+    // White dashed line separating the two lanes in each direction.
+    createDashedRingLine(
+        ringPath,
+        LANE_WIDTH,
+        OUTER_RING_LANE_LINE_WIDTH,
+        OUTER_RING_DASH_LENGTH,
+        OUTER_RING_DASH_GAP,
+        MARKING_Y + 0.02,
+        whiteMarkingMaterial
+    );
+
+    createDashedRingLine(
+        ringPath,
+        -LANE_WIDTH,
+        OUTER_RING_LANE_LINE_WIDTH,
+        OUTER_RING_DASH_LENGTH,
+        OUTER_RING_DASH_GAP,
+        MARKING_Y + 0.02,
+        whiteMarkingMaterial
+    );
+
+    // Sidewalk on the outside of the ring road.
+    createClosedRibbon(
+        ringPath,
+        OUTER_RING_ROAD_HALF_WIDTH +
+            OUTER_RING_SIDEWALK_WIDTH / 2,
+        OUTER_RING_SIDEWALK_WIDTH,
+        SIDEWALK_Y + 0.01,
+        sidewalkMaterial
+    );
+
+    // Sidewalk on the inside of the ring road.
+    createClosedRibbon(
+        ringPath,
+        -OUTER_RING_ROAD_HALF_WIDTH -
+            OUTER_RING_SIDEWALK_WIDTH / 2,
+        OUTER_RING_SIDEWALK_WIDTH,
+        SIDEWALK_Y + 0.01,
+        sidewalkMaterial
+    );
+}
+
+createOuterRingRoad();
+
+// ======================================
 // TRAFFIC SIGNAL SYSTEM
 // 125m: no signals
 // 250m: roadside signals on both sides
